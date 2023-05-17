@@ -1,5 +1,5 @@
 <?php
-define('UPDATE_URL', 'https://update.uniquecoder.com/');
+define('UPDATE_URL', 'https://f3solution.com');
 define('TEMP_FOLDER', FCPATH . 'uploads/temp' . '/');
 define('PurchaseitemID', '16292398');
 

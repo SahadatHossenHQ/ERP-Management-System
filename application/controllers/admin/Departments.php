@@ -9,7 +9,6 @@
 /**
  * Description of department
  *
- * @author Uniquecoder
  */
 class Departments extends Admin_Controller
 {

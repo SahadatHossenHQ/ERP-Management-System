@@ -510,7 +510,7 @@ class Mailbox extends Admin_Controller
             //            }
 
             // Send email
-            $config['useragent'] = 'UniqueCoder LTD';
+            $config['useragent'] = 'F3 Solution';
             $config['mailpath'] = "/usr/bin/sendmail"; // or "/usr/sbin/sendmail"
             $config['wordwrap'] = TRUE;
             $config['mailtype'] = "html";
