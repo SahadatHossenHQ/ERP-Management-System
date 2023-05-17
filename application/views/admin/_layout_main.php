@@ -158,9 +158,11 @@ if (empty($timezone)) {
     <!-- Page footer-->
     <footer>
         <div class="pull-right hidden-xs">
-            <?= '<b>' . lang('version') . '</b> ' . config_item('version') ?>
+<!--            --><?php //= '<b>' . lang('version') . '</b> ' . config_item('version') ?>
         </div>
-        <strong>&copy; <a
+        <strong>&copy;
+            <span><?= date('Y')?></span>
+            <a
                     href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a>.</strong>
         All rights reserved.
     </footer>
