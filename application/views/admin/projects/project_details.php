@@ -84,8 +84,8 @@ $edited = can_action('57', 'edited');
 <div class="row">
     <div class="col-sm-2">
         <?php if (!empty($can_edit) && !empty($edited)) { ?>
-            <span data-placement="top" data-toggle="tooltip" title="<?= lang('generate_invoice') ?>">
-                <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>" class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('invoice') ?>
+            <span data-placement="top" data-toggle="tooltip" title="<?= lang('generate_bill') ?>">
+                <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>" class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('bill_received') ?>
                 </a>
             </span>
 
@@ -116,8 +116,8 @@ $edited = can_action('57', 'edited');
             </li>
             <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments" data-toggle="tab"><?= lang('attachment') ?><strong class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 5 ? 'active' : '' ?>"><a href="#milestones" data-toggle="tab"><?= lang('milestones') ?><strong class="pull-right"><?= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?></strong></a>
-            </li>
+<!--            <li class="--><?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">--><?php //= lang('milestones') ?><!--<strong class="pull-right">--><?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
+<!--            </li>-->
             <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
                     <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
             </li>
@@ -132,7 +132,7 @@ $edited = can_action('57', 'edited');
             <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets" data-toggle="tab"><?= lang('tickets') ?><strong class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
             </li>
 
-            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice" data-toggle="tab"><?= lang('invoice') ?><strong class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
+            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice" data-toggle="tab"><?= lang('bill_received') ?><strong class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note" data-toggle="tab"><?= lang('credit_note') ?><strong class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
             </li>
@@ -2780,7 +2780,7 @@ $edited = can_action('57', 'edited');
                 <div class="tab-pane <?= $active == 11 ? 'active' : '' ?>" id="invoice" style="position: relative;">
                     <div class="panel panel-custom">
                         <div class="panel-heading">
-                            <h3 class="panel-title"><?= lang('invoice') ?></h3>
+                            <h3 class="panel-title"><?= lang('bill_received') ?></h3>
                         </div>
                         <div class="panel-body">
 
@@ -2788,7 +2788,7 @@ $edited = can_action('57', 'edited');
                                 <table id="table-invoice" class="table table-striped ">
                                     <thead>
                                         <tr>
-                                            <th><?= lang('invoice') ?></th>
+                                            <th><?= lang('bill_received') ?></th>
                                             <th class="col-date"><?= lang('due_date') ?></th>
                                             <th class="col-currency"><?= lang('amount') ?></th>
                                             <th class="col-currency"><?= lang('due_amount') ?></th>

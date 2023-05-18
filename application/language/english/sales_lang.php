@@ -153,6 +153,7 @@ $lang['item_added_successfully'] = 'Invoice item added successfully!';
 $lang['item_deleted_successfully'] = 'Item deleted successfully!';
 $lang['invoices'] = 'Invoices';
 $lang['invoice'] = 'Invoice';
+$lang['bill_received'] = 'Bill Received';
 $lang['invoice_amount'] = 'Invoice Amount';
 $lang['invoice_dashboard'] = 'Invoice Dashboard';
 $lang['invoice_code'] = 'Invoice Code';
