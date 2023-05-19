@@ -57,7 +57,7 @@ class Requisition extends Admin_Controller
                 $type = "error";
                 $message = lang('no_record_found');
                 set_message($type, $message);
-                redirect('admin/estimates');
+                redirect('admin/requisition');
             }
             $subview = 'requisition_details';
         } elseif ($action == 'estimates_history') {
