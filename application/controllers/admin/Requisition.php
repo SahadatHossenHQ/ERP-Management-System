@@ -75,8 +75,8 @@ class Requisition extends Admin_Controller
             $viewfile = $this->load->view('admin/estimates/estimates_pdf', $data, TRUE);
             pdf_create($viewfile, slug_it('Estimates  # ' . $data['estimates_info']->reference_no));
         } else {
-            $data['title'] = "Estimates"; //Page title
-            $subview = 'estimates';
+            $data['title'] = "Requisition"; //Page title
+            $subview = 'requisition';
         }
         $data['subview'] = $this->load->view('admin/requisition/' . $subview, $data, true);
         $this->load->view('admin/_layout_main', $data); //page load
@@ -92,7 +92,7 @@ class Requisition extends Admin_Controller
     }
 
 
-    public function estimatesList($filterBy = null, $search_by = null)
+    public function requisitionList($filterBy = null, $search_by = null)
     {
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
@@ -132,14 +132,14 @@ class Requisition extends Admin_Controller
                     } else {
                         $month = date('Y-m');
                     }
-                    $where = array('estimate_month' => $month);
+                    $where = array('requisition_month' => $month);
                 } else if ($filterBy == 'expired') {
                     $where = array('UNIX_TIMESTAMP(due_date) <' => strtotime(date('Y-m-d')));
                     $status = array('draft', 'pending');
                     $where_in = array('status', $status);
                 } else if (strstr($filterBy, '_')) {
                     $year = str_replace('_', '', $filterBy);
-                    $where = array('estimate_year' => $year);
+                    $where = array('requisition_year' => $year);
                 } else if (!empty($filterBy) && $filterBy != 'all') {
                     $where = array('status' => $filterBy);
                 }
@@ -154,8 +154,8 @@ class Requisition extends Admin_Controller
             foreach ($fetch_data as $_key => $v_estimates) {
                 if (!empty($v_estimates)) {
                     $action = null;
-                    $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $v_estimates->estimates_id));
-                    $can_delete = $this->requisition_model->can_action('tbl_requisitions', 'delete', array('requisition_id' => $v_estimates->estimates_id));
+                    $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $v_estimates->requisition_id));
+                    $can_delete = $this->requisition_model->can_action('tbl_requisitions', 'delete', array('requisition_id' => $v_estimates->requisition_id));
 
                     if ($v_estimates->status == 'pending') {
                         $label = "info";
@@ -167,7 +167,7 @@ class Requisition extends Admin_Controller
 
                     $sub_array = array();
                     $name = null;
-                    $name .= '<a class="text-info" href="' . base_url() . 'admin/estimates/index/estimates_details/' . $v_estimates->estimates_id . '">' . $v_estimates->reference_no . '</a>';
+                    $name .= '<a class="text-info" href="' . base_url() . 'admin/requisition/index/requisition_details/' . $v_estimates->requisition_id . '">' . $v_estimates->reference_no . '</a>';
                     if ($v_estimates->invoiced == 'Yes') {
                         $invoice_info = $this->db->where('invoices_id', $v_estimates->invoices_id)->get('tbl_invoices')->row();
                         if (!empty($invoice_info)) {
@@ -175,7 +175,7 @@ class Requisition extends Admin_Controller
                         }
                     }
                     $sub_array[] = $name;
-                    $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->estimate_date));
+                    $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->requisition_date));
                     $overdue = null;
                     if (strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == 'pending' || strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == ('draft')) {
                         $overdue .= '<span class="label label-danger ">' . lang("expired") . '</span>';
@@ -184,12 +184,12 @@ class Requisition extends Admin_Controller
 
                     $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
 
-                    $sub_array[] = display_money($this->requisition_model->estimate_calculation('total', $v_estimates->estimates_id), client_currency($v_estimates->client_id));
+                    $sub_array[] = display_money($this->requisition_model->requisition_calculation('total', $v_estimates->requisition_id), client_currency($v_estimates->client_id));
                     $sub_array[] = "<span class='tags label label-" . $label . "'>" . lang($v_estimates->status) . "</span>";
 
                     $sub_array[] = get_tags($v_estimates->tags, true);
 
-                    $custom_form_table = custom_form_table(10, $v_estimates->estimates_id);
+                    $custom_form_table = custom_form_table(10, $v_estimates->requisition_id);
 
                     if (!empty($custom_form_table)) {
                         foreach ($custom_form_table as $c_label => $v_fields) {
@@ -198,28 +198,28 @@ class Requisition extends Admin_Controller
                     }
                     if (!empty($can_edit) && !empty($edited)) {
                         $action .= '<a data-toggle="modal" data-target="#myModal"
-                                                               title="' . lang('clone') . ' ' . lang('estimate') . '"
-                                                               href="' . base_url() . 'admin/estimates/clone_estimate/' . $v_estimates->estimates_id . '"
+                                                               title="' . lang('clone') . ' ' . lang('requisition') . '"
+                                                               href="' . base_url() . 'admin/estimates/clone_estimate/' . $v_estimates->requisition_id . '"
                                                                class="btn btn-xs btn-purple">
                                                                 <i class="fa fa-copy"></i></a>' . ' ';
-                        $action .= btn_edit('admin/estimates/index/edit_estimates/' . $v_estimates->estimates_id) . ' ';
+                        $action .= btn_edit('admin/estimates/index/edit_estimates/' . $v_estimates->requisition_id) . ' ';
                     }
                     if (!empty($can_delete) && !empty($deleted)) {
-                        $action .= ajax_anchor(base_url("admin/estimates/delete/delete_estimates/$v_estimates->estimates_id"), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
+                        $action .= ajax_anchor(base_url("admin/requisition/delete/delete_estimates/$v_estimates->requisition_id"), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
                     }
                     $change_status = null;
                     if (!empty($can_edit) && !empty($edited)) {
-                        $ch_url = base_url() . 'admin/estimates/';
+                        $ch_url = base_url() . 'admin/requisition/';
                         $change_status .= '<div class="btn-group">
         <button class="btn btn-xs btn-default dropdown-toggle"
                 data-toggle="dropdown">
             <span class="caret"></span></button>
         <ul class="dropdown-menu animated zoomIn">';
-                        $change_status .= '<li><a href="' . $ch_url . 'index/estimates_details/' . $v_estimates->estimates_id . '">' . lang('preview') . '</a></li>';
-                        $change_status .= '<li><a href="' . $ch_url . 'index/email_estimates' . $v_estimates->estimates_id . '">' . lang('send_email') . '</a></li>';
-                        $change_status .= '<li><a href="' . $ch_url . 'index/estimates_history' . $v_estimates->estimates_id . '">' . lang('history') . '</a></li>';
-                        $change_status .= '<li><a href="' . $ch_url . 'change_status/declined/' . $v_estimates->estimates_id . '">' . lang('declined') . '</a></li>';
-                        $change_status .= '<li><a href="' . $ch_url . 'change_status/accepted/' . $v_estimates->estimates_id . '">' . lang('accepted') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'index/requisition_details/' . $v_estimates->requisition_id . '">' . lang('preview') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'index/email_estimates' . $v_estimates->requisition_id . '">' . lang('send_email') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'index/estimates_history' . $v_estimates->requisition_id . '">' . lang('history') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'change_status/declined/' . $v_estimates->requisition_id . '">' . lang('declined') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'change_status/accepted/' . $v_estimates->requisition_id . '">' . lang('accepted') . '</a></li>';
                         $change_status .= '</ul></div>';
                         $action .= $change_status;
                     }
@@ -932,7 +932,7 @@ class Requisition extends Admin_Controller
                 $currency = $this->requisition_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
             }
 
-            $amount = $this->requisition_model->estimate_calculation('total', $estimates_info->estimates_id);
+            $amount = $this->requisition_model->requisition_calculation('total', $estimates_info->requisition_id);
             $currency = $currency->code;
             $email_template = email_templates(array('email_group' => 'estimate_email'), $estimates_info->client_id);
             $message = $email_template->template_body;

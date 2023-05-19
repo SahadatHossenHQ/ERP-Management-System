@@ -262,13 +262,13 @@ if (is_file(config_item('invoice_logo'))) {
                 ?>
 
                 <div class="pull-right pr-lg">
-                    <h4 class="mb0"><?= lang('estimates') . ' : ' . $estimates_info->reference_no ?></h4>
-                    <?= $language_info['estimate_date'] ?>
+                    <h4 class="mb0"><?= lang('requisition') . ' : ' . $estimates_info->reference_no ?></h4>
+                    <?= $language_info['requisition_date'] ?>
                     : <?= strftime(config_item('date_format'), strtotime($estimates_info->requisition_date)); ?>
                     <br><?= $language_info['due_date'] ?>
                     : <?= strftime(config_item('date_format'), strtotime($estimates_info->due_date)); ?>
                     <?php if (!empty($estimates_info->user_id)) { ?>
-                        <br><?= lang('sales') . ' requisition_details.php' . lang('agent') ?>:<?php echo fullname($estimates_info->user_id); ?>
+                        <br><?= lang('sales') . ' requisition_details.php' . lang('agent') ?> : <?php echo fullname($estimates_info->user_id); ?>
                         <?php
                     }
                     if ($estimates_info->status == 'accepted') {
@@ -277,7 +277,7 @@ if (is_file(config_item('invoice_logo'))) {
                         $label = 'danger';
                     }
                     ?>
-                    <br><?= $language_info['estimate_status'] ?>: <span
+                    <br><?= $language_info['requisition_status'] ?>: <span
                         class="label label-<?= $label ?>"><?= lang($estimates_info->status) ?></span>
 
                     <?php $show_custom_fields = custom_form_label(10, $estimates_info->requisition_id);
