@@ -264,7 +264,7 @@ if (is_file(config_item('invoice_logo'))) {
                 <div class="pull-right pr-lg">
                     <h4 class="mb0"><?= lang('estimates') . ' : ' . $estimates_info->reference_no ?></h4>
                     <?= $language_info['estimate_date'] ?>
-                    : <?= strftime(config_item('date_format'), strtotime($estimates_info->estimate_date)); ?>
+                    : <?= strftime(config_item('date_format'), strtotime($estimates_info->requisition_date)); ?>
                     <br><?= $language_info['due_date'] ?>
                     : <?= strftime(config_item('date_format'), strtotime($estimates_info->due_date)); ?>
                     <?php if (!empty($estimates_info->user_id)) { ?>
@@ -391,7 +391,7 @@ if (is_file(config_item('invoice_logo'))) {
                         $item_name = $v_item->item_name ? $v_item->item_name : $v_item->item_desc;
                         $item_tax_name = json_decode($v_item->item_tax_name);
                         ?>
-                        <tr class="sortable item" data-item-id="<?= $v_item->estimate_items_id ?>">
+                        <tr class="sortable item" data-item-id="<?= $v_item->requisition_items_id ?>">
                             <td class="item_no dragger pl-lg"><?= $key + 1 ?></td>
                             <td><strong class="block"><?= $item_name ?></strong>
                                 <?= nl2br($v_item->item_desc) ?>
@@ -433,7 +433,7 @@ if (is_file(config_item('invoice_logo'))) {
                 <div class="clearfix">
                     <p class="pull-left"><?= $language_info['sub_total'] ?></p>
                     <p class="pull-right mr">
-                        <?= display_money($this->requisition_model->estimate_calculation('estimate_cost', $estimates_info->requisition_id)); ?>
+                        <?= display_money($this->requisition_model->requisition_calculation('estimate_cost', $estimates_info->requisition_id)); ?>
                     </p>
                 </div>
                 <?php if ($estimates_info->discount_total > 0): ?>
@@ -442,7 +442,7 @@ if (is_file(config_item('invoice_logo'))) {
                             (<?php echo $estimates_info->discount_percent; ?>
                             %)</p>
                         <p class="pull-right mr">
-                            <?= display_money($this->requisition_model->estimate_calculation('discount', $estimates_info->requisition_id)); ?>
+                            <?= display_money($this->requisition_model->requisition_calculation('discount', $estimates_info->requisition_id)); ?>
                         </p>
                     </div>
                 <?php endif ?>
@@ -487,7 +487,7 @@ if (is_file(config_item('invoice_logo'))) {
                     <p class="pull-left"><?= $language_info['total'] ?></p>
                     <p class="pull-right mr">
                         <?php
-                        $total_amount = $this->requisition_model->estimate_calculation('total', $estimates_info->requisition_id);
+                        $total_amount = $this->requisition_model->requisition_calculation('total', $estimates_info->requisition_id);
                         echo display_money($total_amount, $currency->symbol);
                         ?>
                     </p>
