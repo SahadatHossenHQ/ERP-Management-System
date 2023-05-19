@@ -13,7 +13,7 @@ $languages = $this->db->where('active', 1)->order_by('name', 'ASC')->get('tbl_la
         <div class="navbar-header">
             <?php if ($display == 'logo' || $display == 'logo_title') { ?>
                 <a href="#/" class="navbar-brand">
-                    <div class="brand-logo" style="padding: 15px 15px;">
+                    <div class="brand-logo" style="padding: 15px 15px;background: #1e1e2d;">
                         <img src="<?= base_url() . config_item('company_logo') ?>" alt="App Logo"
                              style="height: 100px;" class="img-responsive">
                     </div>
