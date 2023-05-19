@@ -76,11 +76,9 @@
         <!-- END panel-->
         <div class="p-lg text-center">
             <span>&copy;</span>
-            <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a></span>
-            <br/>
-            <span>2015-<?= date('Y') ?></span>
-            <span>-</span>
-            <span><?= lang('version') . ' ' . config_item('version') ?></span>
+            <span> <?= date('Y') ?></span>
+            <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a>.</span>
+            <span> All rights reserved.</span>
         </div>
     </div>
 </div>

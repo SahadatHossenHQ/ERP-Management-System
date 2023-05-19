@@ -4,13 +4,6 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-/*
- *	@author : uniquecoder.com
- *	date	: 21 April, 2015
- *	ZiscoERP - Powerfull HR,Accounting,CRM System
- *	http://uniquecoder.com
- *      version: 1.2
- */
 
 class MY_Install
 {

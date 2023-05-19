@@ -38,31 +38,34 @@
     <div class="aside-inner">
         <nav data-sidebar-anyclick-close="" class="sidebar <?= config_item('show-scrollbar') ?>">
             <!-- START sidebar nav-->
-            <ul class="nav">
-                <!-- START user info-->
-                <li class="has-user-block">
-                    <a href="<?= base_url('admin/user/user_details/' . $user_id) ?>">
-                        <div id="user-block" class="block">
-                            <div class="item user-block">
-                                <!-- User picture-->
-                                <div class="user-block-picture">
-                                    <div class="user-block-status">
-                                        <img src="<?= base_url() . $profile_info->avatar ?>" alt="Avatar" width="60"
-                                             height="60"
-                                             class="img-thumbnail img-circle">
-                                        <div class="circle circle-success circle-lg"></div>
-                                    </div>
-                                </div>
-                                <!-- Name and Job-->
-                                <div class="user-block-info">
-                                    <span class="user-block-name"><?= $profile_info->fullname ?></span>
-                                    <span class="user-block-role"></i> <?= lang('online') ?></span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
+
+            <ul class="nav" style="height: 70px">
             </ul>
+<!--            <ul class="nav">-->
+                <!-- START user info-->
+<!--                <li class="has-user-block">-->
+<!--                    <a href="--><?php //= base_url('admin/user/user_details/' . $user_id) ?><!--">-->
+<!--                        <div id="user-block" class="block">-->
+<!--                            <div class="item user-block">-->
+                                <!-- User picture-->
+<!--                                <div class="user-block-picture">-->
+<!--                                    <div class="user-block-status">-->
+<!--                                        <img src="--><?php //= base_url() . $profile_info->avatar ?><!--" alt="Avatar" width="60"-->
+<!--                                             height="60"-->
+<!--                                             class="img-thumbnail img-circle">-->
+<!--                                        <div class="circle circle-success circle-lg"></div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                                <!-- Name and Job-->
+<!--                                <div class="user-block-info">-->
+<!--                                    <span class="user-block-name">--><?php //= $profile_info->fullname ?><!--</span>-->
+<!--                                    <span class="user-block-role"></i> --><?php //= lang('online') ?><!--</span>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </a>-->
+<!--                </li>-->
+<!--            </ul>-->
             <!-- END user info-->
             <div class="inner-addon left-addon" style="width: 95%">
                 <i class="fa fa-search"></i>

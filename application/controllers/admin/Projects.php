@@ -12,6 +12,7 @@ class Projects extends Admin_Controller
         $this->load->model('items_model');
         $this->load->model('invoice_model');
         $this->load->model('estimates_model');
+        $this->load->model('requisition_model');
         $this->load->model('credit_note_model');
         $this->load->model('items_model');
     }

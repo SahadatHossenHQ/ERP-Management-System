@@ -23,8 +23,8 @@ class Migration_Version_119 extends CI_Migration
         $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('qty_calculation_from_items', 'Yes');");
         $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('allow_customer_edit_amount', 'Yes');");
         $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('office_hours', '8');");
-        $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('copyright_name', 'Uniquecoder');");
-        $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('copyright_url', 'https://codecanyon.net/user/unique_coder');");
+        $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('copyright_name','F3 Solution');");
+        $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('copyright_url', 'https://f3solution.com');");
         $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('recaptcha_site_key', ''), ('recaptcha_secret_key', '');");
         $this->db->query("INSERT INTO `tbl_config` (`config_key`, `value`) VALUES ('mark_attendance_from_login', 'Yes');");
         $this->db->query("ALTER TABLE `tbl_leave_application` CHANGE `leave_end_date` `leave_end_date` DATE NULL DEFAULT NULL;");

@@ -232,9 +232,9 @@ $type = $this->session->userdata('c_message');
         </ul>
     <?php } ?>
     <div class="wrapper" style="margin: 20% 0 0 auto">
-        <div class="block-center mt-xl wd-xl">
-            <div class="text-center" style="margin-bottom: 20px">
-                <img style="width: 100%;"
+        <div class="block-center mt-l wd-xl">
+            <div class="text-center" style="margin-bottom: 10px">
+                <img style="width: 70%;"
                      src="<?= base_url() . config_item('company_logo') ?>" class="m-r-sm">
             </div>
             <?= message_box('success'); ?>
@@ -286,11 +286,9 @@ $type = $this->session->userdata('c_message');
             <!-- END panel-->
             <div class="p-lg text-center">
                 <span>&copy;</span>
-                <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a></span>
-                <br/>
-                <span>2015-<?= date('Y') ?></span>
-                <span>-</span>
-                <span><?= lang('version') . ' ' . config_item('version') ?></span>
+                <span> <?= date('Y') ?></span>
+                <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a>.</span>
+                <span> All rights reserved.</span>
             </div>
         </div>
     </div>

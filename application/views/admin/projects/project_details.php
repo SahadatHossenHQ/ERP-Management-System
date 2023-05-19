@@ -22,6 +22,7 @@ $total_timer = $this->db->where(array('project_id' => $project_details->project_
 $all_invoice_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_invoices')->result();
 $all_credit_note_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_credit_note')->result();
 $all_estimates_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_estimates')->result();
+$all_requisition_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_requisitions')->result();
 
 $all_tickets_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_tickets')->result();
 
@@ -84,8 +85,8 @@ $edited = can_action('57', 'edited');
 <div class="row">
     <div class="col-sm-2">
         <?php if (!empty($can_edit) && !empty($edited)) { ?>
-            <span data-placement="top" data-toggle="tooltip" title="<?= lang('generate_invoice') ?>">
-                <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>" class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('invoice') ?>
+            <span data-placement="top" data-toggle="tooltip" title="<?= lang('generate_bill') ?>">
+                <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>" class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('bill_received') ?>
                 </a>
             </span>
 
@@ -116,8 +117,8 @@ $edited = can_action('57', 'edited');
             </li>
             <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments" data-toggle="tab"><?= lang('attachment') ?><strong class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 5 ? 'active' : '' ?>"><a href="#milestones" data-toggle="tab"><?= lang('milestones') ?><strong class="pull-right"><?= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?></strong></a>
-            </li>
+<!--            <li class="--><?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">--><?php //= lang('milestones') ?><!--<strong class="pull-right">--><?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
+<!--            </li>-->
             <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
                     <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
             </li>
@@ -132,11 +133,13 @@ $edited = can_action('57', 'edited');
             <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets" data-toggle="tab"><?= lang('tickets') ?><strong class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
             </li>
 
-            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice" data-toggle="tab"><?= lang('invoice') ?><strong class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
+            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice" data-toggle="tab"><?= lang('bill_received') ?><strong class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note" data-toggle="tab"><?= lang('credit_note') ?><strong class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 12 ? 'active' : '' ?>"><a href="#estimates" data-toggle="tab"><?= lang('estimates') ?><strong class="pull-right"><?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong></a>
+            </li>
+            <li class="<?= $active == 20 ? 'active' : '' ?>"><a href="#requisition" data-toggle="tab"><?= lang('requisition') ?><strong class="pull-right"><?= (!empty($all_requisition_info) ? count($all_requisition_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 10 ? 'active' : '' ?>"><a href="#expense" data-toggle="tab"><?= lang('expense') ?><strong class="pull-right"><?php
                                                                                                                                                     echo (!empty($all_expense_info) ? display_money($total_expense->amount, $currency->symbol) : null) ?></strong></a>
@@ -2780,7 +2783,7 @@ $edited = can_action('57', 'edited');
                 <div class="tab-pane <?= $active == 11 ? 'active' : '' ?>" id="invoice" style="position: relative;">
                     <div class="panel panel-custom">
                         <div class="panel-heading">
-                            <h3 class="panel-title"><?= lang('invoice') ?></h3>
+                            <h3 class="panel-title"><?= lang('bill_received') ?></h3>
                         </div>
                         <div class="panel-body">
 
@@ -2788,7 +2791,7 @@ $edited = can_action('57', 'edited');
                                 <table id="table-invoice" class="table table-striped ">
                                     <thead>
                                         <tr>
-                                            <th><?= lang('invoice') ?></th>
+                                            <th><?= lang('bill_received') ?></th>
                                             <th class="col-date"><?= lang('due_date') ?></th>
                                             <th class="col-currency"><?= lang('amount') ?></th>
                                             <th class="col-currency"><?= lang('due_amount') ?></th>
@@ -2947,6 +2950,68 @@ $edited = can_action('57', 'edited');
                                                         <?= display_money($this->estimates_model->estimate_calculation('estimate_amount', $v_estimates->estimates_id), $currency->symbol); ?>
                                                     </td>
                                                     <td><span class="label label-<?= $label ?>"><?= lang(strtolower($v_estimates->status)) ?></span>
+                                                    </td>
+                                                </tr>
+                                            <?php
+                                            }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane <?= $active == 20 ? 'active' : '' ?>" id="requisition" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates" data-toggle="tab"><?= lang('requisition') ?></a>
+                            </li>
+                            <li class=""><a href="<?= base_url() ?>admin/requisition/index/project/<?= $project_details->project_id ?>"><?= lang('new_requisition') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane <?= $estimate == 1 ? 'active' : ''; ?>" id="manage_estimates">
+                                <div class="table-responsive">
+                                    <table id="table-estimates" class="table table-striped ">
+                                        <thead>
+                                            <tr>
+                                                <th><?= lang('requisition') ?></th>
+                                                <th><?= lang('due_date') ?></th>
+                                                <th><?= lang('amount') ?></th>
+                                                <th><?= lang('status') ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            foreach ($all_requisition_info as $v_requisition) {
+                                                if ($v_requisition->status == 'Pending') {
+                                                    $label = "info";
+                                                } elseif ($v_requisition->status == 'Accepted') {
+                                                    $label = "success";
+                                                } else {
+                                                    $label = "danger";
+                                                }
+                                            ?>
+                                                <tr>
+                                                    <td>
+                                                        <a class="text-info" href="<?= base_url() ?>admin/requisition/index/estimates_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
+                                                    </td>
+                                                    <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
+                                                        <?php
+                                                        if (strtotime($v_requisition->due_date) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
+                                                            <span class="label label-danger "><?= lang('expired') ?></span>
+                                                        <?php }
+                                                        ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= display_money($this->requisition_model->requisition_calculation('requisition_amount', $v_requisition->requisition_id), $currency->symbol); ?>
+                                                    </td>
+                                                    <td><span class="label label-<?= $label ?>"><?= lang(strtolower($v_requisition->status)) ?></span>
                                                     </td>
                                                 </tr>
                                             <?php

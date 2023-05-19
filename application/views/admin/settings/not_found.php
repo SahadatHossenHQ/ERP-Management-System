@@ -39,11 +39,15 @@
                 <!-- END panel-->
                 <div class="p-lg text-center">
                     <span>&copy;</span>
-                    <span><a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?></a></span>
-                    <br/>
-                    <span>2016-<?= date('Y')?></span>
-                    <span>-</span>
-                    <span><?= lang('version') . ' ' . config_item('version') ?></span>
+                    <span><?= date('Y')?></span>
+                    <span> <a href="<?= config_item('copyright_url') ?>"> <?= config_item('copyright_name') ?>
+                        </a>
+                        All rights reserved</span>
+<!--                    <span><a href="--><?php //= config_item('copyright_url') ?><!--"> --><?php //= config_item('copyright_name') ?><!--</a></span>-->
+<!--                    <br/>-->
+<!--                    <span>2016---><?php //= date('Y')?><!--</span>-->
+<!--                    <span>-</span>-->
+<!--                    <span>--><?php //= lang('version') . ' ' . config_item('version') ?><!--</span>-->
                 </div>
             </div>
         </div>
