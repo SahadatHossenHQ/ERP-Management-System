@@ -9,7 +9,8 @@ class Requisition extends Admin_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('Requisition_model', 'requisition_model');
+        $this->load->model('requisition_model');
+//        $this->load->model('estimates_model');
         $this->load->library('gst');
         $this->load->helper('ckeditor');
     }
@@ -19,56 +20,56 @@ class Requisition extends Admin_Controller
     {
 
         $data['page'] = lang('sales');
-        $data['sub_active'] = lang('estimates');
+        $data['sub_active'] = lang('requisition');
         if (!empty($item_id)) {
-            $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+            $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
             if (!empty($can_edit)) {
-                $data['item_info'] = $this->estimates_model->check_by(array('estimate_items_id' => $item_id), 'tbl_estimate_items');
+                $data['item_info'] = $this->requisition_model->check_by(array('requisition_items_id' => $item_id), 'tbl_requisition_items');
             }
         }
         if ($action == 'edit_estimates') {
             $data['active'] = 2;
-            $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+            $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
             if (!empty($can_edit)) {
-                $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+                $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
                 if (!empty($data['estimates_info']->client_id)) {
-                    $data['estimate_to_merge'] = $this->estimates_model->check_for_merge_invoice($data['estimates_info']->client_id, $id);
+                    $data['estimate_to_merge'] = $this->requisition_model->check_for_merge_invoice($data['estimates_info']->client_id, $id);
                 }
             }
         } else if ($action == 'project') {
             $data['project_id'] = $id;
-            $data['project_info'] = $this->estimates_model->check_by(array('project_id' => $id), 'tbl_project');
+            $data['project_info'] = $this->requisition_model->check_by(array('project_id' => $id), 'tbl_project');
             $data['active'] = 2;
         } else {
             $data['active'] = 1;
         }
         // get all client
-        $this->estimates_model->_table_name = 'tbl_client';
-        $this->estimates_model->_order_by = 'client_id';
-        $data['all_client'] = $this->estimates_model->get();
+        $this->requisition_model->_table_name = 'tbl_client';
+        $this->requisition_model->_order_by = 'client_id';
+        $data['all_client'] = $this->requisition_model->get();
         // get permission user
-        $data['permission_user'] = $this->estimates_model->all_permission_user('14');
-        $data['all_estimates_info'] = $this->estimates_model->get_permission('tbl_estimates');
+        $data['permission_user'] = $this->requisition_model->all_permission_user('14');
+        $data['all_estimates_info'] = $this->requisition_model->get_permission('tbl_requisitions');
         if ($action == 'estimates_details') {
-            $data['title'] = "Estimates Details"; //Page title
-            $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $data['title'] = "Requisitions Details"; //Page title
+            $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             if (empty($data['estimates_info'])) {
                 $type = "error";
                 $message = lang('no_record_found');
                 set_message($type, $message);
                 redirect('admin/estimates');
             }
-            $subview = 'estimates_details';
+            $subview = 'requisition_details';
         } elseif ($action == 'estimates_history') {
-            $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             $data['title'] = "Estimates History"; //Page title
             $subview = 'estimates_history';
         } elseif ($action == 'email_estimates') {
-            $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             $data['title'] = "Email Estimates"; //Page title
             $subview = 'email_estimates';
         } elseif ($action == 'pdf_estimates') {
-            $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             $data['title'] = "Estimates PDF"; //Page title
             $this->load->helper('dompdf');
             $viewfile = $this->load->view('admin/estimates/estimates_pdf', $data, TRUE);
@@ -77,7 +78,7 @@ class Requisition extends Admin_Controller
             $data['title'] = "Estimates"; //Page title
             $subview = 'estimates';
         }
-        $data['subview'] = $this->load->view('admin/estimates/' . $subview, $data, TRUE);
+        $data['subview'] = $this->load->view('admin/requisition/' . $subview, $data, true);
         $this->load->view('admin/_layout_main', $data); //page load
     }
 
@@ -95,13 +96,13 @@ class Requisition extends Admin_Controller
     {
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
-            $this->datatables->table = 'tbl_estimates';
+            $this->datatables->table = 'tbl_requisitions';
             $this->datatables->join_table = array('tbl_client');
-            $this->datatables->join_where = array('tbl_estimates.client_id=tbl_client.client_id');
-            $this->datatables->select = 'tbl_estimates.*,tbl_client.name';
+            $this->datatables->join_where = array('tbl_requisitions.client_id=tbl_client.client_id');
+            $this->datatables->select = 'tbl_requisitions.*,tbl_client.name';
             $this->datatables->column_order = array('reference_no', 'tbl_client.name', 'estimate_date', 'due_date', 'status', 'tags');
             $this->datatables->column_search = array('reference_no', 'tbl_client.name', 'estimate_date', 'due_date', 'status', 'tags');
-            $this->datatables->order = array('estimates_id' => 'desc');
+            $this->datatables->order = array('requisition_id' => 'desc');
 
             if (empty($filterBy)) {
                 $filterBy = '_' . date('Y');
@@ -122,7 +123,7 @@ class Requisition extends Admin_Controller
                     $where = array('user_id' => $filterBy);
                 }
                 if ($search_by == 'by_client') {
-                    $where = array('tbl_estimates.client_id' => $filterBy);
+                    $where = array('tbl_requisitions.client_id' => $filterBy);
                 }
             } else {
                 if ($filterBy == 'last_month' || $filterBy == 'this_months') {
@@ -153,8 +154,8 @@ class Requisition extends Admin_Controller
             foreach ($fetch_data as $_key => $v_estimates) {
                 if (!empty($v_estimates)) {
                     $action = null;
-                    $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $v_estimates->estimates_id));
-                    $can_delete = $this->estimates_model->can_action('tbl_estimates', 'delete', array('estimates_id' => $v_estimates->estimates_id));
+                    $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $v_estimates->estimates_id));
+                    $can_delete = $this->requisition_model->can_action('tbl_requisitions', 'delete', array('requisition_id' => $v_estimates->estimates_id));
 
                     if ($v_estimates->status == 'pending') {
                         $label = "info";
@@ -183,7 +184,7 @@ class Requisition extends Admin_Controller
 
                     $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
 
-                    $sub_array[] = display_money($this->estimates_model->estimate_calculation('total', $v_estimates->estimates_id), client_currency($v_estimates->client_id));
+                    $sub_array[] = display_money($this->requisition_model->estimate_calculation('total', $v_estimates->estimates_id), client_currency($v_estimates->client_id));
                     $sub_array[] = "<span class='tags label label-" . $label . "'>" . lang($v_estimates->status) . "</span>";
 
                     $sub_array[] = get_tags($v_estimates->tags, true);
@@ -238,8 +239,8 @@ class Requisition extends Admin_Controller
     {
         if ($this->input->is_ajax_request()) {
             $data = array();
-            $data['client_currency'] = $this->estimates_model->client_currency_symbol($customer_id);
-            $_data['estimate_to_merge'] = $this->estimates_model->check_for_merge_invoice($customer_id, $current_invoice);
+            $data['client_currency'] = $this->requisition_model->client_currency_symbol($customer_id);
+            $_data['estimate_to_merge'] = $this->requisition_model->check_for_merge_invoice($customer_id, $current_invoice);
             $data['merge_info'] = $this->load->view('admin/estimates/merge_estimate', $_data, true);
             echo json_encode($data);
             exit();
@@ -249,10 +250,10 @@ class Requisition extends Admin_Controller
     public
     function get_merge_data($id)
     {
-        $invoice_items = $this->estimates_model->ordered_items_by_id($id);
+        $invoice_items = $this->requisition_model->ordered_items_by_id($id);
         $i = 0;
         foreach ($invoice_items as $item) {
-            $invoice_items[$i]->taxname = $this->estimates_model->get_invoice_item_taxes($item->estimate_items_id);
+            $invoice_items[$i]->taxname = $this->requisition_model->get_invoice_item_taxes($item->requisition_items_id);
             $invoice_items[$i]->qty = $item->quantity;
             $invoice_items[$i]->rate = $item->unit_cost;
             $i++;
@@ -264,7 +265,7 @@ class Requisition extends Admin_Controller
     public
     function pdf_estimates($id)
     {
-        $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+        $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
         if (empty($data['estimates_info'])) {
             $type = "error";
             $message = "No Record Found";
@@ -286,7 +287,7 @@ class Requisition extends Admin_Controller
         $created = can_action('14', 'created');
         $edited = can_action('14', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
-            $data = $this->estimates_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+            $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
             $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
             $data['estimate_date'] = date('Y-m-d', strtotime($this->input->post('estimate_date', TRUE)));
             if (empty($data['estimate_date'])) {
@@ -313,7 +314,7 @@ class Requisition extends Admin_Controller
                 $data['status'] = 'pending';
             }
 
-            $currency = $this->estimates_model->client_currency_symbol($data['client_id']);
+            $currency = $this->requisition_model->client_currency_symbol($data['client_id']);
             if (!empty($currency->code)) {
                 $curren = $currency->code;
             } else {
@@ -326,7 +327,7 @@ class Requisition extends Admin_Controller
                 if ($permission == 'everyone') {
                     $assigned = 'all';
                 } else {
-                    $assigned_to = $this->estimates_model->array_from_post(array('assigned_to'));
+                    $assigned_to = $this->requisition_model->array_from_post(array('assigned_to'));
                     if (!empty($assigned_to['assigned_to'])) {
                         foreach ($assigned_to['assigned_to'] as $assign_user) {
                             $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
@@ -351,23 +352,23 @@ class Requisition extends Admin_Controller
             }
 
             // get all client
-            $this->estimates_model->_table_name = 'tbl_estimates';
-            $this->estimates_model->_primary_key = 'estimates_id';
+            $this->requisition_model->_table_name = 'tbl_requisitions';
+            $this->requisition_model->_primary_key = 'requisition_id';
             if (!empty($id)) {
                 $estimates_id = $id;
-                $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+                $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
                 if (!empty($can_edit)) {
-                    $this->estimates_model->save($data, $id);
+                    $this->requisition_model->save($data, $id);
                 } else {
                     set_message('error', lang('there_in_no_value'));
                     redirect('admin/estimates');
                 }
-                $this->estimates_model->save($data, $id);
+                $this->requisition_model->save($data, $id);
                 $action = ('activity_estimates_updated');
                 $msg = lang('estimate_updated');
                 $description = 'not_estimate_updated';
             } else {
-                $estimates_id = $this->estimates_model->save($data);
+                $estimates_id = $this->requisition_model->save($data);
                 $action = ('activity_estimates_created');
                 $description = 'not_estimate_created';
                 $msg = lang('estimate_created');
@@ -380,16 +381,16 @@ class Requisition extends Admin_Controller
             if (!empty($invoices_to_merge)) {
                 foreach ($invoices_to_merge as $inv_id) {
                     if (empty($cancel_merged_invoices)) {
-                        $this->db->where('estimates_id', $inv_id);
-                        $this->db->delete('tbl_estimates');
+                        $this->db->where('requisition_id', $inv_id);
+                        $this->db->delete('tbl_requisitions');
 
-                        $this->db->where('estimates_id', $inv_id);
-                        $this->db->delete('tbl_estimate_items');
+                        $this->db->where('requisition_id', $inv_id);
+                        $this->db->delete('tbl_requisition_items');
                     } else {
                         $mdata = array('status' => 'cancelled');
-                        $this->estimates_model->_table_name = 'tbl_estimates';
-                        $this->estimates_model->_primary_key = 'estimates_id';
-                        $this->estimates_model->save($mdata, $inv_id);
+                        $this->requisition_model->_table_name = 'tbl_requisitions';
+                        $this->requisition_model->_primary_key = 'requisition_id';
+                        $this->requisition_model->save($mdata, $inv_id);
                     }
                 }
             }
@@ -398,19 +399,19 @@ class Requisition extends Admin_Controller
             if (!empty($removed_items)) {
                 foreach ($removed_items as $r_id) {
                     if ($r_id != 'undefined') {
-                        $this->db->where('estimate_items_id', $r_id);
-                        $this->db->delete('tbl_estimate_items');
+                        $this->db->where('requisition_items_id', $r_id);
+                        $this->db->delete('tbl_requisition_items');
                     }
                 }
             }
 
-            $itemsid = $this->input->post('estimate_items_id', TRUE);
+            $itemsid = $this->input->post('requisition_items_id', TRUE);
             $items_data = $this->input->post('items', true);
 
             if (!empty($items_data)) {
                 $index = 0;
                 foreach ($items_data as $items) {
-                    $items['estimates_id'] = $estimates_id;
+                    $items['requisition_id'] = $estimates_id;
                     unset($items['invoice_items_id']);
                     unset($items['total_qty']);
                     $tax = 0;
@@ -427,13 +428,13 @@ class Requisition extends Admin_Controller
                     $items['item_tax_total'] = ($price / 100 * $tax);
                     $items['total_cost'] = $price;
                     // get all client
-                    $this->estimates_model->_table_name = 'tbl_estimate_items';
-                    $this->estimates_model->_primary_key = 'estimate_items_id';
+                    $this->requisition_model->_table_name = 'tbl_requisition_items';
+                    $this->requisition_model->_primary_key = 'requisition_items_id';
                     if (!empty($itemsid[$index])) {
                         $items_id = $itemsid[$index];
-                        $this->estimates_model->save($items, $items_id);
+                        $this->requisition_model->save($items, $items_id);
                     } else {
-                        $items_id = $this->estimates_model->save($items);
+                        $items_id = $this->requisition_model->save($items);
                     }
                     $index++;
                 }
@@ -447,17 +448,17 @@ class Requisition extends Admin_Controller
                 'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
                 'value1' => $data['reference_no']
             );
-            $this->estimates_model->_table_name = 'tbl_activities';
-            $this->estimates_model->_primary_key = 'activities_id';
-            $this->estimates_model->save($activity);
+            $this->requisition_model->_table_name = 'tbl_activities';
+            $this->requisition_model->_primary_key = 'activities_id';
+            $this->requisition_model->save($activity);
 
             // send notification to client
             if (!empty($data['client_id'])) {
-                $client_info = $this->estimates_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
+                $client_info = $this->requisition_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
                 if (!empty($client_info->primary_contact)) {
                     $notifyUser = array($client_info->primary_contact);
                 } else {
-                    $user_info = $this->estimates_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
+                    $user_info = $this->requisition_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
                     if (!empty($user_info)) {
                         $notifyUser = array($user_info->user_id);
                     }
@@ -495,9 +496,9 @@ class Requisition extends Admin_Controller
     function insert_items($estimates_id)
     {
         $edited = can_action('14', 'edited');
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $estimates_id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $estimates_id));
         if (!empty($can_edit) && !empty($edited) && !empty($estimates_id)) {
-            $data['estimates_id'] = $estimates_id;
+            $data['requisition_id'] = $estimates_id;
             $data['modal_subview'] = $this->load->view('admin/estimates/_modal_insert_items', $data, FALSE);
             $this->load->view('admin/_layout_modal', $data);
         } else {
@@ -513,13 +514,13 @@ class Requisition extends Admin_Controller
     public
     function add_insert_items($estimates_id)
     {
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $estimates_id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $estimates_id));
         $edited = can_action('14', 'edited');
         if (!empty($can_edit) && !empty($edited)) {
             $saved_items_id = $this->input->post('saved_items_id', TRUE);
             if (!empty($saved_items_id)) {
                 foreach ($saved_items_id as $v_items_id) {
-                    $items_info = $this->estimates_model->check_by(array('saved_items_id' => $v_items_id), 'tbl_saved_items');
+                    $items_info = $this->requisition_model->check_by(array('saved_items_id' => $v_items_id), 'tbl_saved_items');
                     $tax_info = json_decode($items_info->tax_rates_id);
                     $tax_name = array();
                     if (!empty($tax_info)) {
@@ -535,7 +536,7 @@ class Requisition extends Admin_Controller
                     }
 
                     $data['quantity'] = 1;
-                    $data['estimates_id'] = $estimates_id;
+                    $data['requisition_id'] = $estimates_id;
                     $data['item_name'] = $items_info->item_name;
                     $data['item_desc'] = $items_info->item_desc;
                     $data['hsn_code'] = $items_info->hsn_code;
@@ -545,9 +546,9 @@ class Requisition extends Admin_Controller
                     $data['item_tax_total'] = $items_info->item_tax_total;
                     $data['total_cost'] = $items_info->unit_cost;
 
-                    $this->estimates_model->_table_name = 'tbl_estimate_items';
-                    $this->estimates_model->_primary_key = 'estimate_items_id';
-                    $items_id = $this->estimates_model->save($data);
+                    $this->requisition_model->_table_name = 'tbl_requisition_items';
+                    $this->requisition_model->_primary_key = 'requisition_items_id';
+                    $items_id = $this->requisition_model->save($data);
                     $action = 'activity_estimates_items_added';
                     $msg = lang('estimate_item_save');
                     $activity = array(
@@ -559,9 +560,9 @@ class Requisition extends Admin_Controller
                         'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
                         'value1' => $items_info->item_name
                     );
-                    $this->estimates_model->_table_name = 'tbl_activities';
-                    $this->estimates_model->_primary_key = 'activities_id';
-                    $this->estimates_model->save($activity);
+                    $this->requisition_model->_table_name = 'tbl_activities';
+                    $this->requisition_model->_primary_key = 'activities_id';
+                    $this->requisition_model->save($activity);
                 }
                 $type = "success";
                 $this->update_invoice_tax($saved_items_id, $estimates_id);
@@ -585,7 +586,7 @@ class Requisition extends Admin_Controller
     function update_invoice_tax($saved_items_id, $estimates_id)
     {
 
-        $invoice_info = $this->estimates_model->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+        $invoice_info = $this->requisition_model->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
         $tax_info = json_decode($invoice_info->total_tax);
 
         $tax_name = $tax_info->tax_name;
@@ -599,7 +600,7 @@ class Requisition extends Admin_Controller
         $all_tax_info = array();
         if (!empty($saved_items_id)) {
             foreach ($saved_items_id as $v_items_id) {
-                $items_info = $this->estimates_model->check_by(array('saved_items_id' => $v_items_id), 'tbl_saved_items');
+                $items_info = $this->requisition_model->check_by(array('saved_items_id' => $v_items_id), 'tbl_saved_items');
 
                 $tax_info = json_decode($items_info->tax_rates_id);
                 if (!empty($tax_info)) {
@@ -629,9 +630,9 @@ class Requisition extends Admin_Controller
             $invoice_data['tax'] = array_sum($structured_results['total_tax']);
             $invoice_data['total_tax'] = json_encode($structured_results);
 
-            $this->estimates_model->_table_name = 'tbl_estimates';
-            $this->estimates_model->_primary_key = 'estimates_id';
-            $this->estimates_model->save($invoice_data, $estimates_id);
+            $this->requisition_model->_table_name = 'tbl_requisitions';
+            $this->requisition_model->_primary_key = 'requisition_id';
+            $this->requisition_model->save($invoice_data, $estimates_id);
         }
         return true;
     }
@@ -639,12 +640,12 @@ class Requisition extends Admin_Controller
     public
     function add_item($id = NULL)
     {
-        $data = $this->estimates_model->array_from_post(array('estimates_id', 'item_order'));
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $data['estimates_id']));
+        $data = $this->requisition_model->array_from_post(array('requisition_id', 'item_order'));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $data['requisition_id']));
         $edited = can_action('14', 'edited');
         if (!empty($can_edit) && !empty($edited)) {
             $quantity = $this->input->post('quantity', TRUE);
-            $array_data = $this->estimates_model->array_from_post(array('item_name', 'item_desc', 'item_tax_rate', 'unit_cost'));
+            $array_data = $this->requisition_model->array_from_post(array('item_name', 'item_desc', 'item_tax_rate', 'unit_cost'));
             if (!empty($quantity)) {
                 foreach ($quantity as $key => $value) {
                     $data['quantity'] = $value;
@@ -658,35 +659,35 @@ class Requisition extends Admin_Controller
                     $data['total_cost'] = $sub_total + $data['item_tax_total'];
 
                     // get all client
-                    $this->estimates_model->_table_name = 'tbl_estimate_items';
-                    $this->estimates_model->_primary_key = 'estimate_items_id';
+                    $this->requisition_model->_table_name = 'tbl_requisition_items';
+                    $this->requisition_model->_primary_key = 'requisition_items_id';
                     if (!empty($id)) {
-                        $estimate_items_id = $id;
-                        $this->estimates_model->save($data, $id);
+                        $requisition_items_id = $id;
+                        $this->requisition_model->save($data, $id);
                         $action = ('activity_estimates_items_updated');
                     } else {
-                        $estimate_items_id = $this->estimates_model->save($data);
+                        $requisition_items_id = $this->requisition_model->save($data);
                         $action = 'activity_estimates_items_added';
                     }
                     $activity = array(
                         'user' => $this->session->userdata('user_id'),
                         'module' => 'estimates',
-                        'module_field_id' => $estimate_items_id,
+                        'module_field_id' => $requisition_items_id,
                         'activity' => $action,
                         'icon' => 'fa-shopping-cart',
-                        'link' => 'admin/estimates/index/estimates_details/' . $data['estimates_id'],
+                        'link' => 'admin/estimates/index/estimates_details/' . $data['requisition_id'],
                         'value1' => $data['item_name']
                     );
-                    $this->estimates_model->_table_name = 'tbl_activities';
-                    $this->estimates_model->_primary_key = 'activities_id';
-                    $this->estimates_model->save($activity);
+                    $this->requisition_model->_table_name = 'tbl_activities';
+                    $this->requisition_model->_primary_key = 'activities_id';
+                    $this->requisition_model->save($activity);
                 }
             }
             // messages for user
             $type = "success";
             $message = lang('estimate_item_save');
             set_message($type, $message);
-            redirect('admin/estimates/index/estimates_details/' . $data['estimates_id']);
+            redirect('admin/estimates/index/estimates_details/' . $data['requisition_id']);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
@@ -701,13 +702,13 @@ class Requisition extends Admin_Controller
     function clone_estimate($estimates_id)
     {
         $edited = can_action('14', 'edited');
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $estimates_id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $estimates_id));
         if (!empty($can_edit) && !empty($edited) && !empty($estimates_id)) {
-            $data['estimate_info'] = $this->estimates_model->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+            $data['estimate_info'] = $this->requisition_model->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
             // get all client
-            $this->estimates_model->_table_name = 'tbl_client';
-            $this->estimates_model->_order_by = 'client_id';
-            $data['all_client'] = $this->estimates_model->get();
+            $this->requisition_model->_table_name = 'tbl_client';
+            $this->requisition_model->_order_by = 'client_id';
+            $data['all_client'] = $this->requisition_model->get();
 
             $data['modal_subview'] = $this->load->view('admin/estimates/_modal_clone_estimate', $data, FALSE);
             $this->load->view('admin/_layout_modal', $data);
@@ -725,16 +726,16 @@ class Requisition extends Admin_Controller
     function cloned_estimate($id)
     {
         $edited = can_action('14', 'edited');
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
         if (!empty($can_edit) && !empty($edited)) {
             if (config_item('increment_estimate_number') == 'FALSE') {
                 $this->load->helper('string');
                 $reference_no = config_item('estimate_prefix') . ' ' . random_string('nozero', 6);
             } else {
-                $reference_no = config_item('estimate_prefix') . ' ' . $this->estimates_model->generate_estimate_number();
+                $reference_no = config_item('estimate_prefix') . ' ' . $this->requisition_model->generate_estimate_number();
             }
 
-            $invoice_info = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $invoice_info = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             $data['estimate_date'] = date('Y-m-d', strtotime($this->input->post('estimate_date', TRUE)));
             if (empty($data['estimate_date'])) {
                 $data['estimate_date'] = date('Y-m-d');
@@ -768,16 +769,16 @@ class Requisition extends Admin_Controller
                 'invoices_id' => $invoice_info->invoices_id,
                 'permission' => $invoice_info->permission,
             );
-            $this->estimates_model->_table_name = "tbl_estimates"; //table name
-            $this->estimates_model->_primary_key = "estimates_id";
-            $new_invoice_id = $this->estimates_model->save($new_invoice);
+            $this->requisition_model->_table_name = "tbl_requisitions"; //table name
+            $this->requisition_model->_primary_key = "estimates_id";
+            $new_invoice_id = $this->requisition_model->save($new_invoice);
 
-            $invoice_items = $this->db->where('estimates_id', $id)->get('tbl_estimate_items')->result();
+            $invoice_items = $this->db->where('requisition_id', $id)->get('tbl_requisition_items')->result();
 
             if (!empty($invoice_items)) {
                 foreach ($invoice_items as $new_item) {
                     $items = array(
-                        'estimates_id' => $new_invoice_id,
+                        'requisition_id' => $new_invoice_id,
                         'item_name' => $new_item->item_name,
                         'item_desc' => $new_item->item_desc,
                         'unit_cost' => $new_item->unit_cost,
@@ -790,9 +791,9 @@ class Requisition extends Admin_Controller
                         'order' => $new_item->order,
                         'date_saved' => $new_item->date_saved,
                     );
-                    $this->estimates_model->_table_name = "tbl_estimate_items"; //table name
-                    $this->estimates_model->_primary_key = "estimate_items_id";
-                    $this->estimates_model->save($items);
+                    $this->requisition_model->_table_name = "tbl_requisition_items"; //table name
+                    $this->requisition_model->_primary_key = "requisition_items_id";
+                    $this->requisition_model->save($items);
                 }
             }
             // save into activities
@@ -806,9 +807,9 @@ class Requisition extends Admin_Controller
                 'value1' => ' from ' . $invoice_info->reference_no . ' to ' . $reference_no,
             );
             // Update into tbl_project
-            $this->estimates_model->_table_name = "tbl_activities"; //table name
-            $this->estimates_model->_primary_key = "activities_id";
-            $this->estimates_model->save($activities);
+            $this->requisition_model->_table_name = "tbl_activities"; //table name
+            $this->requisition_model->_primary_key = "activities_id";
+            $this->requisition_model->save($activities);
 
             // messages for user
             $type = "success";
@@ -828,10 +829,10 @@ class Requisition extends Admin_Controller
     public
     function change_status($action, $id)
     {
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
         $edited = can_action('14', 'edited');
         if (!empty($can_edit) && !empty($edited)) {
-            $where = array('estimates_id' => $id);
+            $where = array('requisition_id' => $id);
             if ($action == 'hide') {
                 $data = array('show_client' => 'No');
             } elseif ($action == 'show') {
@@ -843,7 +844,7 @@ class Requisition extends Admin_Controller
             } else {
                 $data = array('show_client' => 'Yes');
             }
-            $this->estimates_model->set_action($where, $data, 'tbl_estimates');
+            $this->requisition_model->set_action($where, $data, 'tbl_requisitions');
             // messages for user
             $type = "success";
             $message = lang('estimate_status_changed', $action);
@@ -862,27 +863,27 @@ class Requisition extends Admin_Controller
     public
     function delete($action, $estimates_id, $item_id = NULL)
     {
-        $can_delete = $this->estimates_model->can_action('tbl_estimates', 'delete', array('estimates_id' => $estimates_id));
+        $can_delete = $this->requisition_model->can_action('tbl_requisitions', 'delete', array('requisition_id' => $estimates_id));
         $deleted = can_action('14', 'deleted');
         if (!empty($can_delete) && !empty($deleted)) {
             if ($action == 'delete_item') {
-                $this->estimates_model->_table_name = 'tbl_estimate_items';
-                $this->estimates_model->_primary_key = 'estimate_items_id';
-                $this->estimates_model->delete($item_id);
+                $this->requisition_model->_table_name = 'tbl_requisition_items';
+                $this->requisition_model->_primary_key = 'requisition_items_id';
+                $this->requisition_model->delete($item_id);
             } elseif ($action == 'delete_estimates') {
 
-                $this->estimates_model->_table_name = 'tbl_estimate_items';
-                $this->estimates_model->delete_multiple(array('estimates_id' => $estimates_id));
+                $this->requisition_model->_table_name = 'tbl_requisition_items';
+                $this->requisition_model->delete_multiple(array('requisition_id' => $estimates_id));
 
-                $this->estimates_model->_table_name = 'tbl_reminders';
-                $this->estimates_model->delete_multiple(array('module' => 'estimate', 'module_id' => $estimates_id));
+                $this->requisition_model->_table_name = 'tbl_reminders';
+                $this->requisition_model->delete_multiple(array('module' => 'estimate', 'module_id' => $estimates_id));
 
-                $this->estimates_model->_table_name = 'tbl_pinaction';
-                $this->estimates_model->delete_multiple(array('module_name' => 'estimates', 'module_id' => $estimates_id));
+                $this->requisition_model->_table_name = 'tbl_pinaction';
+                $this->requisition_model->delete_multiple(array('module_name' => 'estimates', 'module_id' => $estimates_id));
 
-                $this->estimates_model->_table_name = 'tbl_estimates';
-                $this->estimates_model->_primary_key = 'estimates_id';
-                $this->estimates_model->delete($estimates_id);
+                $this->requisition_model->_table_name = 'tbl_requisitions';
+                $this->requisition_model->_primary_key = 'requisition_id';
+                $this->requisition_model->delete($estimates_id);
             }
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
@@ -893,9 +894,9 @@ class Requisition extends Admin_Controller
                 'value1' => $action
             );
 
-            $this->estimates_model->_table_name = 'tbl_activities';
-            $this->estimates_model->_primary_key = 'activities_id';
-            $this->estimates_model->save($activity);
+            $this->requisition_model->_table_name = 'tbl_activities';
+            $this->requisition_model->_primary_key = 'activities_id';
+            $this->requisition_model->save($activity);
             $type = 'success';
             if ($action == 'delete_item') {
                 $text = lang('estimate_item_deleted');
@@ -921,17 +922,17 @@ class Requisition extends Admin_Controller
     function send_estimates_email($estimates_id, $row = null)
     {
         if (!empty($row)) {
-            $estimates_info = $this->estimates_model->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
-            $client_info = $this->estimates_model->check_by(array('client_id' => $estimates_info->client_id), 'tbl_client');
+            $estimates_info = $this->requisition_model->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
+            $client_info = $this->requisition_model->check_by(array('client_id' => $estimates_info->client_id), 'tbl_client');
             if (!empty($client_info)) {
                 $client = $client_info->name;
-                $currency = $this->estimates_model->client_currency_symbol($client_info->client_id);;
+                $currency = $this->requisition_model->client_currency_symbol($client_info->client_id);;
             } else {
                 $client = '-';
-                $currency = $this->estimates_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
+                $currency = $this->requisition_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
             }
 
-            $amount = $this->estimates_model->estimate_calculation('total', $estimates_info->estimates_id);
+            $amount = $this->requisition_model->estimate_calculation('total', $estimates_info->estimates_id);
             $currency = $currency->code;
             $email_template = email_templates(array('email_group' => 'estimate_email'), $estimates_info->client_id);
             $message = $email_template->template_body;
@@ -957,9 +958,9 @@ class Requisition extends Admin_Controller
 
         $data = array('status' => 'sent', 'emailed' => 'Yes', 'date_sent' => date("Y-m-d H:i:s", time()));
 
-        $this->estimates_model->_table_name = 'tbl_estimates';
-        $this->estimates_model->_primary_key = 'estimates_id';
-        $this->estimates_model->save($data, $estimates_id);
+        $this->requisition_model->_table_name = 'tbl_requisitions';
+        $this->requisition_model->_primary_key = 'requisition_id';
+        $this->requisition_model->save($data, $estimates_id);
 
         // Log Activity
         $activity = array(
@@ -971,9 +972,9 @@ class Requisition extends Admin_Controller
             'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
             'value1' => $ref
         );
-        $this->estimates_model->_table_name = 'tbl_activities';
-        $this->estimates_model->_primary_key = 'activities_id';
-        $this->estimates_model->save($activity);
+        $this->requisition_model->_table_name = 'tbl_activities';
+        $this->requisition_model->_primary_key = 'activities_id';
+        $this->requisition_model->save($activity);
 
         $type = 'success';
         $text = lang('estimate_email_sent');
@@ -983,8 +984,8 @@ class Requisition extends Admin_Controller
 
     function send_email_estimates($estimates_id, $message, $subject)
     {
-        $estimates_info = $this->estimates_model->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
-        $client_info = $this->estimates_model->check_by(array('client_id' => $estimates_info->client_id), 'tbl_client');
+        $estimates_info = $this->requisition_model->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
+        $client_info = $this->requisition_model->check_by(array('client_id' => $estimates_info->client_id), 'tbl_client');
 
         $recipient = $client_info->email;
 
@@ -1000,7 +1001,7 @@ class Requisition extends Admin_Controller
         $params['resourcement_url'] = base_url() . 'uploads/' . (lang('estimate') . '_' . $estimates_info->reference_no) . '.pdf';
 
         $this->attach_pdf($estimates_id);
-        $this->estimates_model->send_email($params);
+        $this->requisition_model->send_email($params);
         //Delete estimate in tmp folder
         if (is_file('uploads/' . slug_it(lang('estimate') . '_' . $estimates_info->reference_no) . '.pdf')) {
             unlink('uploads/' . slug_it(lang('estimate') . '_' . $estimates_info->reference_no) . '.pdf');
@@ -1009,7 +1010,7 @@ class Requisition extends Admin_Controller
         if (!empty($client_info->primary_contact)) {
             $notifyUser = array($client_info->primary_contact);
         } else {
-            $user_info = $this->estimates_model->check_by(array('company' => $estimates_info->client_id), 'tbl_account_details');
+            $user_info = $this->requisition_model->check_by(array('company' => $estimates_info->client_id), 'tbl_account_details');
             if (!empty($user_info)) {
                 $notifyUser = array($user_info->user_id);
             }
@@ -1034,7 +1035,7 @@ class Requisition extends Admin_Controller
     function attach_pdf($id)
     {
         $data['page'] = lang('estimates');
-        $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+        $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
         $data['title'] = lang('estimates'); //Page title
         $this->load->helper('dompdf');
         $html = $this->load->view('admin/estimates/estimates_pdf', $data, TRUE);
@@ -1044,9 +1045,9 @@ class Requisition extends Admin_Controller
 
     function estimate_email($estimates_id)
     {
-        $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+        $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
         $estimates_info = $data['estimates_info'];
-        $client_info = $this->estimates_model->check_by(array('client_id' => $data['estimates_info']->client_id), 'tbl_client');
+        $client_info = $this->requisition_model->check_by(array('client_id' => $data['estimates_info']->client_id), 'tbl_client');
 
         $recipient = $client_info->email;
 
@@ -1062,13 +1063,13 @@ class Requisition extends Admin_Controller
         );
         $params['resourceed_file'] = '';
 
-        $this->estimates_model->send_email($params);
+        $this->requisition_model->send_email($params);
 
         $data = array('emailed' => 'Yes', 'date_sent' => date("Y-m-d H:i:s", time()));
 
-        $this->estimates_model->_table_name = 'tbl_estimates';
-        $this->estimates_model->_primary_key = 'estimates_id';
-        $this->estimates_model->save($data, $estimates_id);
+        $this->requisition_model->_table_name = 'tbl_requisitions';
+        $this->requisition_model->_primary_key = 'requisition_id';
+        $this->requisition_model->save($data, $estimates_id);
 
         // Log Activity
         $activity = array(
@@ -1080,15 +1081,15 @@ class Requisition extends Admin_Controller
             'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
             'value1' => $estimates_info->reference_no
         );
-        $this->estimates_model->_table_name = 'tbl_activities';
-        $this->estimates_model->_primary_key = 'activities_id';
-        $this->estimates_model->save($activity);
+        $this->requisition_model->_table_name = 'tbl_activities';
+        $this->requisition_model->_primary_key = 'activities_id';
+        $this->requisition_model->save($activity);
 
         // send notification to client
         if (!empty($client_info->primary_contact)) {
             $notifyUser = array($client_info->primary_contact);
         } else {
-            $user_info = $this->estimates_model->check_by(array('company' => $estimates_info->client_id), 'tbl_account_details');
+            $user_info = $this->requisition_model->check_by(array('company' => $estimates_info->client_id), 'tbl_account_details');
             if (!empty($user_info)) {
                 $notifyUser = array($user_info->user_id);
             }
@@ -1120,16 +1121,16 @@ class Requisition extends Admin_Controller
     {
         $data['title'] = lang('convert_to_invoice');
         $edited = can_action('14', 'edited');
-        $can_edit = $this->estimates_model->can_action('tbl_estimates', 'edit', array('estimates_id' => $id));
+        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
         if (!empty($can_edit) && !empty($edited)) {
             // get all client
-            $this->estimates_model->_table_name = 'tbl_client';
-            $this->estimates_model->_order_by = 'client_id';
-            $data['all_client'] = $this->estimates_model->get();
+            $this->requisition_model->_table_name = 'tbl_client';
+            $this->requisition_model->_order_by = 'client_id';
+            $data['all_client'] = $this->requisition_model->get();
             // get permission user
-            $data['permission_user'] = $this->estimates_model->all_permission_user('14');
+            $data['permission_user'] = $this->requisition_model->all_permission_user('14');
 
-            $data['estimates_info'] = $this->estimates_model->check_by(array('estimates_id' => $id), 'tbl_estimates');
+            $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
 
             $data['modal_subview'] = $this->load->view('admin/estimates/convert_to_invoice', $data, FALSE);
             $this->load->view('admin/_layout_modal_large', $data);
@@ -1146,7 +1147,7 @@ class Requisition extends Admin_Controller
     public
     function converted($estimate_id)
     {
-        $data = $this->estimates_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+        $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
 
         $all_payment = get_result('tbl_online_payment');
         foreach ($all_payment as $payment) {
@@ -1181,7 +1182,7 @@ class Requisition extends Admin_Controller
         if (!empty($save_as_draft)) {
             $data['status'] = 'draft';
         }
-        $currency = $this->estimates_model->client_currency_symbol($data['client_id']);
+        $currency = $this->requisition_model->client_currency_symbol($data['client_id']);
         if (!empty($currency->code)) {
             $curren = $currency->code;
         } else {
@@ -1194,7 +1195,7 @@ class Requisition extends Admin_Controller
             if ($permission == 'everyone') {
                 $assigned = 'all';
             } else {
-                $assigned_to = $this->estimates_model->array_from_post(array('assigned_to'));
+                $assigned_to = $this->requisition_model->array_from_post(array('assigned_to'));
                 if (!empty($assigned_to['assigned_to'])) {
                     foreach ($assigned_to['assigned_to'] as $assign_user) {
                         $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
@@ -1219,14 +1220,14 @@ class Requisition extends Admin_Controller
         }
 
         // get all client
-        $this->estimates_model->_table_name = 'tbl_invoices';
-        $this->estimates_model->_primary_key = 'invoices_id';
+        $this->requisition_model->_table_name = 'tbl_invoices';
+        $this->requisition_model->_primary_key = 'invoices_id';
 
-        $invoice_id = $this->estimates_model->save($data);
+        $invoice_id = $this->requisition_model->save($data);
         $recuring_frequency = $this->input->post('recuring_frequency', TRUE);
 
         if (!empty($recuring_frequency) && $recuring_frequency != 'none') {
-            $recur_data = $this->estimates_model->array_from_post(array('recur_start_date', 'recur_end_date'));
+            $recur_data = $this->requisition_model->array_from_post(array('recur_start_date', 'recur_end_date'));
             $recur_data['recuring_frequency'] = $recuring_frequency;
             $this->get_recuring_frequency($invoice_id, $recur_data); // set recurring
         }
@@ -1253,9 +1254,9 @@ class Requisition extends Admin_Controller
                     $this->db->delete('tbl_items');
                 } else {
                     $mdata = array('status' => 'Cancelled');
-                    $this->estimates_model->_table_name = 'tbl_invoices';
-                    $this->estimates_model->_primary_key = 'invoices_id';
-                    $this->estimates_model->save($mdata, $inv_id);
+                    $this->requisition_model->_table_name = 'tbl_invoices';
+                    $this->requisition_model->_primary_key = 'invoices_id';
+                    $this->requisition_model->save($mdata, $inv_id);
                 }
             }
         }
@@ -1297,23 +1298,23 @@ class Requisition extends Admin_Controller
                 $items['item_tax_total'] = ($price / 100 * $tax);
                 $items['total_cost'] = $price;
                 // get all client
-                $this->estimates_model->_table_name = 'tbl_items';
-                $this->estimates_model->_primary_key = 'items_id';
+                $this->requisition_model->_table_name = 'tbl_items';
+                $this->requisition_model->_primary_key = 'items_id';
                 if (!empty($qty_calculation) && $qty_calculation == 'Yes') {
                     if (!empty($items['saved_items_id']) && $items['saved_items_id'] != 'undefined') {
-                        $this->estimates_model->reduce_items($items['saved_items_id'], $items['quantity']);
+                        $this->requisition_model->reduce_items($items['saved_items_id'], $items['quantity']);
                     }
                 }
-                $items_id = $this->estimates_model->save($items);
+                $items_id = $this->requisition_model->save($items);
                 $index++;
             }
         }
 
         $e_data = array('status' => 'accepted', 'invoiced' => 'Yes', 'invoices_id' => $invoice_id);
 
-        $this->estimates_model->_table_name = 'tbl_estimates';
-        $this->estimates_model->_primary_key = 'estimates_id';
-        $this->estimates_model->save($e_data, $estimate_id);
+        $this->requisition_model->_table_name = 'tbl_requisitions';
+        $this->requisition_model->_primary_key = 'requisition_id';
+        $this->requisition_model->save($e_data, $estimate_id);
 
         $activity = array(
             'user' => $this->session->userdata('user_id'),
@@ -1324,17 +1325,17 @@ class Requisition extends Admin_Controller
             'link' => 'admin/estimates/index/estimates_details/' . $estimate_id,
             'value1' => $data['reference_no']
         );
-        $this->estimates_model->_table_name = 'tbl_activities';
-        $this->estimates_model->_primary_key = 'activities_id';
-        $this->estimates_model->save($activity);
+        $this->requisition_model->_table_name = 'tbl_activities';
+        $this->requisition_model->_primary_key = 'activities_id';
+        $this->requisition_model->save($activity);
 
         // send notification to client
         if (!empty($data['client_id'])) {
-            $client_info = $this->estimates_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
+            $client_info = $this->requisition_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
             if (!empty($client_info->primary_contact)) {
                 $notifyUser = array($client_info->primary_contact);
             } else {
-                $user_info = $this->estimates_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
+                $user_info = $this->requisition_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
                 if (!empty($user_info)) {
                     $notifyUser = array($user_info->user_id);
                 }
@@ -1365,7 +1366,7 @@ class Requisition extends Admin_Controller
     {
         $items_info = $this->db->where('items_id', $items_id)->get('tbl_items')->row();
         if (!empty($items_info->saved_items_id)) {
-            $this->estimates_model->return_items($items_info->saved_items_id, $items_info->quantity);
+            $this->requisition_model->return_items($items_info->saved_items_id, $items_info->quantity);
         }
         return true;
     }
@@ -1378,13 +1379,13 @@ class Requisition extends Admin_Controller
                 if ($qty > $items_info->quantity) {
                     $reduce_qty = $qty - $items_info->quantity;
                     if (!empty($items_info->saved_items_id)) {
-                        $this->estimates_model->reduce_items($items_info->saved_items_id, $reduce_qty);
+                        $this->requisition_model->reduce_items($items_info->saved_items_id, $reduce_qty);
                     }
                 }
                 if ($qty < $items_info->quantity) {
                     $return_qty = $items_info->quantity - $qty;
                     if (!empty($items_info->saved_items_id)) {
-                        $this->estimates_model->return_items($items_info->saved_items_id, $return_qty);
+                        $this->requisition_model->return_items($items_info->saved_items_id, $return_qty);
                     }
                 }
             }
@@ -1395,7 +1396,7 @@ class Requisition extends Admin_Controller
     function get_recuring_frequency($invoices_id, $recur_data)
     {
         $recur_days = $this->get_calculate_recurring_days($recur_data['recuring_frequency']);
-        $due_date = $this->estimates_model->get_table_field('tbl_invoices', array('invoices_id' => $invoices_id), 'due_date');
+        $due_date = $this->requisition_model->get_table_field('tbl_invoices', array('invoices_id' => $invoices_id), 'due_date');
 
         $next_date = date("Y-m-d", strtotime($due_date . "+ " . $recur_days . " days"));
 
@@ -1412,9 +1413,9 @@ class Requisition extends Admin_Controller
             'recur_end_date' => $recur_end_date,
             'recur_next_date' => $next_date
         );
-        $this->estimates_model->_table_name = 'tbl_invoices';
-        $this->estimates_model->_primary_key = 'invoices_id';
-        $this->estimates_model->save($update_invoice, $invoices_id);
+        $this->requisition_model->_table_name = 'tbl_invoices';
+        $this->requisition_model->_primary_key = 'invoices_id';
+        $this->requisition_model->save($update_invoice, $invoices_id);
         return TRUE;
     }
 

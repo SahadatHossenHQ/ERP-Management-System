@@ -7,23 +7,23 @@ class Requisition_model extends MY_Model
     public $_order_by;
     public $_primary_key;
 
-    function estimate_calculation($estimate_value, $estimates_id)
+    function requisition_calculation($requisition_value, $requisition_id)
     {
-        switch ($estimate_value) {
-            case 'estimate_cost':
-                return $this->get_estimate_cost($estimates_id);
+        switch ($requisition_value) {
+            case 'requisition_cost':
+                return $this->get_estimate_cost($requisition_id);
                 break;
             case 'tax':
-                return $this->get_estimate_tax_amount($estimates_id);
+                return $this->get_estimate_tax_amount($requisition_id);
                 break;
             case 'discount':
-                return $this->get_estimate_discount($estimates_id);
+                return $this->get_estimate_discount($requisition_id);
                 break;
-            case 'estimate_amount':
-                return $this->get_estimate_amount($estimates_id);
+            case 'requisition_amount':
+                return $this->get_estimate_amount($requisition_id);
                 break;
             case 'total':
-                return $this->get_total_estimate_amount($estimates_id);
+                return $this->get_total_estimate_amount($requisition_id);
                 break;
         }
     }
@@ -31,8 +31,8 @@ class Requisition_model extends MY_Model
     function get_estimate_cost($estimates_id)
     {
         $this->db->select_sum('total_cost');
-        $this->db->where('estimates_id', $estimates_id);
-        $this->db->from('tbl_estimate_items');
+        $this->db->where('requisition_id', $estimates_id);
+        $this->db->from('tbl_requisition_items');
         $query_result = $this->db->get();
         $cost = $query_result->row();
         if (!empty($cost->total_cost)) {
@@ -46,7 +46,7 @@ class Requisition_model extends MY_Model
     function get_estimate_tax_amount($estimates_id)
     {
 
-        $invoice_info = $this->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+        $invoice_info = $this->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
         if (!empty($invoice_info->total_tax)) {
             $tax_info = json_decode($invoice_info->total_tax);
         }
@@ -65,22 +65,22 @@ class Requisition_model extends MY_Model
 
     function get_estimate_discount($estimates_id)
     {
-        $invoice_info = $this->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+        $invoice_info = $this->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
         return $invoice_info->discount_total;
     }
 
-    function get_estimate_amount($estimates_id)
+    function get_estimate_amount($requisition_id)
     {
 
-        $tax = $this->get_estimate_tax_amount($estimates_id);
-        $discount = $this->get_estimate_discount($estimates_id);
-        $estimate_cost = $this->get_estimate_cost($estimates_id);
+        $tax = $this->get_estimate_tax_amount($requisition_id);
+        $discount = $this->get_estimate_discount($requisition_id);
+        $estimate_cost = $this->get_estimate_cost($requisition_id);
         return (($estimate_cost - $discount) + $tax);
     }
 
     function get_total_estimate_amount($estimates_id)
     {
-        $invoice_info = $this->check_by(array('estimates_id' => $estimates_id), 'tbl_estimates');
+        $invoice_info = $this->check_by(array('requisition_id' => $estimates_id), 'tbl_requisitions');
         $tax = $this->get_estimate_tax_amount($estimates_id);
         $discount = $this->get_estimate_discount($estimates_id);
         $estimate_cost = $this->get_estimate_cost($estimates_id);
@@ -89,7 +89,7 @@ class Requisition_model extends MY_Model
 
     function ordered_items_by_id($id)
     {
-        $result = $this->db->where('estimates_id', $id)->order_by('order', 'asc')->get('tbl_estimate_items')->result();
+        $result = $this->db->where('requisition_id', $id)->order_by('order', 'asc')->get('tbl_requisition_items')->result();
         return $result;
     }
 
@@ -97,10 +97,10 @@ class Requisition_model extends MY_Model
     public function check_for_merge_invoice($client_id, $current_estimate)
     {
 
-        $estimate_info = $this->db->where('client_id', $client_id)->get('tbl_estimates')->result();
+        $estimate_info = $this->db->where('client_id', $client_id)->get('tbl_requisitions')->result();
 
         foreach ($estimate_info as $v_estimate) {
-            if ($v_estimate->estimates_id != $current_estimate) {
+            if ($v_estimate->requisition_id != $current_estimate) {
                 if (strtolower($v_estimate->status) == 'pending' || $v_estimate->status == 'draft') {
                     $estimate[] = $v_estimate;
                 }
@@ -180,7 +180,7 @@ class Requisition_model extends MY_Model
     {
         $this->db->select('estimate_year');
         $this->db->group_by('estimate_year');
-        $result = $this->db->get('tbl_estimates')->result();
+        $result = $this->db->get('tbl_requisitions')->result();
 
         $statuses = array(
             array(
@@ -242,9 +242,9 @@ class Requisition_model extends MY_Model
     public function get_estimates($filterBy = null, $client_id = null)
     {
         if (!empty($client_id)) {
-            $all_invoice = get_result('tbl_estimates', array('client_id' => $client_id));
+            $all_invoice = get_result('tbl_requisitions', array('client_id' => $client_id));
         } else {
-            $all_invoice = $this->get_permission('tbl_estimates');
+            $all_invoice = $this->get_permission('tbl_requisitions');
         }
         if (empty($filterBy) || !empty($filterBy) && $filterBy == 'all') {
             return $all_invoice;
@@ -290,9 +290,9 @@ class Requisition_model extends MY_Model
     public function get_client_estimates($filterBy = null, $client_id = null)
     {
         if (!empty($client_id)) {
-            $all_invoice = get_result('tbl_estimates', array('client_id' => $client_id, 'status !=' => 'draft'));
+            $all_invoice = get_result('tbl_requisitions', array('client_id' => $client_id, 'status !=' => 'draft'));
         } else {
-            $all_invoice = $this->get_permission('tbl_estimates');
+            $all_invoice = $this->get_permission('tbl_requisitions');
         }
         if (empty($filterBy) || !empty($filterBy) && $filterBy == 'all') {
             return $all_invoice;
@@ -338,9 +338,9 @@ class Requisition_model extends MY_Model
     public function get_estimate_report($filterBy = null, $range = null)
     {
         if (!empty($filterBy) && is_numeric($filterBy)) {
-            $estimates = $this->db->where('client_id', $filterBy)->get('tbl_estimates')->result();
+            $estimates = $this->db->where('client_id', $filterBy)->get('tbl_requisitions')->result();
         } else {
-            $all_estimates = $this->get_permission('tbl_estimates');
+            $all_estimates = $this->get_permission('tbl_requisitions');
         }
         if (empty($filterBy) || !empty($filterBy) && $filterBy == 'all') {
             $estimates = $all_estimates;

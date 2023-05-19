@@ -2970,7 +2970,7 @@ $edited = can_action('57', 'edited');
                         <ul class="nav nav-tabs">
                             <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates" data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/estimates/index/project/<?= $project_details->project_id ?>"><?= lang('new_requisition') ?></a>
+                            <li class=""><a href="<?= base_url() ?>admin/requisition/index/project/<?= $project_details->project_id ?>"><?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -2999,7 +2999,7 @@ $edited = can_action('57', 'edited');
                                             ?>
                                                 <tr>
                                                     <td>
-                                                        <a class="text-info" href="<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_requisition->estimates_id ?>"><?= $v_requisition->reference_no ?></a>
+                                                        <a class="text-info" href="<?= base_url() ?>admin/requisition/index/estimates_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
                                                     </td>
                                                     <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
                                                         <?php
@@ -3009,7 +3009,7 @@ $edited = can_action('57', 'edited');
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <?= display_money($this->estimates_model->estimate_calculation('estimate_amount', $v_requisition->estimates_id), $currency->symbol); ?>
+                                                        <?= display_money($this->requisition_model->requisition_calculation('requisition_amount', $v_requisition->requisition_id), $currency->symbol); ?>
                                                     </td>
                                                     <td><span class="label label-<?= $label ?>"><?= lang(strtolower($v_requisition->status)) ?></span>
                                                     </td>
