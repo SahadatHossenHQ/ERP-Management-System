@@ -32,6 +32,7 @@ $lang['new_estimate'] = 'New Estimate';
 $lang['preview_invoice'] = 'Preview Bill Received';
 $lang['privacy_policy'] = 'Privacy Policy';
 $lang['price'] = 'Price';
+$lang['contactor'] = 'Contactor';
 $lang['print_estimate'] = 'Print Estimate';
 $lang['send_email'] = 'Send Email';
 $lang['view_estimate'] = 'View Estimate';

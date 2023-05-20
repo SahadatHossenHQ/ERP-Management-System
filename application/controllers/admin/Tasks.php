@@ -314,6 +314,13 @@ class Tasks extends Admin_Controller
         $data['subview'] = $this->load->view('admin/projects/new_category', $data, FALSE);
         $this->load->view('admin/_layout_modal', $data);
     }
+    public function new_contactor()
+    {
+        $data['title'] = lang('new') . ' ' . lang('contactor');
+        $data['type'] = 'tasks';
+        $data['subview'] = $this->load->view('admin/projects/new_contactor', $data, FALSE);
+        $this->load->view('admin/_layout_modal', $data);
+    }
 
     public
     function import()
