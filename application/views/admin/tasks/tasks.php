@@ -106,7 +106,7 @@ if ($tasks == 'kanban') {
                             <ul class="dropdown-menu dropdown-menu-left to_account"
                                 style="">
                                 <?php
-                                if (count($assign_user) > 0) { ?>
+                                if (count($assign_user ?? []) > 0) { ?>
                                     <?php foreach ($assign_user as $v_staff) {
                                         ?>
                                         <li class="filter_by" id="<?= $v_staff->user_id ?>"
@@ -125,7 +125,7 @@ if ($tasks == 'kanban') {
                             <ul class="dropdown-menu dropdown-menu-left by_category"
                                 style="">
                                 <?php
-                                if (count($all_customer_group) > 0) { ?>
+                                if (count($all_customer_group ?? []) > 0) { ?>
                                     <?php foreach ($all_customer_group as $group) {
                                         ?>
                                         <li class="filter_by" id="<?= $group->customer_group_id ?>"
@@ -669,6 +669,41 @@ if ($tasks == 'kanban') {
                                                 </div>
                                             </div>
                                         <?php endif ?>
+                                        <div class="form-group">
+                                            <label
+                                                    class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('contactor') ?></label>
+                                            <div class="col-sm-5">
+                                                <div class="input-group">
+                                                    <select name="category_id"
+                                                            class="form-control select_box"
+                                                            style="width: 100%">
+                                                        <?php
+                                                        if (!empty($all_customer_group)) {
+                                                            foreach ($all_customer_group as $customer_group) : ?>
+                                                                <option
+                                                                        value="<?= $customer_group->customer_group_id ?>"<?php
+                                                                if (!empty($task_info->category_id) && $task_info->category_id == $customer_group->customer_group_id) {
+                                                                    echo 'selected';
+                                                                } ?>
+                                                                ><?= $customer_group->customer_group; ?></option>
+                                                            <?php endforeach;
+                                                        }
+                                                        $created = can_action('125', 'created');
+                                                        ?>
+                                                    </select>
+                                                    <?php if (!empty($created)) { ?>
+                                                        <div class="input-group-addon"
+                                                             title="<?= lang('new') . ' ' . lang('contactor') ?>"
+                                                             data-toggle="tooltip" data-placement="top">
+                                                            <a data-toggle="modal" data-target="#myModal"
+                                                               href="<?= base_url() ?>admin/tasks/new_contactor"><i
+                                                                        class="fa fa-plus"></i></a>
+                                                        </div>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label"><?= lang('start_date') ?></label>
                                             <div class="col-lg-5">
