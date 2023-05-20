@@ -355,7 +355,7 @@
                                                         $this->load->helper('string');
                                                         echo random_string('nozero', 6);
                                                     } else {
-                                                        echo $this->requisition_model->generate_estimate_number();
+                                                        echo $this->requisition_model->generate_requisition_number();
                                                     }
                                                 }
                                                 ?>" name="reference_no">

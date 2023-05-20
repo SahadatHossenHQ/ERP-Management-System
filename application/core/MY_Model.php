@@ -647,6 +647,37 @@
         }
         return $next_number;
     }
+    public function generate_requisition_number()
+    {
+        $strlen = strlen(config_item('estimate_start_no'));
+        $query = $this->db->query('SELECT reference_no, requisition_id FROM tbl_requisitionS WHERE requisition_id = (SELECT MAX(requisition_id) FROM tbl_requisitionS)');
+        if ($query->num_rows() > 0) {
+            $row = $query->row();
+            $ref_number = intval(substr($row->reference_no, -$strlen));
+            $next_number = ++$row->requisition_id;
+            if ($next_number < $ref_number) {
+                $next_number = $ref_number + 1;
+            }
+            if ($next_number < config_item('estimate_start_no')) {
+                $next_number = config_item('estimate_start_no');
+            }
+            $next_number = $this->estimate_reference_no_exists($next_number);
+            $next_number = sprintf('%04d', $next_number);
+        } else {
+            $next_number = sprintf('%04d', config_item('estimate_start_no'));
+        }
+        if (!empty(config_item('estimate_number_format'))) {
+            $invoice_format = config_item('estimate_number_format');
+            $invoice_prefix = str_replace("[" . config_item('estimate_prefix') . "]", config_item('estimate_prefix'), $invoice_format);
+            $yyyy = str_replace("[yyyy]", date('Y'), $invoice_prefix);
+            $yy = str_replace("[yy]", date('y'), $yyyy);
+            $mm = str_replace("[mm]", date('M'), $yy);
+            $m = str_replace("[m]", date('m'), $mm);
+            $dd = str_replace("[dd]", date('d'), $m);
+            $next_number = str_replace("[number]", $next_number, $dd);
+        }
+        return $next_number;
+    }
 
     public function estimate_reference_no_exists($next_number)
     {
