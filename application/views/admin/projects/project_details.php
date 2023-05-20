@@ -146,8 +146,12 @@ $edited = can_action('57', 'edited');
             </li>
             <li class="<?= $active == 16 ? 'active' : '' ?>"><a href="#project_settings" data-toggle="tab"><?= lang('project_settings') ?></a>
             </li>
+            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; ">
+                <a href="#reports_part" data-toggle="tab"><?= lang('report') ?>
+                </a>
+            </li>
             <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#activities" data-toggle="tab"><?= lang('activities') ?>
-                    <strong class="pull-right"><?= (!empty($activities_info) ? count($activities_info) : null) ?></strong></a>
+                    <strong class="pull-right"><?= (!empty($activities_info) ? count($activities_info) : null) ?></strong>
             </li>
         </ul>
     </div>
@@ -1532,6 +1536,22 @@ $edited = can_action('57', 'edited');
                             }
                         }
                         ?>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane " id="reports_part" style="position: relative;">
+                <div class="panel panel-custom">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><?= lang('report') ?>
+                            <?php
+                            $role = $this->session->userdata('user_type');
+                            if ($role == 1) {
+                            ?>
+                            <?php } ?>
+                        </h3>
+                    </div>
+                    <div class="panel-body " id="chat-box">
+
                     </div>
                 </div>
             </div>
