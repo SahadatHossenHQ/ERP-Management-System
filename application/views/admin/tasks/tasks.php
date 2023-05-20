@@ -463,7 +463,7 @@ if ($tasks == 'kanban') {
 
                                                 </div>
                                             </div>
-                                            <div class="form-group <?= $project_id ? 'milestone_module' : 'company' ?>"
+                                            <div class="form-group <?= $project_id ? 'milestone_module' : 'company' ?> hide"
                                                  id="milestone_show">
                                                 <label for="field-1"
                                                        class="col-sm-3 control-label"><?= lang('milestones') ?>

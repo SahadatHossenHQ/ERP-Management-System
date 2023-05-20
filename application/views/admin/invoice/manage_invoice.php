@@ -221,10 +221,10 @@ if (!empty($invoice_info)) {
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs">
                     <li class="<?= $active == 1 ? 'active' : ''; ?>"><a href="#manage"
-                                                                        data-toggle="tab"><?= lang('all_invoices') ?></a>
+                                                                        data-toggle="tab"><?= lang('bill_received') ?></a>
                     </li>
                     <li class="<?= $active == 2 ? 'active' : ''; ?>"><a href="#create"
-                                                                        data-toggle="tab"><?= lang('create_invoice') ?></a>
+                                                                        data-toggle="tab"><?= lang('new_received') ?></a>
                     </li>
                 </ul>
                 <div class="tab-content bg-white">
@@ -233,7 +233,7 @@ if (!empty($invoice_info)) {
                         <?php } else { ?>
                         <div class="panel panel-custom">
                             <header class="panel-heading ">
-                                <div class="panel-title"><strong><?= lang('all_invoices') ?></strong></div>
+                                <div class="panel-title"><strong><?= lang('bill_received') ?></strong></div>
                             </header>
                             <?php } ?>
                             <div class="table-responsive">
@@ -241,8 +241,8 @@ if (!empty($invoice_info)) {
                                        width="100%">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('invoice') ?></th>
-                                        <th class="col-date"><?= lang('invoice_date') ?></th>
+                                        <th><?= lang('bill_received') ?></th>
+                                        <th class="col-date"><?= lang('received_date') ?></th>
                                         <th class="col-date"><?= lang('due_date') ?></th>
                                         <th><?= lang('client_name') ?></th>
                                         <th class="col-currency"><?= lang('due_amount') ?></th>
@@ -691,26 +691,26 @@ if (!empty($invoice_info)) {
                                         $all_payment = get_result('tbl_online_payment');
                                         foreach ($all_payment as $key => $payment) {
                                             $allow_gateway = 'allow_' . slug_it(strtolower($payment->gateway_name));
-                                            $gateway_status = slug_it(strtolower($payment->gateway_name)).'_status' ;
-                                            if (config_item($gateway_status) == 'active') {?>
-                                            <div class="form-group">
-                                                <label for="field-1"
-                                                       class="col-sm-4 control-label"><?= lang($allow_gateway) ?></label>
-                                                <div class="col-sm-7">
-                                                    <div class="checkbox c-checkbox">
-                                                        <label class="needsclick">
-                                                            <input type="checkbox" value="Yes"
-                                                                <?php if (!empty($invoice_info) && $invoice_info->$allow_gateway == 'Yes') {
-                                                                    echo 'checked';
-                                                                } ?> name="<?= $allow_gateway?>">
-                                                            <span class="fa fa-check"></span>
-                                                        </label>
+                                            $gateway_status = slug_it(strtolower($payment->gateway_name)) . '_status';
+                                            if (config_item($gateway_status) == 'active') { ?>
+                                                <div class="form-group">
+                                                    <label for="field-1"
+                                                           class="col-sm-4 control-label"><?= lang($allow_gateway) ?></label>
+                                                    <div class="col-sm-7">
+                                                        <div class="checkbox c-checkbox">
+                                                            <label class="needsclick">
+                                                                <input type="checkbox" value="Yes"
+                                                                    <?php if (!empty($invoice_info) && $invoice_info->$allow_gateway == 'Yes') {
+                                                                        echo 'checked';
+                                                                    } ?> name="<?= $allow_gateway ?>">
+                                                                <span class="fa fa-check"></span>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        <?php }
-                                    }?>
-                                        
+                                            <?php }
+                                        } ?>
+
                                         <?php if (!empty($project_id)): ?>
                                             <div class="form-group">
                                                 <label for="field-1"
@@ -1106,15 +1106,15 @@ if (!empty($invoice_info)) {
     }
 
     $(document).ready(function () {
-        $("#select_all_tasks").on("click", function(){
+        $("#select_all_tasks").on("click", function () {
             $(".tasks_list").prop('checked', $(this).prop('checked'));
         });
-        $("#select_all_expense").on("click", function(){
+        $("#select_all_expense").on("click", function () {
             $(".expense_list").prop('checked', $(this).prop('checked'));
         });
         $('[data-toggle="popover"]').popover();
 
-        $('#start_recurring').on("click", function(){
+        $('#start_recurring').on("click", function () {
             if ($('#show_recurring').is(":visible")) {
                 $('#recuring_frequency').prop('disabled', true);
             } else {
