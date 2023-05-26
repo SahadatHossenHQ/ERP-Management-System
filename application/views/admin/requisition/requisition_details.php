@@ -72,15 +72,15 @@ $deleted = can_action('14', 'deleted');
                 </a><?php } ?>
 
             <a data-toggle="modal" data-target="#myModal_large"
-               data-original-title="<?= lang('convert_to_invoice') ?>"
+               data-original-title="<?= lang('convert_to_expense') ?>"
                data-toggle="tooltip" data-placement="top"
                class="btn btn-xs btn-purple <?php
                if ($estimates_info->invoiced == 'Yes' OR $estimates_info->client_id == '0') {
                    echo "disabled";
                }
-               ?>" href="<?= base_url() ?>admin/estimates/convert_to_invoice/<?= $estimates_info->requisition_id ?>"
-               title="<?= lang('convert_to_invoice') ?>">
-                <?= lang('convert_to_invoice') ?></a>
+               ?>" href="<?= base_url() ?>admin/requisition/convert_to_expense/<?= $estimates_info->requisition_id ?>"
+               title="<?= lang('convert_to_expense') ?>">
+                <?= lang('convert_to_expense') ?></a>
             <span data-toggle="tooltip" data-placement="top" title="<?= lang('clone') . ' requisition_details.php' . lang('estimate') ?>">
             <a data-toggle="modal" data-target="#myModal" title="<?= lang('clone') . ' requisition_details.php' . lang('estimate') ?>"
                href="<?= base_url() ?>admin/estimates/clone_estimate/<?= $estimates_info->requisition_id ?>"

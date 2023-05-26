@@ -3019,7 +3019,7 @@ $edited = can_action('57', 'edited');
                                             ?>
                                                 <tr>
                                                     <td>
-                                                        <a class="text-info" href="<?= base_url() ?>admin/requisition/index/estimates_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
+                                                        <a class="text-info" href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
                                                     </td>
                                                     <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
                                                         <?php

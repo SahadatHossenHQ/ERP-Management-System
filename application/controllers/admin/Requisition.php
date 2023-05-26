@@ -50,7 +50,7 @@ class Requisition extends Admin_Controller
         // get permission user
         $data['permission_user'] = $this->requisition_model->all_permission_user('14');
         $data['all_estimates_info'] = $this->requisition_model->get_permission('tbl_requisitions');
-        if ($action == 'estimates_details') {
+        if ($action == 'requisition_details') {
             $data['title'] = "Requisitions Details"; //Page title
             $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
             if (empty($data['estimates_info'])) {
@@ -100,8 +100,8 @@ class Requisition extends Admin_Controller
             $this->datatables->join_table = array('tbl_client');
             $this->datatables->join_where = array('tbl_requisitions.client_id=tbl_client.client_id');
             $this->datatables->select = 'tbl_requisitions.*,tbl_client.name';
-            $this->datatables->column_order = array('reference_no', 'tbl_client.name', 'estimate_date', 'due_date', 'status', 'tags');
-            $this->datatables->column_search = array('reference_no', 'tbl_client.name', 'estimate_date', 'due_date', 'status', 'tags');
+            $this->datatables->column_order = array('reference_no', 'tbl_client.name', 'requisition_date', 'due_date', 'status', 'tags');
+            $this->datatables->column_search = array('reference_no', 'tbl_client.name', 'requisition_date', 'due_date', 'status', 'tags');
             $this->datatables->order = array('requisition_id' => 'desc');
 
             if (empty($filterBy)) {
@@ -282,214 +282,220 @@ class Requisition extends Admin_Controller
     }
 
     public
-    function save_estimates($id = NULL)
+    function save_requisition($id = NULL)
     {
-        $created = can_action('14', 'created');
-        $edited = can_action('14', 'edited');
-        if (!empty($created) || !empty($edited) && !empty($id)) {
-            $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
-            $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
-            $data['estimate_date'] = date('Y-m-d', strtotime($this->input->post('estimate_date', TRUE)));
-            if (empty($data['estimate_date'])) {
-                $data['estimate_date'] = date('Y-m-d');
-            }
-            $data['estimate_year'] = date('Y', strtotime($this->input->post('estimate_date', TRUE)));
-            $data['estimate_month'] = date('Y-m', strtotime($this->input->post('estimate_date', TRUE)));
-            $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date', TRUE)));
-            $data['notes'] = $this->input->post('notes', TRUE);
-            $tax['tax_name'] = $this->input->post('total_tax_name', TRUE);
-            $tax['total_tax'] = $this->input->post('total_tax', TRUE);
-            $data['total_tax'] = json_encode($tax);
-            $i_tax = 0;
-            if (!empty($tax['total_tax'])) {
-                foreach ($tax['total_tax'] as $v_tax) {
-                    $i_tax += $v_tax;
+        try {
+            $created = can_action('14', 'created');
+            $edited = can_action('14', 'edited');
+            if (!empty($created) || !empty($edited) && !empty($id)) {
+                $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+                $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
+                $data['requisition_date'] = date('Y-m-d', strtotime($this->input->post('requisition_date', TRUE)));
+                if (empty($data['requisition_date'])) {
+                    $data['requisition_date'] = date('Y-m-d');
                 }
-            }
-            $data['tax'] = $i_tax;
-            $save_as_draft = $this->input->post('status', TRUE);
-            if (!empty($save_as_draft)) {
-                $data['status'] = $save_as_draft;
-            } else {
-                $data['status'] = 'pending';
-            }
-
-            $currency = $this->requisition_model->client_currency_symbol($data['client_id']);
-            if (!empty($currency->code)) {
-                $curren = $currency->code;
-            } else {
-                $curren = config_item('default_currency');
-            }
-            $data['currency'] = $curren;
-
-            $permission = $this->input->post('permission', true);
-            if (!empty($permission)) {
-                if ($permission == 'everyone') {
-                    $assigned = 'all';
+                $data['requisition_year'] = date('Y', strtotime($this->input->post('requisition_date', TRUE)));
+                $data['requisition_month'] = date('Y-m', strtotime($this->input->post('requisition_date', TRUE)));
+                $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date', TRUE)));
+                $data['notes'] = $this->input->post('notes', TRUE);
+                $tax['tax_name'] = $this->input->post('total_tax_name', TRUE);
+                $tax['total_tax'] = $this->input->post('total_tax', TRUE);
+                $data['total_tax'] = json_encode($tax);
+                $i_tax = 0;
+                if (!empty($tax['total_tax'])) {
+                    foreach ($tax['total_tax'] as $v_tax) {
+                        $i_tax += $v_tax;
+                    }
+                }
+                $data['tax'] = $i_tax;
+                $save_as_draft = $this->input->post('status', TRUE);
+                if (!empty($save_as_draft)) {
+                    $data['status'] = $save_as_draft;
                 } else {
-                    $assigned_to = $this->requisition_model->array_from_post(array('assigned_to'));
-                    if (!empty($assigned_to['assigned_to'])) {
-                        foreach ($assigned_to['assigned_to'] as $assign_user) {
-                            $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                    $data['status'] = 'pending';
+                }
+
+                $currency = $this->requisition_model->client_currency_symbol($data['client_id']);
+                if (!empty($currency->code)) {
+                    $curren = $currency->code;
+                } else {
+                    $curren = config_item('default_currency');
+                }
+                $data['currency'] = $curren;
+
+                $permission = $this->input->post('permission', true);
+                if (!empty($permission)) {
+                    if ($permission == 'everyone') {
+                        $assigned = 'all';
+                    } else {
+                        $assigned_to = $this->requisition_model->array_from_post(array('assigned_to'));
+                        if (!empty($assigned_to['assigned_to'])) {
+                            foreach ($assigned_to['assigned_to'] as $assign_user) {
+                                $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                            }
                         }
                     }
-                }
-                if (!empty($assigned)) {
-                    if ($assigned != 'all') {
-                        $assigned = json_encode($assigned);
+                    if (!empty($assigned)) {
+                        if ($assigned != 'all') {
+                            $assigned = json_encode($assigned);
+                        }
+                    } else {
+                        $assigned = 'all';
                     }
+                    $data['permission'] = $assigned;
                 } else {
-                    $assigned = 'all';
+                    set_message('error', lang('assigned_to') . ' Field is required');
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        redirect('admin/requisition');
+                    } else {
+                        redirect($_SERVER['HTTP_REFERER']);
+                    }
                 }
-                $data['permission'] = $assigned;
-            } else {
-                set_message('error', lang('assigned_to') . ' Field is required');
-                if (empty($_SERVER['HTTP_REFERER'])) {
-                    redirect('admin/estimates');
-                } else {
-                    redirect($_SERVER['HTTP_REFERER']);
-                }
-            }
 
-            // get all client
-            $this->requisition_model->_table_name = 'tbl_requisitions';
-            $this->requisition_model->_primary_key = 'requisition_id';
-            if (!empty($id)) {
-                $estimates_id = $id;
-                $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
-                if (!empty($can_edit)) {
+                // get all client
+                $this->requisition_model->_table_name = 'tbl_requisitions';
+                $this->requisition_model->_primary_key = 'requisition_id';
+                if (!empty($id)) {
+                    $requisition_id = $id;
+                    $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $id));
+                    if (!empty($can_edit)) {
+                        $this->requisition_model->save($data, $id);
+                    } else {
+                        set_message('error', lang('there_in_no_value'));
+                        redirect('admin/requisition');
+                    }
                     $this->requisition_model->save($data, $id);
+                    $action = ('activity_requisition_updated');
+                    $msg = lang('requisition_updated');
+                    $description = 'not_requisition_updated';
                 } else {
-                    set_message('error', lang('there_in_no_value'));
-                    redirect('admin/estimates');
+
+                    $requisition_id = $this->requisition_model->save($data);
+                    $action = ('activity_requisition_created');
+                    $description = 'not_estimate_created';
+                    $msg = lang('requisition_created');
                 }
-                $this->requisition_model->save($data, $id);
-                $action = ('activity_estimates_updated');
-                $msg = lang('estimate_updated');
-                $description = 'not_estimate_updated';
-            } else {
-                $estimates_id = $this->requisition_model->save($data);
-                $action = ('activity_estimates_created');
-                $description = 'not_estimate_created';
-                $msg = lang('estimate_created');
-            }
-            save_custom_field(10, $estimates_id);
+                save_custom_field(10, $requisition_id);
 
-            // save items
-            $invoices_to_merge = $this->input->post('invoices_to_merge', TRUE);
-            $cancel_merged_invoices = $this->input->post('cancel_merged_estimate', TRUE);
-            if (!empty($invoices_to_merge)) {
-                foreach ($invoices_to_merge as $inv_id) {
-                    if (empty($cancel_merged_invoices)) {
-                        $this->db->where('requisition_id', $inv_id);
-                        $this->db->delete('tbl_requisitions');
+                // save items
+                $invoices_to_merge = $this->input->post('invoices_to_merge', TRUE);
+                $cancel_merged_invoices = $this->input->post('cancel_merged_estimate', TRUE);
+                if (!empty($invoices_to_merge)) {
+                    foreach ($invoices_to_merge as $inv_id) {
+                        if (empty($cancel_merged_invoices)) {
+                            $this->db->where('requisition_id', $inv_id);
+                            $this->db->delete('tbl_requisitions');
 
-                        $this->db->where('requisition_id', $inv_id);
-                        $this->db->delete('tbl_requisition_items');
-                    } else {
-                        $mdata = array('status' => 'cancelled');
-                        $this->requisition_model->_table_name = 'tbl_requisitions';
-                        $this->requisition_model->_primary_key = 'requisition_id';
-                        $this->requisition_model->save($mdata, $inv_id);
-                    }
-                }
-            }
-
-            $removed_items = $this->input->post('removed_items', TRUE);
-            if (!empty($removed_items)) {
-                foreach ($removed_items as $r_id) {
-                    if ($r_id != 'undefined') {
-                        $this->db->where('requisition_items_id', $r_id);
-                        $this->db->delete('tbl_requisition_items');
-                    }
-                }
-            }
-
-            $itemsid = $this->input->post('requisition_items_id', TRUE);
-            $items_data = $this->input->post('items', true);
-
-            if (!empty($items_data)) {
-                $index = 0;
-                foreach ($items_data as $items) {
-                    $items['requisition_id'] = $estimates_id;
-                    unset($items['invoice_items_id']);
-                    unset($items['total_qty']);
-                    $tax = 0;
-                    if (!empty($items['taxname'])) {
-                        foreach ($items['taxname'] as $tax_name) {
-                            $tax_rate = explode("|", $tax_name);
-                            $tax += $tax_rate[1];
+                            $this->db->where('requisition_id', $inv_id);
+                            $this->db->delete('tbl_requisition_items');
+                        } else {
+                            $mdata = array('status' => 'cancelled');
+                            $this->requisition_model->_table_name = 'tbl_requisitions';
+                            $this->requisition_model->_primary_key = 'requisition_id';
+                            $this->requisition_model->save($mdata, $inv_id);
                         }
-                        $items['item_tax_name'] = $items['taxname'];
-                        unset($items['taxname']);
-                        $items['item_tax_name'] = json_encode($items['item_tax_name']);
                     }
-                    $price = $items['quantity'] * $items['unit_cost'];
-                    $items['item_tax_total'] = ($price / 100 * $tax);
-                    $items['total_cost'] = $price;
-                    // get all client
-                    $this->requisition_model->_table_name = 'tbl_requisition_items';
-                    $this->requisition_model->_primary_key = 'requisition_items_id';
-                    if (!empty($itemsid[$index])) {
-                        $items_id = $itemsid[$index];
-                        $this->requisition_model->save($items, $items_id);
+                }
+
+                $removed_items = $this->input->post('removed_items', TRUE);
+                if (!empty($removed_items)) {
+                    foreach ($removed_items as $r_id) {
+                        if ($r_id != 'undefined') {
+                            $this->db->where('requisition_items_id', $r_id);
+                            $this->db->delete('tbl_requisition_items');
+                        }
+                    }
+                }
+
+                $itemsid = $this->input->post('requisition_items_id', TRUE);
+                $items_data = $this->input->post('items', true);
+
+                if (!empty($items_data)) {
+                    $index = 0;
+                    foreach ($items_data as $items) {
+                        $items['requisition_id'] = $requisition_id;
+                        unset($items['invoice_items_id']);
+                        unset($items['total_qty']);
+                        $tax = 0;
+                        if (!empty($items['taxname'])) {
+                            foreach ($items['taxname'] as $tax_name) {
+                                $tax_rate = explode("|", $tax_name);
+                                $tax += $tax_rate[1];
+                            }
+                            $items['item_tax_name'] = $items['taxname'];
+                            unset($items['taxname']);
+                            $items['item_tax_name'] = json_encode($items['item_tax_name']);
+                        }
+                        $price = $items['quantity'] * $items['unit_cost'];
+                        $items['item_tax_total'] = ($price / 100 * $tax);
+                        $items['total_cost'] = $price;
+                        // get all client
+                        $this->requisition_model->_table_name = 'tbl_requisition_items';
+                        $this->requisition_model->_primary_key = 'requisition_items_id';
+                        if (!empty($itemsid[$index])) {
+                            $items_id = $itemsid[$index];
+                            $this->requisition_model->save($items, $items_id);
+                        } else {
+                            $items_id = $this->requisition_model->save($items);
+                        }
+                        $index++;
+                    }
+                }
+                $activity = array(
+                    'user' => $this->session->userdata('user_id'),
+                    'module' => 'requisition',
+                    'module_field_id' => $requisition_id,
+                    'activity' => $action,
+                    'icon' => 'fa-shopping-cart',
+                    'link' => 'admin/estimates/index/requisition_details/' . $requisition_id,
+                    'value1' => $data['reference_no']
+                );
+                $this->requisition_model->_table_name = 'tbl_activities';
+                $this->requisition_model->_primary_key = 'activities_id';
+                $this->requisition_model->save($activity);
+
+                // send notification to client
+                if (!empty($data['client_id'])) {
+                    $client_info = $this->requisition_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
+                    if (!empty($client_info->primary_contact)) {
+                        $notifyUser = array($client_info->primary_contact);
                     } else {
-                        $items_id = $this->requisition_model->save($items);
+                        $user_info = $this->requisition_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
+                        if (!empty($user_info)) {
+                            $notifyUser = array($user_info->user_id);
+                        }
                     }
-                    $index++;
                 }
-            }
-            $activity = array(
-                'user' => $this->session->userdata('user_id'),
-                'module' => 'estimates',
-                'module_field_id' => $estimates_id,
-                'activity' => $action,
-                'icon' => 'fa-shopping-cart',
-                'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
-                'value1' => $data['reference_no']
-            );
-            $this->requisition_model->_table_name = 'tbl_activities';
-            $this->requisition_model->_primary_key = 'activities_id';
-            $this->requisition_model->save($activity);
+                if (!empty($notifyUser)) {
+                    foreach ($notifyUser as $v_user) {
+                        if ($v_user != $this->session->userdata('user_id')) {
+                            add_notification(array(
+                                'to_user_id' => $v_user,
+                                'icon' => 'shopping-cart',
+                                'description' => $description,
+                                'link' => 'client/requisition/index/requisition_details/' . $requisition_id,
+                                'value' => $data['reference_no'],
+                            ));
+                        }
+                    }
+                    show_notification($notifyUser);
+                }
 
-            // send notification to client
-            if (!empty($data['client_id'])) {
-                $client_info = $this->requisition_model->check_by(array('client_id' => $data['client_id']), 'tbl_client');
-                if (!empty($client_info->primary_contact)) {
-                    $notifyUser = array($client_info->primary_contact);
-                } else {
-                    $user_info = $this->requisition_model->check_by(array('company' => $data['client_id']), 'tbl_account_details');
-                    if (!empty($user_info)) {
-                        $notifyUser = array($user_info->user_id);
-                    }
-                }
+                // messages for user
+                $type = "success";
+                $message = $msg;
+                set_message($type, $message);
             }
-            if (!empty($notifyUser)) {
-                foreach ($notifyUser as $v_user) {
-                    if ($v_user != $this->session->userdata('user_id')) {
-                        add_notification(array(
-                            'to_user_id' => $v_user,
-                            'icon' => 'shopping-cart',
-                            'description' => $description,
-                            'link' => 'client/estimates/index/estimates_details/' . $estimates_id,
-                            'value' => $data['reference_no'],
-                        ));
-                    }
-                }
-                show_notification($notifyUser);
+            if (!empty($data['project_id']) && is_numeric($data['project_id'])) {
+                redirect('admin/projects/project_details/' . $data['project_id']);
+            } else {
+                redirect('admin/requisition/index/requisition_details/' . $requisition_id);
             }
-
-            // messages for user
-            $type = "success";
-            $message = $msg;
-            set_message($type, $message);
+            redirect('admin/requisition');
+        }  catch (\Exception $e) {
+            echo "Error: ".$e->getMessage();
+            die();
         }
-        if (!empty($data['project_id']) && is_numeric($data['project_id'])) {
-            redirect('admin/projects/project_details/' . $data['project_id']);
-        } else {
-            redirect('admin/estimates/index/estimates_details/' . $estimates_id);
-        }
-        redirect('admin/estimates');
     }
 
     public
@@ -557,7 +563,7 @@ class Requisition extends Admin_Controller
                         'module_field_id' => $items_id,
                         'activity' => $action,
                         'icon' => 'fa-shopping-cart',
-                        'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
+                        'link' => 'admin/requisition/index/requisition_details/' . $estimates_id,
                         'value1' => $items_info->item_name
                     );
                     $this->requisition_model->_table_name = 'tbl_activities';
@@ -572,7 +578,7 @@ class Requisition extends Admin_Controller
             }
             $message = $msg;
             set_message($type, $message);
-            redirect('admin/estimates/index/estimates_details/' . $estimates_id);
+            redirect('admin/requisition/index/requisition_details/' . $estimates_id);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
@@ -675,7 +681,7 @@ class Requisition extends Admin_Controller
                         'module_field_id' => $requisition_items_id,
                         'activity' => $action,
                         'icon' => 'fa-shopping-cart',
-                        'link' => 'admin/estimates/index/estimates_details/' . $data['requisition_id'],
+                        'link' => 'admin/estimates/index/requisition_details/' . $data['requisition_id'],
                         'value1' => $data['item_name']
                     );
                     $this->requisition_model->_table_name = 'tbl_activities';
@@ -687,7 +693,7 @@ class Requisition extends Admin_Controller
             $type = "success";
             $message = lang('estimate_item_save');
             set_message($type, $message);
-            redirect('admin/estimates/index/estimates_details/' . $data['requisition_id']);
+            redirect('admin/estimates/index/requisition_details/' . $data['requisition_id']);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
@@ -803,7 +809,7 @@ class Requisition extends Admin_Controller
                 'module_field_id' => $new_invoice_id,
                 'activity' => ('activity_clone_estimate'),
                 'icon' => 'fa-shopping-cart',
-                'link' => 'admin/estimates/index/estimates_details/' . $new_invoice_id,
+                'link' => 'admin/estimates/index/requisition_details/' . $new_invoice_id,
                 'value1' => ' from ' . $invoice_info->reference_no . ' to ' . $reference_no,
             );
             // Update into tbl_project
@@ -815,7 +821,7 @@ class Requisition extends Admin_Controller
             $type = "success";
             $message = lang('estimate_created');
             set_message($type, $message);
-            redirect('admin/estimates/index/estimates_details/' . $new_invoice_id);
+            redirect('admin/estimates/index/requisition_details/' . $new_invoice_id);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
@@ -849,7 +855,7 @@ class Requisition extends Admin_Controller
             $type = "success";
             $message = lang('estimate_status_changed', $action);
             set_message($type, $message);
-            redirect('admin/estimates/index/estimates_details/' . $id);
+            redirect('admin/estimates/index/requisition_details/' . $id);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
@@ -901,7 +907,7 @@ class Requisition extends Admin_Controller
             if ($action == 'delete_item') {
                 $text = lang('estimate_item_deleted');
                 //                set_message($type, $text);
-                //                redirect('admin/estimates/index/estimates_details/' . $estimates_id);
+                //                redirect('admin/estimates/index/requisition_details/' . $estimates_id);
             } else {
                 $text = lang('estimate_deleted');
 
@@ -950,7 +956,7 @@ class Requisition extends Admin_Controller
         $Ref = str_replace("{ESTIMATE_REF}", $ref, $client_name);
         $Amount = str_replace("{AMOUNT}", $amount, $Ref);
         $Currency = str_replace("{CURRENCY}", $currency, $Amount);
-        $link = str_replace("{ESTIMATE_LINK}", base_url() . 'client/estimates/index/estimates_details/' . $estimates_id, $Currency);
+        $link = str_replace("{ESTIMATE_LINK}", base_url() . 'client/estimates/index/requisition_details/' . $estimates_id, $Currency);
         $message = str_replace("{SITE_NAME}", config_item('company_name'), $link);
 
 
@@ -969,7 +975,7 @@ class Requisition extends Admin_Controller
             'module_field_id' => $estimates_id,
             'activity' => 'activity_estimates_sent',
             'icon' => 'fa-shopping-cart',
-            'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
+            'link' => 'admin/estimates/index/requisition_details/' . $estimates_id,
             'value1' => $ref
         );
         $this->requisition_model->_table_name = 'tbl_activities';
@@ -979,7 +985,7 @@ class Requisition extends Admin_Controller
         $type = 'success';
         $text = lang('estimate_email_sent');
         set_message($type, $text);
-        redirect('admin/estimates/index/estimates_details/' . $estimates_id);
+        redirect('admin/estimates/index/requisition_details/' . $estimates_id);
     }
 
     function send_email_estimates($estimates_id, $message, $subject)
@@ -1022,7 +1028,7 @@ class Requisition extends Admin_Controller
                         'to_user_id' => $v_user,
                         'icon' => 'shopping-cart',
                         'description' => 'not_email_send_alert',
-                        'link' => 'client/estimates/index/estimates_details/' . $estimates_id,
+                        'link' => 'client/estimates/index/requisition_details/' . $estimates_id,
                         'value' => lang('estimate') . ' ' . $estimates_info->reference_no,
                     ));
                 }
@@ -1078,7 +1084,7 @@ class Requisition extends Admin_Controller
             'module_field_id' => $estimates_id,
             'activity' => 'activity_estimates_sent',
             'icon' => 'fa-shopping-cart',
-            'link' => 'admin/estimates/index/estimates_details/' . $estimates_id,
+            'link' => 'admin/estimates/index/requisition_details/' . $estimates_id,
             'value1' => $estimates_info->reference_no
         );
         $this->requisition_model->_table_name = 'tbl_activities';
@@ -1101,7 +1107,7 @@ class Requisition extends Admin_Controller
                         'to_user_id' => $v_user,
                         'icon' => 'shopping-cart',
                         'description' => 'not_email_send_alert',
-                        'link' => 'client/estimates/index/estimates_details/' . $estimates_id,
+                        'link' => 'client/estimates/index/requisition_details/' . $estimates_id,
                         'value' => lang('estimate') . ' ' . $estimates_info->reference_no,
                     ));
                 }
@@ -1113,11 +1119,11 @@ class Requisition extends Admin_Controller
         $type = 'success';
         $text = lang('estimate_email_sent');
         set_message($type, $text);
-        redirect('admin/estimates/index/estimates_details/' . $estimates_id);
+        redirect('admin/estimates/index/requisition_details/' . $estimates_id);
     }
 
     public
-    function convert_to_invoice($id)
+    function convert_to_expense($id)
     {
         $data['title'] = lang('convert_to_invoice');
         $edited = can_action('14', 'edited');
@@ -1132,12 +1138,12 @@ class Requisition extends Admin_Controller
 
             $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
 
-            $data['modal_subview'] = $this->load->view('admin/estimates/convert_to_invoice', $data, FALSE);
+            $data['modal_subview'] = $this->load->view('admin/requisition/convert_to_expance', $data, FALSE);
             $this->load->view('admin/_layout_modal_large', $data);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
-                redirect('admin/estimates');
+                redirect('admin/requisition');
             } else {
                 redirect($_SERVER['HTTP_REFERER']);
             }
@@ -1322,7 +1328,7 @@ class Requisition extends Admin_Controller
             'module_field_id' => $estimate_id,
             'activity' => 'activity_estimate_convert_to_invoice',
             'icon' => 'fa-shopping-cart',
-            'link' => 'admin/estimates/index/estimates_details/' . $estimate_id,
+            'link' => 'admin/estimates/index/requisition_details/' . $estimate_id,
             'value1' => $data['reference_no']
         );
         $this->requisition_model->_table_name = 'tbl_activities';
@@ -1359,7 +1365,7 @@ class Requisition extends Admin_Controller
         $type = "success";
         $message = lang('estimate_invoiced');
         set_message($type, $message);
-        redirect('admin/estimates/index/estimates_details/' . $estimate_id);
+        redirect('admin/estimates/index/requisition_details/' . $estimate_id);
     }
 
     function return_items($items_id)
