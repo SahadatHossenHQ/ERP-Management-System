@@ -12,6 +12,7 @@ class Frontend extends MY_Controller
         $this->load->model('job_circular_model');
         $this->load->model('invoice_model');
         $this->load->model('estimates_model');
+        $this->load->model('requisition_model');
         $this->load->model('proposal_model');
         $this->load->model('kb_model');
         $this->load->helper('string');
@@ -206,6 +207,44 @@ class Frontend extends MY_Controller
         }
 
         $data['subview'] = $this->load->view('frontend/estimate/estimates_details', $data, TRUE);
+        $this->load->view('frontend/_layout_main', $data);
+    }
+    public function requisition($id)
+    {
+        $data['title'] = lang('requisition_details');
+        $id = url_decode($id);
+        $data['estimates_info'] = $this->requisition_model->check_by(array('requisition_id' => $id), 'tbl_requisitions');
+        $data['client_info'] = $this->requisition_model->check_by(array('client_id' => $data['estimates_info']->client_id), 'tbl_client');
+        if (empty($data['estimates_info'])) {
+            set_message('error', 'No data Found');
+            redirect('frontend/');
+        }
+        $lang = $this->invoice_model->all_files();
+        foreach ($lang as $file => $altpath) {
+            $shortfile = str_replace("_lang.php", "", $file);
+            //CI will record your lang file is loaded, unset it and then you will able to load another
+            //unset the lang file to allow the loading of another file
+            if (isset($this->lang->is_loaded)) {
+                $loaded = sizeof($this->lang->is_loaded);
+                if ($loaded < 3) {
+                    for ($i = 3; $i <= $loaded; $i++) {
+                        unset($this->lang->is_loaded[$i]);
+                    }
+                } else {
+                    for ($i = 0; $i <= $loaded; $i++) {
+                        unset($this->lang->is_loaded[$i]);
+                    }
+                }
+            }
+            if (!empty($data['client_info']->language)) {
+                $language = $data['client_info']->language;
+            } else {
+                $language = 'english';
+            }
+            $data['language_info'] = $this->lang->load($shortfile, $language, TRUE, TRUE, $altpath);
+        }
+
+        $data['subview'] = $this->load->view('frontend/estimate/requisition_details', $data, TRUE);
         $this->load->view('frontend/_layout_main', $data);
     }
 

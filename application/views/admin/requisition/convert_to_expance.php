@@ -14,7 +14,7 @@
             });
         </script>
         <form role="form" id="from_items" data-parsley-validate="" novalidate=""
-              action="<?php echo base_url(); ?>admin/estimates/converted/<?= $estimates_info->requisition_id ?>"
+              action="<?php echo base_url(); ?>admin/requisition/converted/<?= $estimates_info->requisition_id ?>"
               method="post"
               class="form-horizontal form-groups-bordered">
 
@@ -250,7 +250,7 @@
                         <div class="form-group">
                             <label for="field-1"
                                    class="col-sm-4 control-label"><?= lang('sales') . ' ' . lang('agent') ?></label>
-                            <div class="col-sm-7">
+                            <div class="col-sm-6">
                                 <select class="form-control select_box" required style="width: 100%"
                                         name="user_id">
                                     <option
@@ -279,6 +279,60 @@
                                 </select>
                             </div>
                         </div>
+
+
+                        <label class="col-lg-4 control-label"><?= lang('amount') ?> <span
+                                    class="text-danger">*</span>
+                        </label>
+                        <div class="col-lg-8 " style=" margin-bottom: 4px">
+                            <div class="input-group  ">
+                                <input class="form-control total" data-parsley-type="number" type="number"
+                                        name="amount" readonly>
+                            </div>
+                        </div>
+
+                        <label class="col-lg-4 control-label"><?= lang('account') ?> <span
+                                    class="text-danger">*</span>
+                        </label>
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <select class="form-control select_box" style="width: 100%"
+                                        name="account_id"
+                                        required <?php
+                                if (!empty($expense_info) && $expense_info->account_id != '0') {
+                                    echo 'disabled';
+                                }
+                                ?>>
+                                    <?php
+                                    $account_info = $this->db->order_by('account_id', 'DESC')->get('tbl_accounts')->result();
+                                    if (!empty($account_info)) {
+                                        foreach ($account_info as $v_account) {
+                                            ?>
+                                            <option value="<?= $v_account->account_id ?>"
+                                                <?php
+                                                if (!empty($expense_info)) {
+                                                    echo $expense_info->account_id == $v_account->account_id ? 'selected' : '';
+                                                }
+                                                ?>
+                                            ><?= $v_account->account_name ?></option>
+                                            <?php
+                                        }
+                                    }
+                                    $acreated = can_action('36', 'created');
+                                    ?>
+                                </select>
+<!--                                --><?php //if (!empty($acreated)) { ?>
+<!--                                    <div class="input-group-addon"-->
+<!--                                         title="--><?php //= lang('new') . ' ' . lang('account') ?><!--"-->
+<!--                                         data-toggle="tooltip" data-placement="top">-->
+<!--                                        <a data-toggle="modal" data-target="#myModal"-->
+<!--                                           href="--><?php //= base_url() ?><!--admin/account/new_account"><i-->
+<!--                                                    class="fa fa-plus"></i></a>-->
+<!--                                    </div>-->
+<!--                                --><?php //} ?>
+                            </div>
+                        </div>
+
                         <?php
                                         $all_payment = get_result('tbl_online_payment');
                                         foreach ($all_payment as $key => $payment) {
@@ -288,7 +342,7 @@
                                             <div class="form-group">
                                                 <label for="field-1"
                                                        class="col-sm-4 control-label"><?= lang($allow_gateway) ?></label>
-                                                <div class="col-sm-7">
+                                                <div class="col-sm-8">
                                                     <div class="checkbox c-checkbox">
                                                         <label class="needsclick">
                                                             <input type="checkbox" value="Yes"

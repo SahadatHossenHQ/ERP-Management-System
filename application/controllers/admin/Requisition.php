@@ -853,13 +853,13 @@ class Requisition extends Admin_Controller
             $this->requisition_model->set_action($where, $data, 'tbl_requisitions');
             // messages for user
             $type = "success";
-            $message = lang('estimate_status_changed', $action);
+            $message = lang('requisition_status_changed', $action);
             set_message($type, $message);
-            redirect('admin/estimates/index/requisition_details/' . $id);
+            redirect('admin/requisition/index/requisition_details/' . $id);
         } else {
             set_message('error', lang('there_in_no_value'));
             if (empty($_SERVER['HTTP_REFERER'])) {
-                redirect('admin/estimates');
+                redirect('admin/requisition');
             } else {
                 redirect($_SERVER['HTTP_REFERER']);
             }
@@ -1151,9 +1151,259 @@ class Requisition extends Admin_Controller
     }
 
     public
-    function converted($estimate_id)
+    function converted($requisition_id)
     {
-        $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+        $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id',
+            'discount_type','amount','account_id',
+            'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+
+        if (!empty($requisition_id)) {
+            $data = $this->transactions_model->array_from_post(
+                array('transaction_prefix', 'name', 'date', 'notes', 'category_id', 'paid_by',
+                    'tags', 'payment_methods_id', 'reference',
+                    'project_id', 'billable', 'client_visible',
+                'repeat_every', 'total_cycles', 'done_cycles')
+            );
+
+            $repeat_every_custom = $this->input->post('repeat_every_custom', true);
+            $repeat_type_custom = $this->input->post('repeat_type_custom', true);
+            // Recurring expense set to NO, Cancelled
+            if ($data['repeat_every'] == '') {
+                $data['total_cycles'] = 0;
+                $data['done_cycles'] = 0;
+                $data['last_recurring_date'] = null;
+            }
+            if (isset($data['repeat_every']) && $data['repeat_every'] != '') {
+                $data['recurring'] = 'Yes';
+                if ($data['repeat_every'] == 'custom') {
+                    $data['repeat_every'] = $repeat_every_custom;
+                    $data['recurring_type'] = $repeat_type_custom;
+                    $data['custom_recurring'] = 1;
+                } else {
+                    $_temp = explode('_', $data['repeat_every']);
+                    $data['recurring_type'] = $_temp[1];
+                    $data['repeat_every'] = $_temp[0];
+                    $data['custom_recurring'] = 0;
+                }
+            } else {
+                $data['recurring'] = 'No';
+            }
+            $data['total_cycles'] = !isset($data['total_cycles']) || $data['recurring'] == 'No' ? 0 : $data['total_cycles'];
+
+            $data['type'] = 'Expense';
+            if (empty($data['client_visible'])) {
+                $data['client_visible'] = 'No';
+            }
+            if (empty($data['billable'])) {
+                $data['billable'] = 'No';
+            }
+            $data['account_id'] = $this->input->post('account_id', TRUE);
+
+            $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
+            if (!empty($account_info)) {
+                $account_info = $account_info;
+            } else {
+                $account_info = $this->db->get('tbl_accounts')->row();
+            }
+
+            $data['amount'] = $this->input->post('amount', TRUE);
+
+            if (!empty($data['amount'])) {
+                $check_head = $this->db->where('department_head_id', $this->session->userdata('user_id'))->get('tbl_departments')->row();
+                $role = $this->session->userdata('user_type');
+                if ($role == 1 || !empty($check_head)) {
+                    if (!empty($id)) {
+                        $data['account_id'] = $this->input->post('old_account_id', TRUE);
+                    } else {
+                        $data['amount'] = $this->input->post('amount', TRUE);
+                        $data['debit'] = $this->input->post('amount', TRUE);
+
+                        $ac_data['balance'] = $account_info->balance - $data['amount'];
+                        $this->transactions_model->_table_name = "tbl_accounts"; //table name
+                        $this->transactions_model->_primary_key = "account_id";
+                        $this->transactions_model->save($ac_data, $account_info->account_id);
+                    }
+
+                    $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
+                    if (!empty($account_info)) {
+                        $account_info = $account_info;
+                    } else {
+                        $account_info = $this->db->get('tbl_accounts')->row();
+                    }
+                    $data['total_balance'] = $account_info->balance;
+                    $data['status'] = 'paid';
+                }
+
+                $upload_file = array();
+                $files = $this->input->post("files", true);
+                $target_path = getcwd() . "/uploads/";
+                //process the fiiles which has been uploaded by dropzone
+                if (!empty($files) && is_array($files)) {
+                    foreach ($files as $key => $file) {
+                        if (!empty($file)) {
+                            $file_name = $this->input->post('file_name_' . $file, true);
+                            $new_file_name = move_temp_file($file_name, $target_path);
+                            $file_ext = explode(".", $new_file_name);
+                            $is_image = check_image_extension($new_file_name);
+                            $size = $this->input->post('file_size_' . $file, true) / 1000;
+                            if ($new_file_name) {
+                                $up_data = array(
+                                    "fileName" => $new_file_name,
+                                    "path" => "uploads/" . $new_file_name,
+                                    "fullPath" => getcwd() . "/uploads/" . $new_file_name,
+                                    "ext" => '.' . end($file_ext),
+                                    "size" => round($size, 2),
+                                    "is_image" => $is_image,
+                                );
+                                array_push($upload_file, $up_data);
+                            }
+                        }
+                    }
+                }
+
+                $fileName = $this->input->post('fileName', true);
+                $path = $this->input->post('path', true);
+                $fullPath = $this->input->post('fullPath', true);
+                $size = $this->input->post('size', true);
+                $is_image = $this->input->post('is_image', true);
+
+                if (!empty($fileName)) {
+                    foreach ($fileName as $key => $name) {
+                        $old['fileName'] = $name;
+                        $old['path'] = $path[$key];
+                        $old['fullPath'] = $fullPath[$key];
+                        $old['size'] = $size[$key];
+                        $old['is_image'] = $is_image[$key];
+
+                        array_push($upload_file, $old);
+                    }
+                }
+                if (!empty($upload_file)) {
+                    $data['attachement'] = json_encode($upload_file);
+                } else {
+                    $data['attachement'] = null;
+                }
+
+                $permission = $this->input->post('permission', true);
+                if (!empty($permission)) {
+                    if ($permission == 'everyone') {
+                        $assigned = 'all';
+                    } else {
+                        $assigned_to = $this->transactions_model->array_from_post(array('assigned_to'));
+                        if (!empty($assigned_to['assigned_to'])) {
+                            foreach ($assigned_to['assigned_to'] as $assign_user) {
+                                $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                            }
+                        }
+                    }
+                    if (!empty($assigned)) {
+                        if ($assigned != 'all') {
+                            $assigned = json_encode($assigned);
+                        }
+                    } else {
+                        $assigned = 'all';
+                    }
+                    $data['permission'] = $assigned;
+                } else {
+                    set_message('error', lang('assigned_to') . ' Field is required');
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        redirect('admin/transactions/expense');
+                    } else {
+                        redirect($_SERVER['HTTP_REFERER']);
+                    }
+                }
+
+
+                $this->transactions_model->_table_name = "tbl_transactions"; //table name
+                $this->transactions_model->_primary_key = "transactions_id";
+
+
+                if (!empty($id)) {
+                    $this->transactions_model->save($data, $id);
+                    $activity = ('activity_update_expense');
+                    $msg = lang('update_a_expense');
+                    $description = 'not_expense_update';
+                    $not_value = lang('title') . ' ' . $data['name'] . ' ' . lang('date') . ' ' . strftime(config_item('date_format'), strtotime($data['date']));
+                } else {
+                    $data['added_by'] = $this->session->userdata('user_id');
+                    $id = $this->transactions_model->save($data);
+                    // send sms
+                    $this->send_transactions_sms('expense', $id);
+                    $activity = ('activity_new_expense');
+                    $msg = lang('save_new_expense');
+                    $description = 'not_expense_saved';
+                    $not_value = lang('account') . ': ' . $account_info->account_name . ' ' . lang('amount') . ': ' . display_money($data['amount']);
+                }
+                save_custom_field(2, $id);
+                // save into activities
+                $activities = array(
+                    'user' => $this->session->userdata('user_id'),
+                    'module' => 'transactions',
+                    'module_field_id' => $id,
+                    'activity' => $activity,
+                    'icon' => 'fa-building-o',
+                    'link' => 'admin/transactions/view_details/' . $id,
+                    'value1' => $account_info->account_name,
+                    'value2' => $data['amount'],
+                );
+                // Update into tbl_project
+                $this->transactions_model->_table_name = "tbl_activities"; //table name
+                $this->transactions_model->_primary_key = "activities_id";
+                $this->transactions_model->save($activities);
+                $type = 'success';
+                if ($role == 3 && empty($check_head)) {
+                    $this->expense_request_email($data, $id);
+                }
+                $designation_id = $this->session->userdata('designations_id');
+                if (!empty($designation_id)) {
+                    $designation_info = $this->transactions_model->check_by(array('designations_id' => $this->session->userdata('designations_id')), 'tbl_designations');
+                }
+                if (!empty($designation_info)) {
+                    $dept_head = $this->transactions_model->check_by(array('departments_id' => $designation_info->departments_id), 'tbl_departments');
+                }
+                // get departments head by departments id
+                $all_admin = $this->db->where('role_id', 1)->get('tbl_users')->result();
+                if (!empty($dept_head)) {
+                    $head = $this->db->where('user_id', $dept_head->department_head_id)->get('tbl_users')->row();
+                    array_push($all_admin, $head);
+                }
+
+                $notifyUser = array();
+                if (!empty($all_admin)) {
+                    foreach ($all_admin as $v_user) {
+                        if (!empty($v_user)) {
+                            if ($v_user->user_id != $this->session->userdata('user_id')) {
+                                array_push($notifyUser, $v_user->user_id);
+                                add_notification(array(
+                                    'to_user_id' => $v_user->user_id,
+                                    'icon' => 'building-o',
+                                    'description' => $description,
+                                    'link' => 'admin/transactions/view_details/' . $id,
+                                    'value' => $not_value,
+                                ));
+                            }
+                        }
+                    }
+                }
+                if (!empty($notifyUser)) {
+                    show_notification($notifyUser);
+                }
+
+            } else {
+                $type = 'error';
+                $msg = 'please enter the amount';
+            }
+            $message = $msg;
+            set_message($type, $message);
+        }
+        if (!empty($data['project_id']) && is_numeric($data['project_id'])) {
+            redirect('admin/projects/project_details/' . $data['project_id'] . '/' . '10');
+        } else {
+            redirect('admin/transactions/expense');
+        }
+
+        var_dump($data);
+        die();
 
         $all_payment = get_result('tbl_online_payment');
         foreach ($all_payment as $payment) {
@@ -1365,7 +1615,7 @@ class Requisition extends Admin_Controller
         $type = "success";
         $message = lang('estimate_invoiced');
         set_message($type, $message);
-        redirect('admin/estimates/index/requisition_details/' . $estimate_id);
+        redirect('admin/requisition/index/requisition_details/' . $estimate_id);
     }
 
     function return_items($items_id)
