@@ -1156,23 +1156,27 @@ class Requisition extends Admin_Controller
     {
         try {
             $data1 = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id',
-                'discount_type','amount','account_id','name','due_date','notes',
+                'discount_type','amount','account_id','name','due_date','notes','category_id','paid_by','payment_methods_id',
                 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
-
             if (!empty($requisition_id)) {
                 $data['transaction_prefix'] = $data1['reference_no'];
                 $data['name'] = $data1['name'];
+                if ($data['name'] === '') {
+                    set_message('warning', 'Name is required');
+                    redirect('admin/requisition/index/requisition_details/' . $requisition_id);
+                }
                 $data['notes'] = $data1['notes'];
                 $data['date'] = $data1['due_date'];
                 $data['category_id'] = $data1['category_id'] ?? null;
                 $data['paid_by'] = $data1['paid_by'] ?? null;
-                $data['tags'] = $data1['tags'] ?? null;
+                $data['tags'] = $data1['tags'] ?? 'Converted';
                 $data['payment_methods_id'] = $data1['payment_methods_id'] ?? null;
                 $data['project_id'] = $data1['project_id'] ?? null;
                 $data['billable'] = $data1['billable'] ?? null;
                 $data['client_visible'] = $data1['client_visible'] ?? null;
                 $data['repeat_every'] = $data1['repeat_every'] ?? null;
                 $data['done_cycles'] = $data1['done_cycles'] ?? null;
+                $data['account_id'] = $data1['account_id'];
 
                 $repeat_every_custom = $this->input->post('repeat_every_custom', true);
                 $repeat_type_custom = $this->input->post('repeat_type_custom', true);
@@ -1206,7 +1210,7 @@ class Requisition extends Admin_Controller
                 if (empty($data['billable'])) {
                     $data['billable'] = 'No';
                 }
-                $data['account_id'] = $this->input->post('account_id', TRUE);
+
 
                 $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
                 if (!empty($account_info)) {
@@ -1222,7 +1226,7 @@ class Requisition extends Admin_Controller
                     $role = $this->session->userdata('user_type');
                     if ($role == 1 || !empty($check_head)) {
                         if (!empty($requisition_id)) {
-                            $data['account_id'] = $this->input->post('old_account_id', TRUE);
+//                            $data['account_id'] = $this->input->post('old_account_id', TRUE);
                         } else {
                             $data['amount'] = $this->input->post('amount', TRUE);
                             $data['debit'] = $this->input->post('amount', TRUE);
@@ -1328,7 +1332,7 @@ class Requisition extends Admin_Controller
 
 
                     if (!empty($requisition_id)) {
-                        $this->transactions_model->save($data, $requisition_id);
+                        $expense_id = $this->transactions_model->save($data);
                         $activity = ('activity_update_expense');
                         $msg = lang('update_a_expense');
                         $description = 'not_expense_update';
@@ -1342,7 +1346,14 @@ class Requisition extends Admin_Controller
                         $msg = lang('save_new_expense');
                         $description = 'not_expense_saved';
                         $not_value = lang('account') . ': ' . $account_info->account_name . ' ' . lang('amount') . ': ' . display_money($data['amount']);
+                        $expense_id = $id;
                     }
+                    $e_data = array('status' => 'accepted', 'invoiced' => 'Yes', 'invoices_id' => $expense_id);
+
+                    $this->requisition_model->_table_name = 'tbl_requisitions';
+                    $this->requisition_model->_primary_key = 'requisition_id';
+                    $this->requisition_model->save($e_data, $requisition_id);
+
                     save_custom_field(2, $requisition_id);
                     // save into activities
                     $activities = array(
@@ -1414,9 +1425,7 @@ class Requisition extends Admin_Controller
         } catch (Exception $e) {
             $type = 'error';
             $text = $e->getMessage();
-            var_dump($text);die();
-            set_message($type, $text);
-//            redirect('admin/requisition');
+            redirect('admin/requisition');
         }
     }
 
