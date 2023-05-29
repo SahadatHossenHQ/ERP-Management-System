@@ -650,7 +650,7 @@
     public function generate_requisition_number()
     {
         $strlen = strlen(config_item('estimate_start_no'));
-        $query = $this->db->query('SELECT reference_no, requisition_id FROM tbl_requisitionS WHERE requisition_id = (SELECT MAX(requisition_id) FROM tbl_requisitionS)');
+        $query = $this->db->query('SELECT reference_no, requisition_id FROM tbl_requisitions WHERE requisition_id = (SELECT MAX(requisition_id) FROM tbl_requisitionS)');
         if ($query->num_rows() > 0) {
             $row = $query->row();
             $ref_number = intval(substr($row->reference_no, -$strlen));
@@ -668,7 +668,7 @@
         }
         if (!empty(config_item('estimate_number_format'))) {
             $invoice_format = config_item('estimate_number_format');
-            $invoice_prefix = str_replace("[" . config_item('estimate_prefix') . "]", config_item('estimate_prefix'), $invoice_format);
+            $invoice_prefix = str_replace("[INV]", "[EXP]", $invoice_format);
             $yyyy = str_replace("[yyyy]", date('Y'), $invoice_prefix);
             $yy = str_replace("[yy]", date('y'), $yyyy);
             $mm = str_replace("[mm]", date('M'), $yy);

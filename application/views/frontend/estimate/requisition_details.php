@@ -1,215 +1,38 @@
 <?= message_box('success') ?>
-<?= message_box('error');
-$edited = can_action('14', 'edited');
-$deleted = can_action('14', 'deleted');
-?>
+<style>
+    .table > tbody > tr > td {
+        vertical-align: baseline;
+    }
+</style>
 <div class="row mb">
-    <div class="col-sm-12 mb">
-        <div class="pull-left">
-            <?= lang('copy_unique_url') ?>
-        </div>
-        <div class="col-sm-10">
-            <input style="width: 100%" class="form-control"
-                   value="<?= base_url() ?>frontend/requisition/<?= url_encode($estimates_info->requisition_id); ?>"
-                   type="text" id="foo"/>
-        </div>
-    </div>
-    <script type="text/javascript">
-        var textBox = document.getElementById("foo");
-        textBox.onfocus = function () {
-            textBox.select();
-            // Work around Chrome's little problem
-            textBox.onmouseup = function () {
-                // Prevent further mouseup intervention
-                textBox.onmouseup = null;
-                return false;
-            };
-        };
-    </script>
+
     <div class="col-sm-8">
         <?php
-        $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $estimates_info->requisition_id, 'module_name' => 'requisition');
-        $check_existing = $this->requisition_model->check_by($where, 'tbl_pinaction');
-        if (!empty($check_existing)) {
-            $url = 'remove_todo/' . $check_existing->pinaction_id;
-            $btn = 'danger';
-            $title = lang('remove_todo');
-        } else {
-            $url = 'add_todo_list/estimates/' . $estimates_info->requisition_id;
-            $btn = 'warning';
-            $title = lang('add_todo_list');
-        }
-
-        $can_edit = $this->requisition_model->can_action('tbl_requisitions', 'edit', array('requisition_id' => $estimates_info->requisition_id));
-        $can_delete = $this->requisition_model->can_action('tbl_requisitions', 'delete', array('requisition_id' => $estimates_info->requisition_id));
         $client_info = $this->requisition_model->check_by(array('client_id' => $estimates_info->client_id), 'tbl_client');
-        if (!empty($client_info)) {
-            $currency = $this->requisition_model->client_currency_symbol($estimates_info->client_id);
-            $client_lang = $client_info->language;
-        } else {
-            $client_lang = 'english';
-            $currency = $this->requisition_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
-        }
+
+        $client_lang = $client_info->language;
         unset($this->lang->is_loaded[5]);
         $language_info = $this->lang->load('sales_lang', $client_lang, TRUE, FALSE, '', TRUE);
+        $currency = $this->requisition_model->client_currency_symbol($estimates_info->client_id);
         ?>
 
-        <?php if (!empty($can_edit) && !empty($edited)) { ?>
-
-            <a data-toggle="modal" data-target="#myModal_lg"
-               href="<?= base_url() ?>admin/requisition/insert_items/<?= $estimates_info->requisition_id ?>"
-               title="<?= lang('item_quick_add') ?>" class="btn btn-xs btn-primary">
-                <i class="fa fa-pencil text-white"></i> <?= lang('add_items') ?></a>
-
-            <?php if ($estimates_info->show_client == 'Yes') { ?>
-            <a class="btn btn-xs btn-success"
-               href="<?= base_url() ?>admin/requisition/change_status/hide/<?= $estimates_info->requisition_id ?>"
-               title="<?= lang('hide_to_client') ?>"><i class="fa fa-eye-slash"></i> <?= lang('hide_to_client') ?>
-                </a><?php } else { ?>
-            <a class="btn btn-xs btn-warning"
-               href="<?= base_url() ?>admin/requisition/change_status/show/<?= $estimates_info->requisition_id ?>"
-               title="<?= lang('show_to_client') ?>"><i class="fa fa-eye"></i> <?= lang('show_to_client') ?>
-                </a><?php } ?>
-
-            <a data-toggle="modal" data-target="#myModal_large"
-               data-original-title="<?= lang('convert_to_expense') ?>"
-               data-toggle="tooltip" data-placement="top"
-               class="btn btn-xs btn-purple <?php
-               if ($estimates_info->invoiced == 'Yes' OR $estimates_info->client_id == '0') {
-                   echo "disabled";
-               }
-               ?>" href="<?= base_url() ?>admin/requisition/convert_to_expense/<?= $estimates_info->requisition_id ?>"
-               title="<?= lang('convert_to_expense') ?>">
-                <?= lang('convert_to_expense') ?></a>
-            <span data-toggle="tooltip" data-placement="top" title="<?= lang('clone') . ' ' . lang('requisition') ?>">
-            <a data-toggle="modal" data-target="#myModal" title="<?= lang('clone') . ' ' . lang('requisition') ?>"
-               href="<?= base_url() ?>admin/estimates/clone_estimate/<?= $estimates_info->requisition_id ?>"
-               class="btn btn-xs btn-green">
-                <i class="fa fa-copy"></i> <?= lang('clone') ?></a>
-            </span>
-            <?php
-        }
-        ?>
-
-        <?php if (!empty($can_edit) && !empty($edited)) { ?>
-            <div class="btn-group">
-                <button class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                    <?= lang('more_actions') ?>
-                    <span class="caret"></span></button>
-                <ul class="dropdown-menu animated zoomIn">
-                    <li>
-                        <a href="<?= base_url() ?>admin/requisition/index/email_estimates/<?= $estimates_info->requisition_id ?>"
-                           data-toggle="ajaxModal"><?= lang('email_requisition') ?></a></li>
-                    <li>
-                        <a href="<?= base_url() ?>admin/requisition/index/estimates_history/<?= $estimates_info->requisition_id ?>"><?= lang('requisition_history') ?></a>
-                    </li>
-
-                    <?php if ($estimates_info->status == 'expired' || $estimates_info->status == 'sent' || $estimates_info->status == 'cancelled' || $estimates_info->status == 'draft') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/pending/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('mark_as_pending') ?>"><?= lang('mark_as_pending') ?></a>
-                        </li>
-                    <?php } ?>
-                    <?php if ($estimates_info->status == 'draft') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/draft/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('unmark_as_draft') ?>"><?= lang('mark_as_draft') ?></a>
-                        </li>
-                    <?php } ?>
-                    <?php if ($estimates_info->status != 'sent' || $estimates_info->status == 'expired') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/sent/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('mark_as_sent') ?>"><?= lang('mark_as_sent') ?></a>
-                        </li>
-                    <?php } ?>
-                    <?php if ($estimates_info->status == 'pending' || $estimates_info->status == 'sent') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/expired/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('mark_as_sent') ?>"><?= lang('mark_as_expired') ?></a>
-                        </li>
-                    <?php } ?>
-                    <?php if ($estimates_info->status != 'cancelled') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/cancelled/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('mark_as_cancelled') ?>"><?= lang('mark_as_cancelled') ?></a>
-                        </li>
-                    <?php } ?>
-                    <?php if ($estimates_info->status == 'cancelled') { ?>
-                        <li>
-                            <a href="<?= base_url() ?>admin/requisition/change_status/draft/<?= $estimates_info->requisition_id ?>"
-                               title="<?= lang('unmark_as_cancelled') ?>"><?= lang('unmark_as_cancelled') ?></a>
-                        </li>
-                    <?php } ?>
-                    <li>
-                        <a href="<?= base_url() ?>admin/requisition/change_status/declined/<?= $estimates_info->requisition_id ?>"><?= lang('declined') ?></a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url() ?>admin/requisition/change_status/accepted/<?= $estimates_info->requisition_id ?>"><?= lang('accepted') ?></a>
-                    </li>
-                    <?php if (!empty($can_edit) && !empty($edited)) { ?>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?= base_url() ?>admin/estimates/index/edit_estimates/<?= $estimates_info->requisition_id ?>"><?= lang('edit_estimate') ?></a>
-                        </li>
-                    <?php } ?>
-
-                </ul>
-            </div>
-        <?php } ?>
-        <?php if ($estimates_info->invoiced == 'Yes') {
-            $invoice_info = $this->db->where('invoices_id', $estimates_info->invoices_id)->get('tbl_invoices')->row();
-            if (!empty($invoice_info)) {
-                ?>
-                <a href="<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $estimates_info->invoices_id ?>"
-                   class="btn btn-xs btn-purple">
-                    <i class="fa fa-hand-o-right"></i> <?= $invoice_info->reference_no ?></a>
-            <?php }
-        } ?>
-        <?php
-        $notified_reminder = count(get_result('tbl_reminders', array('module' => 'estimate', 'module_id' => $estimates_info->requisition_id, 'notified' => 'No')));
-        ?>
-        <a class="btn btn-xs btn-green" data-toggle="modal" data-target="#myModal_lg"
-           href="<?= base_url() ?>admin/invoice/reminder/estimate/<?= $estimates_info->requisition_id ?>"><?= lang('reminder') ?>
-            <?= !empty($notified_reminder) ? '<span class="badge ml-sm" style="border-radius: 50%">' . $notified_reminder . '</span>' : '' ?>
-        </a>
-
-        <?php
-        if (!empty($estimates_info->project_id)) {
-            $project_info = $this->db->where('project_id', $estimates_info->project_id)->get('tbl_project')->row();
-            ?>
-            <strong><?= lang('project') ?>:</strong>
-            <a
-                href="<?= base_url() ?>admin/projects/project_details/<?= $estimates_info->project_id ?>"
-                class="">
-                <?= $project_info->project_name ?>
-            </a>
-        <?php } ?>
     </div>
     <div class="col-sm-4 pull-right">
-        <a
-            href="<?= base_url() ?>admin/estimates/send_estimates_email/<?= $estimates_info->requisition_id . '/' . true ?>"
-            data-toggle="tooltip" data-placement="top" title="<?= lang('send_email') ?>"
-            class="btn btn-xs btn-primary pull-right">
-            <i class="fa fa-envelope-o"></i>
-        </a>
         <a onclick="print_estimates('print_estimates')" href="#" data-toggle="tooltip" data-placement="top" title=""
-           data-original-title="Print" class="mr-sm btn btn-xs btn-danger pull-right">
+           data-original-title="Print" class="btn btn-xs btn-danger pull-right">
             <i class="fa fa-print"></i>
         </a>
 
-        <a href="<?= base_url() ?>admin/estimates/pdf_estimates/<?= $estimates_info->requisition_id ?>"
+        <a href="<?= base_url() ?>frontend/pdf_estimates/<?= $estimates_info->requisition_id ?>"
            data-toggle="tooltip" data-placement="top" title="" data-original-title="PDF"
            class="btn btn-xs btn-success pull-right mr-sm">
             <i class="fa fa-file-pdf-o"></i>
         </a>
-        <a data-toggle="tooltip" data-placement="top" title="<?= $title ?>"
-           href="<?= base_url() ?>admin/projects/<?= $url ?>"
-           class="mr-sm btn pull-right  btn-xs  btn-<?= $btn ?>"><i class="fa fa-thumb-tack"></i></a>
     </div>
 </div>
-<!-- Start Display Details -->
+
 <?php
-if (strtotime($estimates_info->due_date) < strtotime(date('Y-m-d')) && $estimates_info->status == 'draft') {
+if (strtotime($estimates_info->due_date) < strtotime(date('Y-m-d')) && $estimates_info->status == 'accepted') {
     $start = strtotime(date('Y-m-d'));
     $end = strtotime($estimates_info->due_date);
 
@@ -218,12 +41,10 @@ if (strtotime($estimates_info->due_date) < strtotime(date('Y-m-d')) && $estimate
     <div class="alert bg-danger-light hidden-print">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <i class="fa fa-warning"></i>
-        <?= lang('estimate_overdue') . ' ' . lang('by') . ' ' . $days_between . ' ' . lang('days') ?>
+        <?= lang('requisition_overdue') . ' ' . lang('by') . ' ' . $days_between . ' ' . lang('days') ?>
     </div>
     <?php
 }
-?>
-<?php
 if (is_file(config_item('invoice_logo'))) {
     $img = base_url() . config_item('invoice_logo');
 } else {
@@ -268,7 +89,7 @@ if (is_file(config_item('invoice_logo'))) {
                     <br><?= $language_info['due_date'] ?>
                     : <?= strftime(config_item('date_format'), strtotime($estimates_info->due_date)); ?>
                     <?php if (!empty($estimates_info->user_id)) { ?>
-                        <br><?= lang('sales') . ' ' . lang('agent') ?> : <?php echo fullname($estimates_info->user_id); ?>
+                        <br><?= lang('sales') . ' ' . lang('agent') ?>:<?php echo fullname($estimates_info->user_id); ?>
                         <?php
                     }
                     if ($estimates_info->status == 'accepted') {
@@ -278,7 +99,7 @@ if (is_file(config_item('invoice_logo'))) {
                     }
                     ?>
                     <br><?= $language_info['requisition_status'] ?>: <span
-                        class="label label-<?= $label ?>"><?= lang($estimates_info->status) ?></span>
+                            class="label label-<?= $label ?>"><?= lang($estimates_info->status) ?></span>
 
                     <?php $show_custom_fields = custom_form_label(10, $estimates_info->requisition_id);
                     if (!empty($show_custom_fields)) {
@@ -360,7 +181,6 @@ if (is_file(config_item('invoice_logo'))) {
             <table class="table items estimate-items-preview" page-break-inside: auto;>
                 <thead class="bg-items">
                 <tr>
-                    <th>#</th>
                     <th><?= $language_info['items'] ?></th>
                     <?php
                     $invoice_view = config_item('invoice_view');
@@ -392,7 +212,6 @@ if (is_file(config_item('invoice_logo'))) {
                         $item_tax_name = json_decode($v_item->item_tax_name);
                         ?>
                         <tr class="sortable item" data-item-id="<?= $v_item->requisition_items_id ?>">
-                            <td class="item_no dragger pl-lg"><?= $key + 1 ?></td>
                             <td><strong class="block"><?= $item_name ?></strong>
                                 <?= nl2br($v_item->item_desc) ?>
                             </td>
@@ -433,7 +252,7 @@ if (is_file(config_item('invoice_logo'))) {
                 <div class="clearfix">
                     <p class="pull-left"><?= $language_info['sub_total'] ?></p>
                     <p class="pull-right mr">
-                        <?= display_money($this->requisition_model->requisition_calculation('estimate_cost', $estimates_info->requisition_id)); ?>
+                        <?= display_money($this->requisition_model->requisition_calculation('requisition_cost', $estimates_info->requisition_id)); ?>
                     </p>
                 </div>
                 <?php if ($estimates_info->discount_total > 0): ?>
@@ -481,39 +300,32 @@ if (is_file(config_item('invoice_logo'))) {
                             <?= display_money($estimates_info->adjustment); ?>
                         </p>
                     </div>
-                <?php endif ?>
-
+                <?php endif;
+                $estimate_total = $this->requisition_model->requisition_calculation('total', $estimates_info->requisition_id);
+                ?>
                 <div class="clearfix">
                     <p class="pull-left"><?= $language_info['total'] ?></p>
                     <p class="pull-right mr">
-                        <?php
-                        $total_amount = $this->requisition_model->requisition_calculation('total', $estimates_info->requisition_id);
-                        echo display_money($total_amount, $currency->symbol);
-                        ?>
+                        <?= display_money($estimate_total, $currency->symbol); ?>
                     </p>
                 </div>
                 <?php if (config_item('amount_to_words') == 'Yes') { ?>
                     <div class="clearfix">
                         <p class="pull-right h4"><strong class="h3"><?= lang('num_word') ?>
-                                : </strong> <?= number_to_word($estimates_info->client_id, $total_amount); ?></p>
+                                : </strong> <?= number_to_word($estimates_info->client_id, $estimate_total); ?></p>
                     </div>
                 <?php } ?>
+
             </div>
         </div>
+        <?= !empty($invoice_view) && $invoice_view > 0 ? $this->gst->summary($invoice_items) : ''; ?>
     </div>
-    <?= !empty($invoice_view) && $invoice_view > 0 ? $this->gst->summary($invoice_items) : ''; ?>
-</div>
-
-<?php include_once 'assets/js/sales.php'; ?>
-<script type="text/javascript">
-    $(document).ready(function () {
-        init_items_sortable(true);
-    });
-    function print_estimates(print_estimates) {
-        var printContents = document.getElementById(print_estimates).innerHTML;
-        var originalContents = document.body.innerHTML;
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-    }
-</script>
+    <script type="text/javascript">
+        function print_estimates(print_estimates) {
+            var printContents = document.getElementById(print_estimates).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    </script>

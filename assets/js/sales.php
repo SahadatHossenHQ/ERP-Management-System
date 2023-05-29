@@ -360,6 +360,8 @@
         $('.adjustment').html(adjustment.toFixed(decimal_separator) + hidden_input('adjustment', adjustment.toFixed(decimal_separator)))
         $('.subtotal').html(subtotal = subtotal.toFixed(decimal_separator) + hidden_input('subtotal', subtotal.toFixed(decimal_separator)));
         $('.total').html(total.toFixed(decimal_separator) + hidden_input('total', total.toFixed(decimal_separator)));
+
+        $('.total').val(total.toFixed(0));
     }
 
     // Deletes invoice items

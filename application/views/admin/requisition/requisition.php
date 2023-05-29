@@ -2,7 +2,7 @@
 <form name="myform" role="form" data-parsley-validate="" novalidate=""
       enctype="multipart/form-data"
       id="form"
-      action="<?php echo base_url(); ?>admin/estimates/save_estimates/<?php
+      action="<?php echo base_url(); ?>admin/requisition/save_requisition/<?php
       if (!empty($estimates_info)) {
           echo $estimates_info->requisition_id;
       }
@@ -348,10 +348,10 @@
                                                 if (!empty($estimates_info)) {
                                                     echo $estimates_info->reference_no;
                                                 } else {
-                                                    if (empty(config_item('estimate_number_format'))) {
-                                                        echo config_item('estimate_prefix');
+                                                    if (empty(config_item('requisition_number_format'))) {
+                                                        echo config_item('requisition_prefix');
                                                     }
-                                                    if (config_item('increment_estimate_number') == 'FALSE') {
+                                                    if (config_item('increment_requisition_number') == 'FALSE') {
                                                         $this->load->helper('string');
                                                         echo random_string('nozero', 6);
                                                     } else {
@@ -364,14 +364,14 @@
                                         </div>
                                         <div class="form-group">
                                             <label
-                                                    class="col-lg-3 control-label"><?= lang('estimate_date') ?></label>
+                                                    class="col-lg-3 control-label"><?= lang('requisition_date') ?></label>
                                             <div class="col-lg-7">
                                                 <div class="input-group">
-                                                    <input required type="text" name="estimate_date"
+                                                    <input required type="text" name="requisition_date"
                                                            class="form-control datepicker"
                                                            value="<?php
-                                                           if (!empty($estimates_info->estimate_date)) {
-                                                               echo $estimates_info->estimate_date;
+                                                           if (!empty($estimates_info->requisition_date)) {
+                                                               echo $estimates_info->requisition_date;
                                                            } else {
                                                                echo date('Y-m-d');
                                                            }
@@ -876,14 +876,14 @@
                                                 if (!is_numeric($item->quantity)) {
                                                     $item->quantity = 1;
                                                 }
-                                                $invoice_item_taxes = $this->requisition_model->get_invoice_item_taxes($item->estimate_items_id, 'estimate');
+                                                $invoice_item_taxes = $this->requisition_model->get_invoice_item_taxes($item->requisition_items_id, 'estimate');
 
                                                 // passed like string
-                                                if ($item->estimate_items_id == 0) {
+                                                if ($item->requisition_items_id == 0) {
                                                     $invoice_item_taxes = $invoice_item_taxes[0];
                                                     $manual = true;
                                                 }
-                                                $table_row .= form_hidden('' . $items_indicator . '[' . $i . '][estimate_items_id]', $item->estimate_items_id);
+                                                $table_row .= form_hidden('' . $items_indicator . '[' . $i . '][estimate_items_id]', $item->requisition_items_id);
                                                 $table_row .= form_hidden('' . $items_indicator . '[' . $i . '][saved_items_id]', $item->saved_items_id);
                                                 $amount = $item->unit_cost * $item->quantity;
                                                 $amount = ($amount);
