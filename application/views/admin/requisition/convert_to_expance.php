@@ -277,11 +277,42 @@
                             </div>
                         </div>
 
+                        <label class="col-lg-4 control-label"><?= lang('deposit_category') ?> </label>
+                        <div class="col-lg-6">
+                            <div class="input-group " style="margin-bottom: 4px">
+                                <select <?php
+                                if (!empty($project)) {
+                                    echo 'required=""';
+                                }
+                                ?> class="form-control select_box" style="width: 100%"
+                                   name="category_id">
+                                    <option value="0"><?= lang('none') ?></option>
+                                    <?php
+                                    $category_info = $this->db->order_by('expense_category_id', 'DESC')->get('tbl_expense_category')->result();
+                                    if (!empty($category_info)) {
+                                        foreach ($category_info as $v_category) {
+                                            ?>
+                                            <option value="<?= $v_category->expense_category_id ?>"
+                                                <?php
+                                                if (!empty($expense_info->category_id)) {
+                                                    echo $expense_info->category_id == $v_category->expense_category_id ? 'selected' : '';
+                                                }
+                                                ?>
+                                            ><?= $v_category->expense_category ?></option>
+                                            <?php
+                                        }
+                                    }
+                                    $created = can_action('124', 'created');
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
                         <label class="col-lg-4 control-label"><?= lang('account') ?> <span
                                     class="text-danger">*</span>
                         </label>
                         <div class="col-lg-6">
-                            <div class="input-group">
+                            <div class="input-group" style="margin-bottom: 4px">
                                 <select class="form-control select_box" style="width: 100%"
                                         name="account_id"
                                         required <?php
@@ -319,8 +350,66 @@
                             </div>
                         </div>
 
+                        <label class="col-lg-4 control-label"><?= lang('payment_method') ?> </label>
+                        <div class="col-lg-6">
+                            <div class="input-group" style="margin-bottom: 4px">
+                                <select class="form-control select_box" style="width: 100%"
+                                        name="payment_methods_id">
+                                    <option value="0"><?= lang('select_payment_method') ?></option>
+                                    <?php
+                                    $payment_methods = $this->db->order_by('payment_methods_id', 'DESC')->get('tbl_payment_methods')->result();
+                                    if (!empty($payment_methods)) {
+                                        foreach ($payment_methods as $p_method) {
+                                            ?>
+                                            <option
+                                                    value="<?= $p_method->payment_methods_id ?>" <?php
+                                            if (!empty($expense_info)) {
+                                                echo $expense_info->payment_methods_id == $p_method->payment_methods_id ? 'selected' : '';
+                                            }
+                                            ?>><?= $p_method->method_name ?></option>
+                                            <?php
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="col-lg-4 control-label"><?= lang('paid_by') ?> </label>
+                        <div class="col-lg-6">
+                            <div class="input-group" style="margin-bottom: 5px">
+                                <select class="form-control select_box" style="width: 100%"
+                                        name="paid_by">
+                                    <?php $all_client = $this->db->get('tbl_client')->result();
+                                    if (!empty($project)) {
+                                        $client_name = $this->db->where('client_id', $project->client_id)->get('tbl_client')->row();
+                                        ?>
+                                        <option
+                                                value="<?= $project->client_id ?>"><?= $client_name->name ?></option>
+                                    <?php } else { ?>
+                                        <option value="0"><?= lang('select_payer') ?></option>
+                                        <?php if (!empty($all_client)) {
+                                            foreach ($all_client as $v_client) {
+                                                ?>
+                                                <option value="<?= $v_client->client_id ?>"
+                                                    <?php
+                                                    if (!empty($expense_info)) {
+                                                        echo $expense_info->paid_by == $v_client->client_id ? 'selected' : '';
+                                                    }
+                                                    ?>
+                                                ><?= ucfirst($v_client->name); ?></option>
+                                                <?php
+                                            }
+                                        }
+                                    }
+                                    $acreated = can_action('4', 'created');
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+
                         <?php
-                                        $all_payment = get_result('tbl_online_payment');
+                        $all_payment = get_result('tbl_online_payment');
                                         foreach ($all_payment as $key => $payment) {
                                             $allow_gateway = 'allow_' . slug_it(strtolower($payment->gateway_name));
                                             $gateway_status = slug_it(strtolower($payment->gateway_name)).'_status' ;
