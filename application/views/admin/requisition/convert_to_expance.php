@@ -41,6 +41,14 @@
                                  id="start_recurring"><?= lang('recurring') ?></div>
 
                         </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label"><?= lang('name') ?> <span
+                                        class="text-danger">*</span>
+                            </label>
+                            <div class="col-lg-7">
+                                <input type="text" class="form-control" name="name" value="" >
+                            </div>
+                        </div>
                         <div id="recurring" class="hide">
                             <div class="form-group">
                                 <label
@@ -112,7 +120,7 @@
                                             name="client_id"
                                             onchange="get_project_by_id(this.value)">
                                         <option
-                                            value=""><?= lang('select') . ' convert_to_expance.php' . lang('client') ?></option>
+                                            value=""><?= lang('select') . ' ' . lang('client') ?></option>
                                         <?php
                                         if (!empty($all_client)) {
                                             foreach ($all_client as $v_client) {
@@ -169,28 +177,6 @@
                                     }
                                     ?>
                                 </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label
-                                class="col-lg-3 control-label"><?= lang('invoice_date') ?></label>
-                            <div class="col-lg-7">
-                                <div class="input-group">
-                                    <input type="text" name="invoice_date"
-                                           class="form-control datepicker"
-                                           value="<?php
-                                           if (!empty($estimates_info->requisition_date)) {
-                                               echo $estimates_info->requisition_date;
-                                           } else {
-                                               echo date('Y-m-d');
-                                           }
-                                           ?>"
-                                           data-date-format="<?= config_item('date_picker_format'); ?>">
-                                    <div class="input-group-addon">
-                                        <a href="#"><i class="fa fa-calendar"></i></a>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div class="form-group">
