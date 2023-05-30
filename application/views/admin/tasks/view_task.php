@@ -72,6 +72,30 @@ $sub_tasks = config_item('allow_sub_tasks');
         </ul>
     </div>
     <?php
+    if (!empty($task_details->client_id)) {
+        $currency = $this->items_model->client_currency_symbol($task_details->client_id);
+    } else {
+        $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
+    }
+    $all_task_info = $this->db->where('sub_task_id', $task_details->task_id)->order_by('task_id', 'DESC')->get('tbl_task')->result();
+    $total_subtask = count($all_task_info);
+    $completeds = $this->db->where('sub_task_id', $task_details->task_id)->where('task_status', 'completed')->get('tbl_task')->result();
+    $completed_task = count($completeds);
+
+    $billable_amount = 0;
+    foreach ($completeds as $completed) {
+        $billable_amount += $completed->task_hour*$completed->hourly_rate;
+    }
+
+    if ($task_details->task_status === 'completed') {
+        $progress = 'progress-bar-success';
+        $billable_amount = $task_details->task_hour*$task_details->hourly_rate;
+    }
+
+    $total_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
+    $billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+    $not_billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
+    $paid_expense = 0;
     $comment_type = 'tasks';
     ?>
     <div class="col-sm-10">
@@ -150,26 +174,26 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 ?>
                                             </div>
                                         </div>
-                                        <?php
-                                        if (!empty($task_details->project_id)):
-                                            $project_info = $this->db->where('project_id', $task_details->project_id)->get('tbl_project')->row();
-                                            $milestones_info = $this->db->where('milestones_id', $task_details->milestones_id)->get('tbl_milestones')->row();
-                                            ?>
-                                            <div class="form-group ">
-                                                <div class="col-sm-4"><strong><?= lang('project_name') ?>
-                                                        :</strong></div>
-                                                <div class="col-sm-8 ">
-                                                    <?php if (!empty($project_info->project_name)) echo $project_info->project_name; ?>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-sm-4"><strong><?= lang('milestone') ?>
-                                                        :</strong></div>
-                                                <div class="col-sm-8 ">
-                                                    <?php if (!empty($milestones_info->milestone_name)) echo $milestones_info->milestone_name; ?>
-                                                </div>
-                                            </div>
-                                        <?php endif ?>
+                                        <!--                                        --><?php
+                                        //                                        if (!empty($task_details->project_id)):
+                                        //                                            $project_info = $this->db->where('project_id', $task_details->project_id)->get('tbl_project')->row();
+                                        //                                            $milestones_info = $this->db->where('milestones_id', $task_details->milestones_id)->get('tbl_milestones')->row();
+                                        //                                            ?>
+                                        <!--                                            <div class="form-group ">-->
+                                        <!--                                                <div class="col-sm-4"><strong>--><?php //= lang('project_name') ?>
+                                        <!--                                                        :</strong></div>-->
+                                        <!--                                                <div class="col-sm-8 ">-->
+                                        <!--                                                    --><?php //if (!empty($project_info->project_name)) echo $project_info->project_name; ?>
+                                        <!--                                                </div>-->
+                                        <!--                                            </div>-->
+                                        <!--                                            <div class="form-group">-->
+                                        <!--                                                <div class="col-sm-4"><strong>--><?php //= lang('milestone') ?>
+                                        <!--                                                        :</strong></div>-->
+                                        <!--                                                <div class="col-sm-8 ">-->
+                                        <!--                                                    --><?php //if (!empty($milestones_info->milestone_name)) echo $milestones_info->milestone_name; ?>
+                                        <!--                                                </div>-->
+                                        <!--                                            </div>-->
+                                        <!--                                        --><?php //endif ?>
                                         <?php
                                         if (!empty($task_details->opportunities_id)):
                                             $opportunity_info = $this->db->where('opportunities_id', $task_details->opportunities_id)->get('tbl_opportunities')->row();
@@ -447,7 +471,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                                title="<?= $profile_info->fullname ?>"><img
                                                                         src="<?= base_url() . $profile_info->avatar ?>"
                                                                         class="img-circle img-xs" alt="">
-                                                                        <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
+                                                                <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                                             </a>
                                                         <?php
                                                         endforeach;
@@ -541,19 +565,35 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
-                                            if ($task_details->task_progress < 49) {
-                                                $progress = 'progress-bar-danger';
-                                            } elseif ($task_details->task_progress > 50 && $task_details->task_progress < 99) {
-                                                $progress = 'progress-bar-primary';
+                                            $task_progress = 0;
+                                            if (!empty($total_subtask)) {
+                                                if ($total_subtask !== 0) {
+                                                    $task_progress = $completed_task / $total_subtask * 100;
+                                                }
+                                                if ($task_progress > 100) {
+                                                    $task_progress = 100;
+                                                }
+                                                if ($task_progress < 49) {
+                                                    $progress = 'progress-bar-danger';
+                                                } elseif ($task_progress < 79) {
+                                                    $progress = 'progress-bar-primary';
+                                                } else {
+                                                    $progress = 'progress-bar-success';
+                                                }
                                             } else {
+                                                $progress = 'progress-bar-danger';
+                                                $task_progress = 0;
+                                            }
+                                            if ($task_details->task_status === 'completed') {
                                                 $progress = 'progress-bar-success';
+                                                $task_progress = 100;
                                             }
                                             ?>
                                             <span class="">
                                 <div class="mt progress progress-striped ">
                                     <div class="progress-bar <?= $progress ?> " data-toggle="tooltip"
-                                         data-original-title="<?= $task_details->task_progress ?>%"
-                                         style="width: <?= $task_details->task_progress ?>%"></div>
+                                         data-original-title="<?= $task_progress ?>%"
+                                         style="width: <?= $task_progress ?>%"></div>
                                 </div>
                                 </span>
                                         </div>
@@ -670,13 +710,15 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <p class="form-control-static"><?php if (!empty($project_info->project_name)) echo $project_info->project_name; ?></p>
                                     </div>
                                 </div>
-                                <div class="form-group  col-sm-6">
-                                    <label class="control-label col-sm-4"><strong><?= lang('milestone') ?>
-                                            :</strong></label>
-                                    <div class="col-sm-8 ">
-                                        <p class="form-control-static"><?php if (!empty($milestones_info->milestone_name)) echo $milestones_info->milestone_name; ?></p>
-                                    </div>
-                                </div>
+                                <!--                                <div class="form-group  col-sm-6">-->
+                                <!--                                    <label class="control-label col-sm-4"><strong>--><?php //= lang('milestone')
+                                ?>
+                                <!--                                            :</strong></label>-->
+                                <!--                                    <div class="col-sm-8 ">-->
+                                <!--                                        <p class="form-control-static">--><?php //if (!empty($milestones_info->milestone_name)) echo $milestones_info->milestone_name;
+                                ?><!--</p>-->
+                                <!--                                    </div>-->
+                                <!--                                </div>-->
                             <?php endif ?>
                             <?php
                             if (!empty($task_details->opportunities_id)):
@@ -935,22 +977,39 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         :</strong></label>
                                 <div class="col-sm-9 " style="margin-left: -5px;">
                                     <?php
-                                    if ($task_details->task_progress < 49) {
-                                        $progress = 'progress-bar-danger';
-                                    } elseif ($task_details->task_progress > 50 && $task_details->task_progress < 99) {
-                                        $progress = 'progress-bar-primary';
+                                    $task_progress = 0;
+                                    if (!empty($total_subtask)) {
+                                        if ($total_subtask !== 0) {
+                                            $task_progress = $completed_task / $total_subtask * 100;
+                                        }
+                                        if ($task_progress > 100) {
+                                            $task_progress = 100;
+                                        }
+                                        if ($task_progress < 49) {
+                                            $progress = 'progress-bar-danger';
+                                        } elseif ($task_progress < 79) {
+                                            $progress = 'progress-bar-primary';
+                                        } else {
+                                            $progress = 'progress-bar-success';
+                                        }
                                     } else {
+                                        $progress = 'progress-bar-danger';
+                                        $task_progress = 0;
+                                    }
+                                    if ($task_details->task_status === 'completed') {
                                         $progress = 'progress-bar-success';
+                                        $task_progress = 100;
                                     }
                                     ?>
                                     <span class="">
-                                <div class="mt progress progress-striped ">
-                                    <div class="progress-bar <?= $progress ?> " data-toggle="tooltip"
-                                         data-original-title="<?= $task_details->task_progress ?>%"
-                                         style="width: <?= $task_details->task_progress ?>%"></div>
+                                        <div class="mt progress progress-striped ">
+                                            <div class="progress-bar <?= $progress ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= $task_progress ?>%"
+                                                 style="width: <?= $task_progress ?>%"></div>
+                                        </div>
+                                    </span>
                                 </div>
-                                </span>
-                                </div>
+
                             </div>
                             <div class="form-group col-sm-12">
                                 <?php
@@ -958,14 +1017,32 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 $task_time = $this->tasks_model->task_spent_time_by_id($task_details->task_id);
                                 ?>
                                 <?= $this->tasks_model->get_time_spent_result($task_time) ?>
+
                                 <?php
-                                if (!empty($task_details->billable) && $task_details->billable == 'Yes') {
+                                if (!empty($task_details->billable) && $task_details->billable == 'Yes' || 1) {
                                     $total_time = $task_time / 3600;
                                     $total_cost = $total_time * $task_details->hourly_rate;
                                     $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                                     ?>
+                                    <div class="col-sm-12 text-center">
+                                        <p class="p0 m0">
+                                            <strong><?= lang('total') . ' ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
+                                        </p>
+                                        <p class="p0 m0">
+                                            <strong><?= lang('billable') . ' ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
+                                        </p>
+                                        <p class="p0 m0">
+                                            <strong><?= lang('not_billable') . ' ' . lang('expense') ?></strong>: <?= display_money($not_billable_expense->amount, $currency->symbol) ?>
+                                        </p>
+                                        <p class="p0 m0">
+                                            <strong><?= lang('billed') . ' ' . lang('expense') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
+                                        </p>
+                                        <p class="p0 m0">
+                                            <strong><?= lang('unbilled') . ' ' . lang('expense') ?></strong>: <?= display_money($task_details->task_hour*$task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
+                                        </p>
+                                    </div>
                                     <h2 class="text-center"><?= lang('total_bill') ?>
-                                        : <?= display_money($total_cost, $currency->symbol) ?></h2>
+                                        : <?= display_money(($task_details->task_hour*$task_details->hourly_rate), $currency->symbol) ?></h2>
                                 <?php }
                                 $estimate_hours = $task_details->task_hour;
                                 $percentage = $this->tasks_model->get_estime_time($estimate_hours);
@@ -979,14 +1056,69 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 }
 
                                 ?>
-                                <div class="text-center">
-                                    <div class="">
-                                        <?= $worked ?>
+                                <div class="col-sm-12 mt-lg">
+                                    <?php
+                                    try {
+                                        $now = time();
+                                        $task_start_date = strtotime($task_details->task_start_date);
+                                        $task_due_date = strtotime($task_details->due_date);
+                                        $totalDays = round(($task_due_date-$task_start_date) / 3600 / 24);
+                                        $TotalGone = $totalDays;
+                                        $tprogress = 100;
+                                        if ($task_start_date < time() && $task_due_date > time()) {
+                                            $TotalGone = round(($task_due_date - time()) / 3600 / 24);
+                                            $tprogress = $TotalGone / $totalDays * 100;
+                                        }
+                                        if ($task_due_date < time()) {
+                                            $TotalGone = 0;
+                                            $tprogress = 0;
+                                        }
+                                        if (strtotime(date('Y-m-d')) > strtotime($task_details->due_date . '00:00')) {
+                                            $lang = lang('days_gone');
+                                        } else {
+                                            $lang = lang('days_left');
+                                        }
+                                        if ($tprogress < 50) {
+                                            $p_bar = 'bar-success';
+                                        } else {
+                                            $p_bar = 'bar-danger';
+                                        }
+                                    } catch (Exception $e) {
+                                        $totalDays = 0;
+                                        $TotalGone = 0;
+                                        $tprogress = 0;
+                                        $lang = lang('days_left');
+                                        $p_bar = 'bar-danger';
+                                    }
+
+
+
+                                    ?>
+                                    <div class="col-sm-4">
+                                        <strong><?= $TotalGone . ' / ' . $totalDays . ' ' . $lang . ' (' . round($tprogress, 2) . '% )'; ?></strong>
+                                        <div class="mt progress progress-striped progress-xs">
+                                            <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip" data-original-title="<?= round($tprogress, 2) ?>%" style="width: <?= round($tprogress, 2) ?>%"></div>
+                                        </div>
                                     </div>
-                                    <div class="">
-                                        <?= $this->tasks_model->get_spent_time($total_time) ?>
+                                    <div class="col-sm-4">
+                                        <div class="text-center">
+                                            <div class="">
+                                                <?= $worked ?>
+                                            </div>
+                                            <div class="">
+                                                <?= $this->tasks_model->get_spent_time($total_time) ?>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <strong><?= $completed_task . ' / ' . $total_subtask . ' ' . lang('open') . ' ' . lang('tasks') . ' (' . round($task_progress, 2) . '% )'; ?> </strong>
+                                        <div class="mt progress progress-striped progress-xs">
+                                            <div class="progress-bar <?= $progress ?> " data-toggle="tooltip" data-original-title="<?= $task_progress ?>%" style="width: <?= $task_progress ?>%"></div>
+                                        </div>
                                     </div>
                                 </div>
+
 
                             </div>
                             <div class="col-sm-12">
@@ -1213,7 +1345,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                     </div>
                     <script type="text/javascript">
                         $(document).ready(function () {
-                            $(".toggle-media-view").on("click", function(){
+                            $(".toggle-media-view").on("click", function () {
                                 $(".media-view-container").toggleClass('hidden');
                                 $(".toggle-media-view").toggleClass('hidden');
                                 $(".media-list-container").toggleClass('hidden');
