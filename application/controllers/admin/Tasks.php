@@ -432,233 +432,242 @@ class Tasks extends Admin_Controller
     {
         $created = can_action('54', 'created');
         $edited = can_action('54', 'edited');
-        if (!empty($created) || !empty($edited) && !empty($id)) {
-            $data = $this->tasks_model->array_from_post(array(
-                'task_name',
-                'category_id',
-                'task_description',
-                'task_start_date',
-                'due_date',
-                'task_progress',
-                'calculate_progress',
-                'client_visible',
-                'task_status',
-                'hourly_rate',
-                'tags',
-                'billable'));
+        try {
+            if (!empty($created) || !empty($edited) && !empty($id)) {
+                $data = $this->tasks_model->array_from_post(array(
+                    'task_name',
+                    'category_id',
+                    'task_description',
+                    'task_start_date',
+                    'due_date',
+                    'task_progress',
+                    'calculate_progress',
+                    'client_visible',
+                    'task_status',
+                    'hourly_rate',
+                    'tags',
+                    'billable'));
 
-            $estimate_hours = $this->input->post('task_hour', true);
-            $check_flot = explode('.', $estimate_hours);
-            if (!empty($check_flot[0])) {
-                if (!empty($check_flot[1])) {
-                    $data['task_hour'] = $check_flot[0] . ':' . $check_flot[1];
+                $estimate_hours = $this->input->post('task_hour', true);
+                $check_flot = explode('.', $estimate_hours);
+                if (!empty($check_flot[0])) {
+                    if (!empty($check_flot[1])) {
+                        $data['task_hour'] = $check_flot[0] . ':' . $check_flot[1];
+                    } else {
+                        $data['task_hour'] = $check_flot[0] . ':00';
+                    }
                 } else {
-                    $data['task_hour'] = $check_flot[0] . ':00';
+                    $data['task_hour'] = '0:00';
                 }
-            } else {
-                $data['task_hour'] = '0:00';
-            }
 
 
-            if ($data['task_status'] == 'completed') {
-                $data['task_progress'] = 100;
-            }
-            if ($data['task_progress'] == 100) {
-                $data['task_status'] = 'completed';
-            }
-            if (empty($id)) {
-                $data['created_by'] = $this->session->userdata('user_id');
-            }
-            if (empty($data['billable'])) {
-                $data['billable'] = 'No';
-            }
-            if (empty($data['hourly_rate'])) {
-                $data['hourly_rate'] = '0';
-            }
-            $result = 0;
-            $related_to = $this->input->post('related_to', true);
+                if ($data['task_status'] == 'completed') {
+                    $data['task_progress'] = 100;
+                }
+                if ($data['task_progress'] == 100) {
+                    $data['task_status'] = 'completed';
+                }
+                if (empty($id)) {
+                    $data['created_by'] = $this->session->userdata('user_id');
+                }
+                if (empty($data['billable'])) {
+                    $data['billable'] = 'No';
+                }
+                if (empty($data['hourly_rate'])) {
+                    $data['hourly_rate'] = '0';
+                }
+                $result = 0;
+                $related_to = $this->input->post('related_to', true);
 
-            if ($related_to != '0') {
-                $project_id = $this->input->post('project_id', TRUE);
-                if (!empty($project_id)) {
-                    $data['project_id'] = $project_id;
-                    $data['milestones_id'] = $this->input->post('milestones_id', TRUE);
+                if ($related_to != '0') {
+                    $project_id = $this->input->post('project_id', TRUE);
+                    if (!empty($project_id)) {
+                        $data['project_id'] = $project_id;
+                        $data['milestones_id'] = $this->input->post('milestones_id', TRUE);
+                    } else {
+                        $data['project_id'] = NULL;
+                        $data['milestones_id'] = NULL;
+                        $result++;
+                    }
+                    $opportunities_id = $this->input->post('opportunities_id', TRUE);
+
+                    if (!empty($opportunities_id)) {
+                        $data['opportunities_id'] = $opportunities_id;
+                    } else {
+
+                        $data['opportunities_id'] = NULL;
+                        $result++;
+                    }
+                    
+                    $leads_id = $this->input->post('leads_id', TRUE);
+                    if (!empty($leads_id)) {
+                        $data['leads_id'] = $leads_id;
+                    } else {
+                        $data['leads_id'] = NULL;
+                        $result++;
+                    }
+                    $bug_id = $this->input->post('bug_id', TRUE);
+                    if (!empty($bug_id)) {
+                        $data['bug_id'] = $bug_id;
+                    } else {
+                        $data['bug_id'] = NULL;
+                        $result++;
+                    }
+                    $goal_tracking_id = $this->input->post('goal_tracking_id', TRUE);
+                    if (!empty($goal_tracking_id)) {
+                        $data['goal_tracking_id'] = $goal_tracking_id;
+                    } else {
+                        $data['goal_tracking_id'] = NULL;
+                        $result++;
+                    }
+                    $sub_task_id = $this->input->post('sub_task_id', TRUE);
+                    if (!empty($sub_task_id)) {
+                        $data['sub_task_id'] = $sub_task_id;
+                    } else {
+                        $data['sub_task_id'] = NULL;
+                        $result++;
+                    }
+                    $transactions_id = $this->input->post('transactions_id', TRUE);
+                    if (!empty($transactions_id)) {
+                        $data['transactions_id'] = $transactions_id;
+                    } else {
+                        $data['transactions_id'] = NULL;
+                        $result++;
+                    }
+                    if ($result == 7) {
+                        if (!empty($id)) {
+                            $task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
+                            $data['project_id'] = $task_info->project_id;
+                            $data['milestones_id'] = $task_info->milestones_id;
+                            $data['opportunities_id'] = $task_info->opportunities_id;
+                            $data['leads_id'] = $task_info->leads_id;
+                            $data['bug_id'] = $task_info->bug_id;
+                            $data['goal_tracking_id'] = $task_info->goal_tracking_id;
+                            $data['sub_task_id'] = $task_info->sub_task_id;
+                            $data['transactions_id'] = $task_info->transactions_id;
+                        } else {
+                            $data['project_id'] = $this->input->post('un_project_id', TRUE);
+                            $data['milestones_id'] = $this->input->post('un_milestones_id', TRUE);;
+                            $data['opportunities_id'] = $this->input->post('un_opportunities_id', TRUE);
+                            $data['leads_id'] = $this->input->post('un_leads_id', TRUE);
+                            $data['bug_id'] = $this->input->post('un_bug_id', TRUE);
+                            $data['goal_tracking_id'] = $this->input->post('un_goal_tracking_id', TRUE);
+                            $data['sub_task_id'] = $this->input->post('un_sub_task_id', TRUE);
+                            $data['transactions_id'] = $this->input->post('un_transactions_id', TRUE);
+                        }
+
+                    }
                 } else {
                     $data['project_id'] = NULL;
                     $data['milestones_id'] = NULL;
-                    $result += count(1);
-                }
-                $opportunities_id = $this->input->post('opportunities_id', TRUE);
-                if (!empty($opportunities_id)) {
-                    $data['opportunities_id'] = $opportunities_id;
-                } else {
-                    $data['opportunities_id'] = NULL;
-                    $result += count(1);
-                }
-                $leads_id = $this->input->post('leads_id', TRUE);
-                if (!empty($leads_id)) {
-                    $data['leads_id'] = $leads_id;
-                } else {
-                    $data['leads_id'] = NULL;
-                    $result += count(1);
-                }
-                $bug_id = $this->input->post('bug_id', TRUE);
-                if (!empty($bug_id)) {
-                    $data['bug_id'] = $bug_id;
-                } else {
-                    $data['bug_id'] = NULL;
-                    $result += count(1);
-                }
-                $goal_tracking_id = $this->input->post('goal_tracking_id', TRUE);
-                if (!empty($goal_tracking_id)) {
-                    $data['goal_tracking_id'] = $goal_tracking_id;
-                } else {
                     $data['goal_tracking_id'] = NULL;
-                    $result += count(1);
-                }
-                $sub_task_id = $this->input->post('sub_task_id', TRUE);
-                if (!empty($sub_task_id)) {
-                    $data['sub_task_id'] = $sub_task_id;
-                } else {
+                    $data['bug_id'] = NULL;
+                    $data['leads_id'] = NULL;
+                    $data['opportunities_id'] = NULL;
                     $data['sub_task_id'] = NULL;
-                    $result += count(1);
-                }
-                $transactions_id = $this->input->post('transactions_id', TRUE);
-                if (!empty($transactions_id)) {
-                    $data['transactions_id'] = $transactions_id;
-                } else {
                     $data['transactions_id'] = NULL;
-                    $result += count(1);
                 }
+                $permission = $this->input->post('permission', true);
 
-                if ($result == 7) {
-                    if (!empty($id)) {
-                        $task_info = $this->db->where('task_id', $id)->get('tbl_task')->row();
-                        $data['project_id'] = $task_info->project_id;
-                        $data['milestones_id'] = $task_info->milestones_id;
-                        $data['opportunities_id'] = $task_info->opportunities_id;
-                        $data['leads_id'] = $task_info->leads_id;
-                        $data['bug_id'] = $task_info->bug_id;
-                        $data['goal_tracking_id'] = $task_info->goal_tracking_id;
-                        $data['sub_task_id'] = $task_info->sub_task_id;
-                        $data['transactions_id'] = $task_info->transactions_id;
+                if (!empty($permission)) {
+
+                    if ($permission == 'everyone') {
+                        $assigned = 'all';
+                        $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
                     } else {
-                        $data['project_id'] = $this->input->post('un_project_id', TRUE);
-                        $data['milestones_id'] = $this->input->post('un_milestones_id', TRUE);;
-                        $data['opportunities_id'] = $this->input->post('un_opportunities_id', TRUE);
-                        $data['leads_id'] = $this->input->post('un_leads_id', TRUE);
-                        $data['bug_id'] = $this->input->post('un_bug_id', TRUE);
-                        $data['goal_tracking_id'] = $this->input->post('un_goal_tracking_id', TRUE);
-                        $data['sub_task_id'] = $this->input->post('un_sub_task_id', TRUE);
-                        $data['transactions_id'] = $this->input->post('un_transactions_id', TRUE);
-                    }
-
-                }
-            } else {
-                $data['project_id'] = NULL;
-                $data['milestones_id'] = NULL;
-                $data['goal_tracking_id'] = NULL;
-                $data['bug_id'] = NULL;
-                $data['leads_id'] = NULL;
-                $data['opportunities_id'] = NULL;
-                $data['sub_task_id'] = NULL;
-                $data['transactions_id'] = NULL;
-            }
-            $permission = $this->input->post('permission', true);
-            if (!empty($permission)) {
-
-                if ($permission == 'everyone') {
-                    $assigned = 'all';
-                    $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
-                } else {
-                    $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
-                    if (!empty($assigned_to['assigned_to'])) {
-                        foreach ($assigned_to['assigned_to'] as $assign_user) {
-                            $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                        $assigned_to = $this->tasks_model->array_from_post(array('assigned_to'));
+                        if (!empty($assigned_to['assigned_to'])) {
+                            foreach ($assigned_to['assigned_to'] as $assign_user) {
+                                $assigned[$assign_user] = $this->input->post('action_' . $assign_user, true);
+                            }
                         }
                     }
+                    if (!empty($assigned)) {
+                        if ($assigned != 'all') {
+                            $assigned = json_encode($assigned);
+                        }
+                    } else {
+                        $assigned = 'all';
+                    }
+                    $data['permission'] = $assigned;
+                } else {
+                    set_message('error', lang('assigned_to') . ' Field is required');
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        redirect('admin/tasks/all_task');
+                    } else {
+                        redirect($_SERVER['HTTP_REFERER']);
+                    }
                 }
-                if (!empty($assigned)) {
-                    if ($assigned != 'all') {
-                        $assigned = json_encode($assigned);
+
+                //save data into table.
+                $this->tasks_model->_table_name = "tbl_task"; // table name
+                $this->tasks_model->_primary_key = "task_id"; // $id
+                $id = $this->tasks_model->save($data, $id);
+
+                $this->tasks_model->set_task_progress($id);
+
+                $u_data['index_no'] = $id;
+                $id = $this->tasks_model->save($u_data, $id);
+                $u_data['index_no'] = $id;
+                $id = $this->tasks_model->save($u_data, $id);
+                save_custom_field(3, $id);
+
+                if ($assigned == 'all') {
+                    $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
+                }
+
+                if (!empty($id)) {
+
+                    $msg = lang('update_task');
+                    $activity = 'activity_update_task';
+                    $id = $id;
+                    if (!empty($assigned_to['assigned_to'])) {
+                        // send update
+                        $this->notify_assigned_tasks($assigned_to['assigned_to'], $id, TRUE);
                     }
                 } else {
-                    $assigned = 'all';
+                    $msg = lang('save_task');
+                    $activity = 'activity_new_task';
+                    if (!empty($assigned_to['assigned_to'])) {
+                        $this->notify_assigned_tasks($assigned_to['assigned_to'], $id);
+                    }
                 }
-                $data['permission'] = $assigned;
-            } else {
-                set_message('error', lang('assigned_to') . ' Field is required');
-                if (empty($_SERVER['HTTP_REFERER'])) {
-                    redirect('admin/tasks/all_task');
+
+                // save into activities
+                $activities = array(
+                    'user' => $this->session->userdata('user_id'),
+                    'module' => 'tasks',
+                    'module_field_id' => $id,
+                    'activity' => $activity,
+                    'icon' => 'fa-tasks',
+                    'link' => 'admin/tasks/view_task_details/' . $id,
+                    'value1' => $data['task_name'],
+                );
+                // Update into tbl_project
+                $this->tasks_model->_table_name = "tbl_activities"; //table name
+                $this->tasks_model->_primary_key = "activities_id";
+                $this->tasks_model->save($activities);
+
+                if (!empty($data['project_id'])) {
+                    $this->tasks_model->set_progress($data['project_id']);
+                }
+
+                $type = "success";
+                $message = $msg;
+                set_message($type, $message);
+                if (!empty($data['project_id']) && is_numeric($data['project_id'])) {
+                    redirect('admin/projects/project_details/' . $data['project_id'] . '/' . '6');
                 } else {
-                    redirect($_SERVER['HTTP_REFERER']);
-                }
-            }
-
-            //save data into table.
-            $this->tasks_model->_table_name = "tbl_task"; // table name
-            $this->tasks_model->_primary_key = "task_id"; // $id
-            $id = $this->tasks_model->save($data, $id);
-
-            $this->tasks_model->set_task_progress($id);
-
-            $u_data['index_no'] = $id;
-            $id = $this->tasks_model->save($u_data, $id);
-            $u_data['index_no'] = $id;
-            $id = $this->tasks_model->save($u_data, $id);
-            save_custom_field(3, $id);
-
-            if ($assigned == 'all') {
-                $assigned_to['assigned_to'] = $this->tasks_model->allowed_user_id('54');
-            }
-
-            if (!empty($id)) {
-
-                $msg = lang('update_task');
-                $activity = 'activity_update_task';
-                $id = $id;
-                if (!empty($assigned_to['assigned_to'])) {
-                    // send update
-                    $this->notify_assigned_tasks($assigned_to['assigned_to'], $id, TRUE);
+                    redirect('admin/tasks/view_task_details/' . $id);
                 }
             } else {
-                $msg = lang('save_task');
-                $activity = 'activity_new_task';
-                if (!empty($assigned_to['assigned_to'])) {
-                    $this->notify_assigned_tasks($assigned_to['assigned_to'], $id);
-                }
+                redirect('admin/tasks/all_task');
             }
-
-            // save into activities
-            $activities = array(
-                'user' => $this->session->userdata('user_id'),
-                'module' => 'tasks',
-                'module_field_id' => $id,
-                'activity' => $activity,
-                'icon' => 'fa-tasks',
-                'link' => 'admin/tasks/view_task_details/' . $id,
-                'value1' => $data['task_name'],
-            );
-            // Update into tbl_project
-            $this->tasks_model->_table_name = "tbl_activities"; //table name
-            $this->tasks_model->_primary_key = "activities_id";
-            $this->tasks_model->save($activities);
-
-            if (!empty($data['project_id'])) {
-                $this->tasks_model->set_progress($data['project_id']);
-            }
-
-            $type = "success";
-            $message = $msg;
-            set_message($type, $message);
-            if (!empty($data['project_id']) && is_numeric($data['project_id'])) {
-                redirect('admin/projects/project_details/' . $data['project_id'] . '/' . '6');
-            } else {
-                redirect('admin/tasks/view_task_details/' . $id);
-            }
-        } else {
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
             redirect('admin/tasks/all_task');
         }
+
 
 
     }

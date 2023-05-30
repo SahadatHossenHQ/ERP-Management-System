@@ -650,7 +650,7 @@
     public function generate_requisition_number()
     {
         $strlen = strlen(config_item('estimate_start_no'));
-        $query = $this->db->query('SELECT reference_no, requisition_id FROM tbl_requisitions WHERE requisition_id = (SELECT MAX(requisition_id) FROM tbl_requisitionS)');
+        $query = $this->db->query('SELECT reference_no, requisition_id FROM tbl_requisitions WHERE requisition_id = (SELECT MAX(requisition_id) FROM tbl_requisitions)');
         if ($query->num_rows() > 0) {
             $row = $query->row();
             $ref_number = intval(substr($row->reference_no, -$strlen));
