@@ -135,6 +135,15 @@ $sub_tasks = config_item('allow_sub_tasks');
                     } else {
                         $pc_name = '-';
                     }
+
+
+                    $p_contactor = $this->db->where('customer_group_id', $task_details->contactor_id)->get('tbl_customer_group')->row();
+                    if (!empty($p_contactor)) {
+                        $pcon_name = $p_contactor->customer_group;
+                    } else {
+                        $pcon_name = '-';
+                    }
+
                     ?>
                     <div class="panel-body form-horizontal task_details">
                         <?php $task_details_view = config_item('task_details_view');
@@ -511,6 +520,16 @@ $sub_tasks = config_item('allow_sub_tasks');
 
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-4"><strong><?= lang('contactor') ?> :</strong></div>
+                                            <div class="col-sm-8">
+                                                <?php
+                                                if (!empty($pcon_name)) {
+                                                    echo $pcon_name;
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                                 <div class="col-md-3">
@@ -628,7 +647,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                             </div>
                             <div class="form-group  col-sm-6">
                                 <label class="control-label col-sm-5"><strong><?= lang('budget') ?>
-                                        :</strong></label>
+                                        : </strong></label>
                                 <div class="col-sm-7 ">
                                     <p class="form-control-static" style="padding-bottom: 6px"><strong><?php
                                             echo display_money($task_details->budget ?? 0);
@@ -991,6 +1010,19 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 }
                                 ?>
 
+                                </div>
+                            </div>
+                            <div class="form-group  col-sm-6">
+                                <div class="control-label col-sm-5"><strong><?= lang('contactor') ?> :</strong></div>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static"> <strong>
+                                    <?php
+                                    if (!empty($pcon_name)) {
+                                        echo $pcon_name;
+                                    }
+                                    ?>
+                                        </strong>
+                                    </p>
                                 </div>
                             </div>
 

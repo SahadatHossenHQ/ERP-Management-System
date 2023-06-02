@@ -11,19 +11,25 @@ $edited = can_action('125', 'edited');
         <?= lang('new') . ' ' . lang('contactor') ?>
     </header>
     <?php if (!empty($created) || !empty($edited)) { ?>
-        <?php echo form_open(base_url('admin/projects/update_category'), array('id' => 'group_modal', 'class' => 'form-horizontal')); ?>
+        <?php echo form_open(base_url('admin/projects/create_contactor'), array('id' => 'group_modal', 'class' => 'form-horizontal')); ?>
         <div class="form-group">
             <label
                     class="col-sm-3 control-label"><?= lang('contactor') . ' ' . lang('name') ?></label>
             <div class="col-sm-5">
-                <input type="text" name="category_name" class="form-control"
+                <input type="text" name="contactor_name" class="form-control"
                        placeholder="<?= lang('contactor') . ' ' . lang('name') ?>" required>
             </div>
         </div>
+        <div class="form-group">
+            <label
+                    class="col-sm-3 control-label"><?= lang('company') . ' ' . lang('name') ?></label>
+            <div class="col-sm-5">
+                <input type="text" name="company_name" class="form-control"
+                       placeholder="<?= lang('company') . ' ' . lang('name') ?>" required>
+            </div>
+        </div>
         <?php
-        if (!empty($type)) {
-            echo form_hidden('type', $type);
-        }
+            echo form_hidden('type', 'contactor');
         ?>
         <div class="form-group">
             <label
@@ -48,8 +54,7 @@ $edited = can_action('125', 'edited');
 <script type="text/javascript">
     $(document).on("submit", "form", function (event) {
         var form = $(event.target);
-        return false;
-        if (form.attr('action') == '<?= base_url('admin/projects/update_category')?>') {
+        if (form.attr('action') == '<?= base_url('admin/projects/create_contactor')?>') {
             event.preventDefault();
             $.ajax({
                 type: form.attr('method'),
@@ -59,7 +64,7 @@ $edited = can_action('125', 'edited');
                 response = JSON.parse(response);
                 if (response.status == 'success') {
                     if (typeof (response.id) != 'undefined') {
-                        var groups = $('select[name="category_id"]');
+                        var groups = $('select[name="contactor_id"]');
                         groups.prepend('<option selected value="' + response.id + '">' + response.group + '</option>');
                         var select2Instance = groups.data('select2');
                         var resetOptions = select2Instance.options.options;

@@ -3198,4 +3198,66 @@ class Projects extends Admin_Controller
         echo json_encode($result);
         exit();
     }
+    public function create_contactor($id = null)
+    {
+        $this->items_model->_table_name = 'tbl_customer_group';
+        $this->items_model->_primary_key = 'customer_group_id';
+
+        $cate_data['customer_group'] = $this->input->post('contactor_name', TRUE);
+        $cate_data['company'] = $this->input->post('company_name', TRUE);
+        $cate_data['description'] = $this->input->post('description', TRUE);
+        $type = $this->input->post('type', TRUE);
+        if (!empty($type)) {
+            $cate_data['type'] = $type;
+        } else {
+            $cate_data['type'] = 'client';
+        }
+        // update root category
+        $where = array('type' => $cate_data['type'], 'customer_group' => $cate_data['customer_group']);
+        // duplicate value check in DB
+        if (!empty($id)) { // if id exist in db update data
+            $customer_group_id = array('customer_group_id !=' => $id);
+        } else { // if id is not exist then set id as null
+            $customer_group_id = null;
+        }
+        // check whether this input data already exist or not
+        $check_category = $this->items_model->check_update('tbl_customer_group', $where, $customer_group_id);
+        if (!empty($check_category)) { // if input data already exist show error alert
+            // massage for user
+            $type = 'error';
+            $msg = "<strong style='color:#000'>" . $cate_data['customer_group'] . '</strong>  ' . lang('already_exist');
+        } else { // save and update query
+            $id = $this->items_model->save($cate_data, $id);
+
+            $activity = array(
+                'user' => $this->session->userdata('user_id'),
+                'module' => 'settings',
+                'module_field_id' => $id,
+                'activity' => ('customer_group_added'),
+                'value1' => $cate_data['customer_group']
+            );
+            $this->items_model->_table_name = 'tbl_activities';
+            $this->items_model->_primary_key = 'activities_id';
+            $this->items_model->save($activity);
+
+            // messages for user
+            $type = "success";
+            $msg = lang('category_added');
+        }
+        if (!empty($id)) {
+            $result = array(
+                'id' => $id,
+                'group' => $cate_data['customer_group'],
+                'status' => $type,
+                'message' => $msg,
+            );
+        } else {
+            $result = array(
+                'status' => $type,
+                'message' => $msg,
+            );
+        }
+        echo json_encode($result);
+        exit();
+    }
 }

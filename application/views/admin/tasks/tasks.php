@@ -289,6 +289,7 @@ if ($tasks == 'kanban') {
                                                             class="form-control select_box"
                                                             style="width: 100%">
                                                         <?php
+                                                        $all_customer_group = $this->db->where('type', 'tasks')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
                                                         if (!empty($all_customer_group)) {
                                                             foreach ($all_customer_group as $customer_group) : ?>
                                                                 <option
@@ -674,10 +675,12 @@ if ($tasks == 'kanban') {
                                                     class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('contactor') ?></label>
                                             <div class="col-sm-5">
                                                 <div class="input-group">
-                                                    <select name="category_id"
+                                                    <select name="contactor_id"
                                                             class="form-control select_box"
                                                             style="width: 100%">
                                                         <?php
+                                                        $all_customer_group = $this->db->where('type', 'contactor')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
+
                                                         if (!empty($all_customer_group)) {
                                                             foreach ($all_customer_group as $customer_group) : ?>
                                                                 <option
