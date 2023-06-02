@@ -1208,7 +1208,7 @@ class Requisition extends Admin_Controller
                     $data['client_visible'] = 'No';
                 }
                 if (empty($data['billable'])) {
-                    $data['billable'] = 'No';
+                    $data['billable'] = 'Yes';
                 }
 
 
