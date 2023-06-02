@@ -705,6 +705,18 @@ if ($tasks == 'kanban') {
                                         </div>
 
                                         <div class="form-group">
+                                            <label
+                                                    class="col-sm-3 control-label"><?= lang('budget') ?><span
+                                                        class="required">*</span></label>
+                                            <div class="col-sm-5">
+                                                <input type="text" data-parsley-type="number" name="budget"
+                                                       class="form-control"
+                                                       placeholder="00000"
+                                                       value="<?php if (!empty($task_info->budget)) echo $task_info->budget; ?>"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
                                             <label class="col-lg-3 control-label"><?= lang('start_date') ?></label>
                                             <div class="col-lg-5">
                                                 <div class="input-group">

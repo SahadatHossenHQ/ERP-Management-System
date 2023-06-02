@@ -174,6 +174,16 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 ?>
                                             </div>
                                         </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-4"><strong><?= lang('budget') ?> :</strong></div>
+                                            <div class="col-sm-8">
+                                                <?php
+                                                if (!empty($task_details)) {
+                                                    echo get_tags($task_details->budget, true);
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
                                         <!--                                        --><?php
                                         //                                        if (!empty($task_details->project_id)):
                                         //                                            $project_info = $this->db->where('project_id', $task_details->project_id)->get('tbl_project')->row();
@@ -617,12 +627,23 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 </div>
                             </div>
                             <div class="form-group  col-sm-6">
+                                <label class="control-label col-sm-5"><strong><?= lang('budget') ?>
+                                        :</strong></label>
+                                <div class="col-sm-7 ">
+                                    <p class="form-control-static" style="padding-bottom: 6px"><strong><?php
+                                            echo display_money($task_details->budget ?? 0);
+                                        ?></strong></p>
+                                </div>
+                            </div>
+                            <div class="form-group  col-sm-6">
                                 <label class="control-label col-sm-5"><strong><?= lang('tags') ?>
                                         :</strong></label>
                                 <div class="col-sm-7">
                                     <p class="form-control-static"><?php
-                                        if (!empty($task_details)) {
+                                        if (!empty($task_details->tags)) {
                                             echo get_tags($task_details->tags, true);
+                                        } else {
+                                            echo 'N/A';
                                         }
                                         ?></p>
                                 </div>
@@ -675,6 +696,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     </div>
                                 <?php } ?>
                             </div>
+
                             <div class="form-group  col-sm-6">
                                 <label class="control-label col-sm-4"><strong><?= lang('timer_status') ?>
                                         :</strong></label>
