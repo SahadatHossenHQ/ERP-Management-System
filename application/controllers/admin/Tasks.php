@@ -447,6 +447,8 @@ class Tasks extends Admin_Controller
                     'task_status',
                     'hourly_rate',
                     'tags',
+                    'budget',
+                    'contactor_id',
                     'billable'));
 
                 $estimate_hours = $this->input->post('task_hour', true);

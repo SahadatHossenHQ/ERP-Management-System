@@ -725,13 +725,23 @@ class Transactions extends Admin_Controller
                         $label = 'success';
                         $title = lang('billable');
                         $e_action = '';
-                        if ($v_expense->invoices_id != 0 && !empty(get_row('tbl_invoices', array('invoices_id' => $v_expense->invoices_id)))) {
-                            $payment_status = $this->invoice_model->get_payment_status($v_expense->invoices_id);
-                            $text = '<a href="' . base_url() . 'admin/invoice/manage_invoice/invoice_details/' . $v_expense->invoices_id . '"> <p class="text-sm m0 p0"><span class="text-dark">' . lang('invoiced') . '</span><span class="text-danger">' . ' ' . $payment_status . '</span></p></a>';
-                        } else {
-                            $text = '<p class="text-sm m0 p0"><span class="text-danger">' . lang('not_invoiced') . '</span></p>';
+                        if ($v_expense->status !== 'paid') {
+                            if ($v_expense->invoices_id != 0 && !empty(get_row('tbl_invoices', array('invoices_id' => $v_expense->invoices_id)))) {
+                                $payment_status = $this->invoice_model->get_payment_status($v_expense->invoices_id);
+                                $text = '<a href="' . base_url() . 'admin/invoice/manage_invoice/invoice_details/' . $v_expense->invoices_id . '"> <p class="text-sm m0 p0"><span class="text-dark">' . lang('invoiced') . '</span><span class="text-danger">' . ' ' . $payment_status . '</span></p></a>';
+                            } else {
+                                $text = '<p class="text-sm m0 p0"><span class="text-danger">' . lang('not_invoiced') . '</span></p>';
+                            }
                         }
+
                     }
+                    if ($v_expense->status == 'paid') {
+                        $status = $v_expense->status;
+                        $label = 'success';
+                        $title = '';
+                        $e_action = '';
+                    }
+
                 } else {
                     if ($v_expense->status == 'non_approved') {
                         $label = 'danger';

@@ -289,6 +289,7 @@ if ($tasks == 'kanban') {
                                                             class="form-control select_box"
                                                             style="width: 100%">
                                                         <?php
+                                                        $all_customer_group = $this->db->where('type', 'tasks')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
                                                         if (!empty($all_customer_group)) {
                                                             foreach ($all_customer_group as $customer_group) : ?>
                                                                 <option
@@ -674,10 +675,12 @@ if ($tasks == 'kanban') {
                                                     class="col-sm-3 control-label"><?= lang('select') . ' ' . lang('contactor') ?></label>
                                             <div class="col-sm-5">
                                                 <div class="input-group">
-                                                    <select name="category_id"
+                                                    <select name="contactor_id"
                                                             class="form-control select_box"
                                                             style="width: 100%">
                                                         <?php
+                                                        $all_customer_group = $this->db->where('type', 'contactor')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
+
                                                         if (!empty($all_customer_group)) {
                                                             foreach ($all_customer_group as $customer_group) : ?>
                                                                 <option
@@ -701,6 +704,18 @@ if ($tasks == 'kanban') {
                                                         </div>
                                                     <?php } ?>
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label
+                                                    class="col-sm-3 control-label"><?= lang('budget') ?><span
+                                                        class="required">*</span></label>
+                                            <div class="col-sm-5">
+                                                <input type="text" data-parsley-type="number" name="budget"
+                                                       class="form-control"
+                                                       placeholder="00000"
+                                                       value="<?php if (!empty($task_info->budget)) echo $task_info->budget; ?>"/>
                                             </div>
                                         </div>
 

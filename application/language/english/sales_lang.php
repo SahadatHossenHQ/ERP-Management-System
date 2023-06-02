@@ -59,6 +59,7 @@ $lang['invoice_prefix'] = 'Bill Received Prefix';
 $lang['estimate_prefix'] = 'Estimate Prefix';
 $lang['estimate_language'] = 'Estimate Language';
 $lang['paid'] = 'Paid';
+$lang['budget'] = 'Budget';
 $lang['paid_amount'] = 'Paid Amount';
 $lang['payment_failed'] = 'Your payment was not recorded! Please try again.';
 $lang['payment_added_successfully'] = 'Your payment was recorded successfully!';
