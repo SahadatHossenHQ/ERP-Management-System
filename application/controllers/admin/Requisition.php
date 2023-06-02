@@ -1172,11 +1172,12 @@ class Requisition extends Admin_Controller
                 $data['tags'] = $data1['tags'] ?? 'Converted';
                 $data['payment_methods_id'] = $data1['payment_methods_id'] ?? null;
                 $data['project_id'] = $data1['project_id'] ?? null;
-                $data['billable'] = $data1['billable'] ?? 'Yes';
+                $data['billable'] = $data1['billable'] ?? 'no';
                 $data['client_visible'] = $data1['client_visible'] ?? null;
                 $data['repeat_every'] = $data1['repeat_every'] ?? null;
                 $data['done_cycles'] = $data1['done_cycles'] ?? null;
                 $data['account_id'] = $data1['account_id'];
+                $data['status'] = 'paid';
 
                 $repeat_every_custom = $this->input->post('repeat_every_custom', true);
                 $repeat_type_custom = $this->input->post('repeat_type_custom', true);
@@ -1208,7 +1209,7 @@ class Requisition extends Admin_Controller
                     $data['client_visible'] = 'No';
                 }
                 if (empty($data['billable'])) {
-                    $data['billable'] = 'Yes';
+                    $data['billable'] = 'yes';
                 }
 
 
