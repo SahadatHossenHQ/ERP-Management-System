@@ -77,7 +77,12 @@
                 $total_amount = 0;
                 $total_credit = 0;
                 $total_balance = 0;
-                $all_deposit_info = $this->db->where(array('type' => 'Expense'))->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
+                if ($project_id){
+                    $con_array = array('type' => 'Expense', 'project_id' => $project_id);
+                } else {
+                    $con_array = array('type' => 'Expense');
+                }
+                $all_deposit_info = $this->db->where($con_array)->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
                 
                 foreach ($all_deposit_info as $v_deposit) :
                     $account_info = $this->report_model->check_by(array('account_id' => $v_deposit->account_id), 'tbl_accounts');

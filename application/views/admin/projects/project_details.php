@@ -161,7 +161,7 @@ $edited = can_action('57', 'edited');
                             <span>Account Statement</span></a>
                     </li>
                     <li class="">
-                        <a title="Expense Report" href="<?= base_url() ?>admin/report/expense_report">
+                        <a title="Expense Report" href="<?= base_url() ?>admin/report/expense_report/project/<?= $project_details->project_id ?>">
                             <span>Expense Report</span></a>
                     </li>
                     <li class="">

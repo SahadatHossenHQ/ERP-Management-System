@@ -191,7 +191,7 @@ class Report extends Admin_Controller
         pdf_create($viewfile, slug_it(lang('income_report')));
     }
     
-    public function get_transactions_report()
+    public function get_transactions_report($project_id = null)
     {// this function is to create get monthy recap report
         $m = date('n');
         $year = date('Y');
@@ -203,15 +203,20 @@ class Report extends Admin_Controller
                 $date = $year . "-" . $m;
             }
             $date = $date . '-' . $i;
-            $transaction_report[$i] = $this->db->where('date', $date)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
+            $trn = $this->db->where('date', $date);
+            if ($project_id){
+                $trn->where('project_id', $project_id);
+            }
+            $transaction_report[$i] = $trn->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
         }
         return $transaction_report; // return the result
     }
     
-    public function expense_report($category_id = null)
+    public function expense_report($type = null, $project_id = null)
     {
         $data['title'] = lang('expense_report');
-        $data['transactions_report'] = $this->get_transactions_report($category_id);
+        $data['project_id'] = $project_id;
+        $data['transactions_report'] = $this->get_transactions_report($project_id);
         $data['subview'] = $this->load->view('admin/report/expense_report', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
