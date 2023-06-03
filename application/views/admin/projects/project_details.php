@@ -157,7 +157,7 @@ $edited = can_action('57', 'edited');
                     <li class="">
 <!--                        <a title="Account Statement" href="http://127.0.0.1/f3/admin/report/account_statement">-->
 <!--                            <em class="fa fa-circle-o"></em><span>Account Statement</span></a>-->
-                        <a title="Account Statement" href="#reports_part"  data-toggle="tab">
+                        <a title="Account Statement" href="<?= base_url() ?>admin/report/account_statement">
                             <span>Account Statement</span></a>
                     </li>
                     <li class="">
