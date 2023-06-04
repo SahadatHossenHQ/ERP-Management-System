@@ -218,7 +218,11 @@ class Invoice extends Admin_Controller
             $this->invoice_model->_table_name = 'tbl_payments';
             $this->invoice_model->_order_by = 'payments_id';
             $data['all_payments_history'] = $this->invoice_model->get_by(array('invoices_id' => $id), FALSE);
-
+            $invoice_due = $this->invoice_model->calculate_to('invoice_due', $id);
+            if ($invoice_due <=0 ) {
+                set_message('error', 'Invoice is fully paid');
+                redirect('admin/invoice/manage_invoice/invoice_details/'.$id);
+            }
             $subview = $action;
         } elseif ($action == 'payments_details') {
             $data['title'] = "Payments Details"; //Page title
@@ -1971,6 +1975,7 @@ class Invoice extends Admin_Controller
                 } else {
                     $inv_info = $this->invoice_model->check_by(array('invoices_id' => $invoices_id), 'tbl_invoices');
                     $currency = $this->invoice_model->check_by(array('code' => $inv_info->currency), 'tbl_currencies');
+
                     $data = array(
                         'invoices_id' => $invoices_id,
                         'paid_by' => $inv_info->client_id,
@@ -2045,6 +2050,7 @@ class Invoice extends Admin_Controller
                                 'paid_by' => $inv_info->client_id,
                                 'payment_methods_id' => $this->input->post('payment_methods_id', TRUE),
                                 'reference' => $trans_id,
+                                'project_id' => $inv_info->project_id,
                                 'notes' => lang('this_deposit_from_invoice_payment', $reference),
                                 'permission' => 'all',
                             );
