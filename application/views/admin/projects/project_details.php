@@ -146,20 +146,20 @@ $edited = can_action('57', 'edited');
             </li>
             <li class="<?= $active == 16 ? 'active' : '' ?>"><a href="#project_settings" data-toggle="tab"><?= lang('project_settings') ?></a>
             </li>
-            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; ">
+            <li class="<?= $active == 2 ? 'active' : '' ?> sub-var" style="margin-right: 0px; ">
 <!--                <a href="#reports_part" data-toggle="tab">--><?php //= lang('report') ?>
 <!--                </a>-->
-                <a data-toggle="collapse" href="#project_reports" class="" aria-expanded="false">
+                <a data-toggle="collapse" href="#project_reports" class="collapsed" aria-expanded="false">
                     <span><?= lang('report') ?></span>
                 </a>
-                <ul id="project_reports" class="nav s-menu collapse in" aria-expanded="false" style="">
+                <ul id="project_reports" class="nav s-menu collapse" aria-expanded="false" style="height: 0px;">
 <!--                    <li class="sidebar-subnav-header">Transactions</li>-->
-                    <li class="">
+<!--                    <li class="">-->
 <!--                        <a title="Account Statement" href="http://127.0.0.1/f3/admin/report/account_statement">-->
 <!--                            <em class="fa fa-circle-o"></em><span>Account Statement</span></a>-->
-                        <a title="Account Statement" href="<?= base_url() ?>admin/report/account_statement">
-                            <span>Account Statement</span></a>
-                    </li>
+<!--                        <a title="Account Statement" href="--><?php //= base_url() ?><!--admin/report/account_statement">-->
+<!--                            <span>Account Statement</span></a>-->
+<!--                    </li>-->
                     <li class="">
                         <a title="Expense Report" href="<?= base_url() ?>admin/report/expense_report/project/<?= $project_details->project_id ?>">
                             <span>Expense Report</span></a>
