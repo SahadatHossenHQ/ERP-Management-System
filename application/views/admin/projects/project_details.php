@@ -169,7 +169,7 @@ $edited = can_action('57', 'edited');
                             <span>Income Reports</span></a>
                     </li>
                     <li class="">
-                        <a title="Income Vs Expense" href="<?= base_url() ?>admin/report/income_expense">
+                        <a title="Income Vs Expense" href="<?= base_url() ?>admin/report/income_expense/project/<?= $project_details->project_id ?>">
                             <span>Income Vs Expense</span></a>
                     </li>
                 </ul>

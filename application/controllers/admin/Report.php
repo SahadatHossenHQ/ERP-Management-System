@@ -218,7 +218,9 @@ class Report extends Admin_Controller
     public function expense_report($type = null, $project_id = null)
     {
         $data['title'] = lang('expense_report');
-        $data['project_id'] = $project_id;
+        if ($type == 'project') {
+            $data['project_id'] = $project_id;
+        }
         $data['transactions_report'] = $this->get_transactions_report($project_id);
         $data['subview'] = $this->load->view('admin/report/expense_report', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
@@ -232,8 +234,11 @@ class Report extends Admin_Controller
         pdf_create($viewfile, slug_it(lang('expense_report')));
     }
     
-    public function income_expense()
+    public function income_expense($type = null, $project_id = null)
     {
+        if ($type == 'project') {
+            $data['project_id'] = $project_id;
+        }
         $data['title'] = lang('income_expense');
         $data['transactions_report'] = $this->get_transactions_report();
         $data['subview'] = $this->load->view('admin/report/income_expense', $data, TRUE);
