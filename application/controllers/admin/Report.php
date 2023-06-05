@@ -175,10 +175,13 @@ class Report extends Admin_Controller
         pdf_create($viewfile, slug_it(lang('account_statement') . ' From:' . $start_date . ' To:', $end_date));
     }
     
-    public function income_report()
+    public function income_report($type = null,$project_id = null)
     {
         $data['title'] = lang('income_report');
-        $data['transactions_report'] = $this->get_transactions_report();
+        $data['transactions_report'] = $this->get_transactions_report($project_id);
+        if ($type == 'project') {
+            $data['project_id'] = $project_id;
+        }
         $data['subview'] = $this->load->view('admin/report/income_report', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
