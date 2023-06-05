@@ -1808,7 +1808,7 @@ _:-ms-lang(x),
   display: block;
 }
 
-.sidebar li.sub-menu [data-toggle="collapse"]:after {
+.sidebar li.sub-menu [data-toggle="collapse"]:after, li.sub-var [data-toggle="collapse"]:after {
   font-family: "simple-line-icons";
   /* essential for enabling glyphicon */
   content: "\e606";
@@ -1819,7 +1819,7 @@ _:-ms-lang(x),
   margin-top: 6px;
 }
 
-.sidebar li.sub-menu [aria-expanded="true"]:after {
+.sidebar li.sub-menu [aria-expanded="true"]:after, li.sub-var [aria-expanded="true"]:after {
   /* rotate "Plus" */
   -webkit-transform: rotate(90deg);
   -moz-transform: rotate(90deg);

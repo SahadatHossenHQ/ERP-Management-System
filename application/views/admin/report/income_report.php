@@ -45,11 +45,22 @@
                     $this_week_start = date('Y-m-d', strtotime('previous sunday'));
                     // 30 days before
                     $before_30_days = date('Y-m-d', strtotime('today - 30 days'));
-
-                    $total_income = $this->db->select_sum('credit')->get('tbl_transactions')->row();
-                    $this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
-                    $this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
-                    $this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
+                    $this_month_ = array('date >=' => $first_day_month, 'date <=' => $mdate);
+                    $this_week_ = array('date >=' => $this_week_start, 'date <=' => $mdate);
+                    $last_30d_ = array('date >=' => $before_30_days, 'date <=' => $mdate);
+                    if ($project_id != null) {
+                        $this_month_ = array('date >=' => $first_day_month, 'date <=' => $mdate,'project_id' => $project_id);
+                        $this_week_ = array('date >=' => $this_week_start, 'date <=' => $mdate,'project_id' => $project_id);
+                        $last_30d_ = array('date >=' => $before_30_days, 'date <=' => $mdate,'project_id' => $project_id);
+                        $total_income = $this->db->select_sum('credit')->where(['project_id' => $project_id])->get('tbl_transactions')->row();
+                        $all_deposit_info = $this->db->where(array('type' => 'Income'))->limit(20)->where(['project_id' => $project_id])->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
+                    } else {
+                        $all_deposit_info = $this->db->where(array('type' => 'Income'))->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
+                        $total_income = $this->db->select_sum('credit')->get('tbl_transactions')->row();
+                    }
+                    $this_month = $this->db->where($this_month_)->select_sum('credit')->get('tbl_transactions')->row();
+                    $this_week = $this->db->where($this_week_)->select_sum('credit')->get('tbl_transactions')->row();
+                    $this_30_days = $this->db->where($last_30d_)->select_sum('credit')->get('tbl_transactions')->row();
                     echo display_money($total_income->credit, $curency->symbol);
                     ?></p>
                 <p><?= lang('total_income_this_month') ?>
@@ -80,7 +91,7 @@
                 $total_amount = 0;
                 $total_credit = 0;
                 $total_balance = 0;
-                $all_deposit_info = $this->db->where(array('type' => 'Income'))->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
+//                $all_deposit_info = $this->db->where(array('type' => 'Income'))->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
 
                 foreach ($all_deposit_info as $v_deposit) :
                     $account_info = $this->report_model->check_by(array('account_id' => $v_deposit->account_id), 'tbl_accounts');

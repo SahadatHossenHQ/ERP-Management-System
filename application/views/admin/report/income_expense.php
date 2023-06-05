@@ -43,20 +43,37 @@
             $this_week_start = date('Y-m-d', strtotime('previous sunday'));
             // 30 days before
             $before_30_days = date('Y-m-d', strtotime('today - 30 days'));
+            if ($project_id != null) {
+                $total_income = $this->db->select_sum('credit')->where(['project_id' => $project_id])->get('tbl_transactions')->row();
+                $total_expense = $this->db->select_sum('debit')->where(['project_id' => $project_id])->get('tbl_transactions')->row();
 
-            $total_income = $this->db->select_sum('credit')->get('tbl_transactions')->row();
-            $total_expense = $this->db->select_sum('debit')->get('tbl_transactions')->row();
+                $income_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('credit')->get('tbl_transactions')->row();
+                $income_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('credit')->get('tbl_transactions')->row();
+                $income_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('credit')->get('tbl_transactions')->row();
 
-            $income_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
-            $income_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
-            $income_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
+                $expense_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('debit')->get('tbl_transactions')->row();
+                $expense_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('debit')->get('tbl_transactions')->row();
+                $expense_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate,'project_id' => $project_id))->select_sum('debit')->get('tbl_transactions')->row();
 
-            $expense_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
-            $expense_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
-            $expense_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
+                $this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate,'project_id' => $project_id))->get('tbl_transactions')->result();
+                $last_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate,'project_id' => $project_id))->get('tbl_transactions')->result();
+            } else {
+                $total_income = $this->db->select_sum('credit')->get('tbl_transactions')->row();
+                $total_expense = $this->db->select_sum('debit')->get('tbl_transactions')->row();
 
-            $this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->get('tbl_transactions')->result();
-            $last_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->get('tbl_transactions')->result();
+                $income_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
+                $income_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
+                $income_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('credit')->get('tbl_transactions')->row();
+
+                $expense_this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
+                $expense_this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
+                $expense_this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
+
+                $this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->get('tbl_transactions')->result();
+                $last_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->get('tbl_transactions')->result();
+            }
+
+
             ?>
             <strong>
 
