@@ -3651,3 +3651,32 @@ function short_text($string = FALSE, $from_start = 16, $from_end = 8, $limit = F
     }
     return mb_substr($string, 0, $from_start - 1) . "..." . ($from_end > 0 ? mb_substr($string, -$from_end) : '');
 }
+
+function get_all_tasks($project_id){
+    $CI = &get_instance();
+    $CI->db->from('tbl_task');
+    $CI->db->where('project_id', $project_id);
+    $query = $CI->db->get();
+    $tasks = $query->result();
+    $tasks_array = array();
+    foreach ($tasks as $task) {
+        $tasks_array = sub_tasks($task->task_id,$tasks_array);
+    }
+    return $tasks_array;
+}
+
+function sub_tasks($task_id,$ids){
+    $CI = &get_instance();
+    $CI->db->select('task_id');
+    $CI->db->from('tbl_task');
+    $CI->db->where('sub_task_id', $task_id);
+    $query = $CI->db->get();
+    $sub_task_ids = $query->result();
+    array_push($ids, $task_id);
+    if (count($sub_task_ids) > 0) {
+        foreach ($sub_task_ids as $sub_task_id) {
+            $ids = sub_tasks($sub_task_id->task_id,$ids);
+        }
+    }
+    return $ids;
+}
