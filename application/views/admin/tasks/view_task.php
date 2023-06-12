@@ -1091,20 +1091,23 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     ?>
                                     <div class="col-sm-12 text-center">
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('billable') . ' ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('not_billable') . ' ' . lang('expense') ?></strong>: <?= display_money($not_billable_expense->amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget-$billable_amount, $currency->symbol) ?>
                                         </p>
-                                        <p class="p0 m0">
-                                            <strong><?= lang('billed') . ' ' . lang('expense') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
-                                        </p>
-                                        <p class="p0 m0">
-                                            <strong><?= lang('unbilled') . ' ' . lang('expense') ?></strong>: <?= display_money($task_details->task_hour * $task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
-                                        </p>
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
+<!--                                        </p>-->
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('billed') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($paid_expense, $currency->symbol) ?>
+<!--                                        </p>-->
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($task_details->task_hour * $task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
+<!--                                        </p>-->
                                     </div>
                                     <h2 class="text-center"><?= lang('total_bill') ?>
                                         : <?= display_money(($task_details->task_hour * $task_details->hourly_rate), $currency->symbol) ?></h2>
