@@ -29,6 +29,13 @@ $all_tickets_info = $this->db->where(array('project_id' => $project_details->pro
 $all_expense_info = $this->db->where(array('project_id' => $project_details->project_id, 'type' => 'Expense'))->get('tbl_transactions')->result();
 
 $total_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
+$total_estimate = $this->db->select_sum('tbl_estimate_items.total_cost')->where(array('tbl_estimates.project_id' => $project_details->project_id))
+    ->join('tbl_estimate_items', 'tbl_estimates.estimates_id = tbl_estimate_items.estimates_id')
+    ->get('tbl_estimates')->row();
+$total_requisition = $this->db->select_sum('tbl_requisition_items.total_cost')->where(array('tbl_requisitions.project_id' => $project_details->project_id))
+    ->join('tbl_requisition_items', 'tbl_requisitions.requisition_id = tbl_requisition_items.requisition_id')
+    ->get('tbl_requisitions')->row();
+
 $billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
 $not_billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
 
@@ -122,6 +129,7 @@ $edited = can_action('57', 'edited');
             <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
                     <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
             </li>
+            <li class="<?= $active == 70 ? 'active' : '' ?>"><a href="#contactor" data-toggle="tab"><?= lang('contactor') ?></a></li>
             <li class="<?= $active == 9 ? 'active' : '' ?>"><a href="#bugs" data-toggle="tab"><?= lang('bugs') ?><strong class="pull-right"><?= (!empty($all_bugs_info) ? count($all_bugs_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 13 ? 'active' : '' ?>"><a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/13"><?= lang('gantt') ?></a>
@@ -480,6 +488,14 @@ $edited = can_action('57', 'edited');
                                         ?>
                                         <p class="lead bb"></p>
                                         <form class="form-horizontal p-20">
+                                            <div class="form-group">
+                                                <div class="col-sm-4">
+                                                    <strong><?= lang('total') . ' ' . lang('estimate') ?></strong>:
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <strong><?= display_money($total_estimate->total_cost, $currency->symbol) ?></strong>
+                                                </div>
+                                            </div>
                                             <div class="form-group">
                                                 <div class="col-sm-4">
                                                     <strong><?= lang('total') . ' ' . lang('expense') ?></strong>:
@@ -1075,20 +1091,34 @@ $edited = can_action('57', 'edited');
                                         <?php if (!empty($staff_finance)) { ?>
                                             <div class="ml-lg mb-lg text-center">
                                                 <p class="p0 m0">
+                                                    <strong><?= lang('total') . ' ' . lang('estimate') ?></strong>: <?= display_money($total_estimate->total_cost, $currency->symbol) ?>
+                                                </p>
+                                                <p class="p0 m0">
+                                                    <strong><?= lang('total') . ' ' . lang('requisition') ?></strong>: <?= display_money($total_requisition->total_cost, $currency->symbol) ?>
+                                                </p>
+                                                <p class="p0 m0">
+                                                    <strong><?= lang('total') . ' ' . lang('budget') ?></strong>: <?= display_money($project_cost, $currency->symbol) ?>
+                                                </p>
+<!--                                                <p class="p0 m0">-->
+<!--                                                    <strong>--><?php //= lang('billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount, $currency->symbol) ?>
+<!--                                                </p>-->
+<!--                                                <p class="p0 m0">-->
+<!--                                                    <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
+<!--                                                </p>-->
+                                                <p class="p0 m0">
+                                                    <strong><?= lang('total') . ' ' . lang('Bill Received') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
+                                                </p>
+
+                                                <p class="p0 m0">
                                                     <strong><?= lang('total') . ' ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
                                                 </p>
+
                                                 <p class="p0 m0">
-                                                    <strong><?= lang('billable') . ' ' . lang('expense') ?></strong>: <?= display_money($billable_expense->amount, $currency->symbol) ?>
+                                                    <strong><?= lang('total') . ' ' . lang('balance') ?></strong>: <?= display_money($project_cost-($paid_expense+$total_expense->amount), $currency->symbol) ?>
                                                 </p>
-                                                <p class="p0 m0">
-                                                    <strong><?= lang('not_billable') . ' ' . lang('expense') ?></strong>: <?= display_money($not_billable_expense->amount, $currency->symbol) ?>
-                                                </p>
-                                                <p class="p0 m0">
-                                                    <strong><?= lang('billed') . ' ' . lang('expense') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
-                                                </p>
-                                                <p class="p0 m0">
-                                                    <strong><?= lang('unbilled') . ' ' . lang('expense') ?></strong>: <?= display_money($billable_expense->amount - $paid_expense, $currency->symbol) ?>
-                                                </p>
+<!--                                                <p class="p0 m0">-->
+<!--                                                    <strong>--><?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount - $paid_expense, $currency->symbol) ?>
+<!--                                                </p>-->
                                             </div>
                                         <?php } ?>
                                         <?php if ($project_details->billing_type == 'tasks_and_project_hours') {
@@ -2298,6 +2328,80 @@ $edited = can_action('57', 'edited');
                                                                 <?php echo ajax_anchor(base_url("admin/bugs/delete_bug/" . $v_bugs->bug_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-bugs-" . $v_bugs->bug_id)); ?>
                                                             <?php } ?>
                                                         </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane <?= $active == 70 ? 'active' : '' ?>" id="contactor" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="<?= $bugs_active == 1 ? 'active' : ''; ?>"><a href="#contactor_manage" data-toggle="tab"><?= lang('Contactors') ?></a></li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane <?= $task_active == 1 ? 'active' : ''; ?>" id="contactor_manage">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th><?= lang('name') ?></th>
+                                                <th><?= lang('task') ?></th>
+                                                <th><?= lang('budget') ?></th>
+                                                <th><?= lang('progress') ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+
+                                            $sub_task_ids = get_all_tasks($project_details->project_id);
+                                            $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
+                                                ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
+                                                ->get('tbl_task')
+                                                ->result();
+
+
+                                            if (!empty($tasks)) :
+                                                foreach ($tasks as $key => $task) :
+                                           ?>
+                                                    <tr id="table-bugs-<?= $task->task_id ?>">
+                                                        <td>
+                                                            <a class="text-info"
+                                                               href="#"><?php echo $task->customer_group; ?></a>
+                                                        </td>
+                                                        <td>
+                                                            <a class="text-info"
+                                                               href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
+                                                        </td>
+                                                        <td>
+                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="inline ">
+                                                                <div class="easypiechart text-success" style="margin: 0px;" data-percent="<?= $task->task_progress ?>" data-line-width="5" data-track-Color="#f0f0f0" data-bar-color="#<?php
+                                                                if ($task->task_progress == 100) {
+                                                                    echo '8ec165';
+                                                                } else {
+                                                                    echo 'fb6b5b';
+                                                                }
+                                                                ?>" data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
+                                                                    <span class="small text-muted"><?= $task->task_progress ?>
+                                                                        %</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+
                                                     </tr>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>

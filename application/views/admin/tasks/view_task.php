@@ -84,12 +84,12 @@ $sub_tasks = config_item('allow_sub_tasks');
 
     $billable_amount = 0;
     foreach ($completeds as $completed) {
-        $billable_amount += $completed->task_hour*$completed->hourly_rate;
+        $billable_amount += $completed->task_hour * $completed->hourly_rate;
     }
 
     if ($task_details->task_status === 'completed') {
         $progress = 'progress-bar-success';
-        $billable_amount = $task_details->task_hour*$task_details->hourly_rate;
+        $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
 
     $total_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
@@ -613,6 +613,12 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 $progress = 'progress-bar-danger';
                                                 $task_progress = 0;
                                             }
+
+                                            if ($total_subtask <= 0 || $task_details->calculate_progress !== 'through_sub_tasks') {
+                                                $progress = 'progress-bar-success';
+                                                $task_progress = $task_details->task_progress;
+                                            }
+
                                             if ($task_details->task_status === 'completed') {
                                                 $progress = 'progress-bar-success';
                                                 $task_progress = 100;
@@ -651,7 +657,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 <div class="col-sm-7 ">
                                     <p class="form-control-static" style="padding-bottom: 6px"><strong><?php
                                             echo display_money($task_details->budget ?? 0);
-                                        ?></strong></p>
+                                            ?></strong></p>
                                 </div>
                             </div>
                             <div class="form-group  col-sm-6">
@@ -1015,12 +1021,12 @@ $sub_tasks = config_item('allow_sub_tasks');
                             <div class="form-group  col-sm-6">
                                 <div class="control-label col-sm-5"><strong><?= lang('contactor') ?> :</strong></div>
                                 <div class="col-sm-7">
-                                    <p class="form-control-static"> <strong>
-                                    <?php
-                                    if (!empty($pcon_name)) {
-                                        echo $pcon_name;
-                                    }
-                                    ?>
+                                    <p class="form-control-static"><strong>
+                                            <?php
+                                            if (!empty($pcon_name)) {
+                                                echo $pcon_name;
+                                            }
+                                            ?>
                                         </strong>
                                     </p>
                                 </div>
@@ -1050,6 +1056,11 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         $progress = 'progress-bar-danger';
                                         $task_progress = 0;
                                     }
+                                    if ($total_subtask <= 0 || $task_details->calculate_progress !== 'through_sub_tasks') {
+                                        $progress = 'progress-bar-success';
+                                        $task_progress = $task_details->task_progress;
+                                    }
+
                                     if ($task_details->task_status === 'completed') {
                                         $progress = 'progress-bar-success';
                                         $task_progress = 100;
@@ -1080,23 +1091,26 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     ?>
                                     <div class="col-sm-12 text-center">
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('billable') . ' ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('not_billable') . ' ' . lang('expense') ?></strong>: <?= display_money($not_billable_expense->amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget-$billable_amount, $currency->symbol) ?>
                                         </p>
-                                        <p class="p0 m0">
-                                            <strong><?= lang('billed') . ' ' . lang('expense') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
-                                        </p>
-                                        <p class="p0 m0">
-                                            <strong><?= lang('unbilled') . ' ' . lang('expense') ?></strong>: <?= display_money($task_details->task_hour*$task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
-                                        </p>
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
+<!--                                        </p>-->
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('billed') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($paid_expense, $currency->symbol) ?>
+<!--                                        </p>-->
+<!--                                        <p class="p0 m0">-->
+<!--                                            <strong>--><?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($task_details->task_hour * $task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
+<!--                                        </p>-->
                                     </div>
                                     <h2 class="text-center"><?= lang('total_bill') ?>
-                                        : <?= display_money(($task_details->task_hour*$task_details->hourly_rate), $currency->symbol) ?></h2>
+                                        : <?= display_money(($task_details->task_hour * $task_details->hourly_rate), $currency->symbol) ?></h2>
                                 <?php }
                                 $estimate_hours = $task_details->task_hour;
                                 $percentage = $this->tasks_model->get_estime_time($estimate_hours);
@@ -1116,7 +1130,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         $now = time();
                                         $task_start_date = strtotime($task_details->task_start_date);
                                         $task_due_date = strtotime($task_details->due_date);
-                                        $totalDays = round(($task_due_date-$task_start_date) / 3600 / 24);
+                                        $totalDays = round(($task_due_date - $task_start_date) / 3600 / 24);
                                         $TotalGone = $totalDays;
                                         $tprogress = 100;
                                         if ($task_start_date < time() && $task_due_date > time()) {
@@ -1146,12 +1160,13 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     }
 
 
-
                                     ?>
                                     <div class="col-sm-4">
                                         <strong><?= $TotalGone . ' / ' . $totalDays . ' ' . $lang . ' (' . round($tprogress, 2) . '% )'; ?></strong>
                                         <div class="mt progress progress-striped progress-xs">
-                                            <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip" data-original-title="<?= round($tprogress, 2) ?>%" style="width: <?= round($tprogress, 2) ?>%"></div>
+                                            <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= round($tprogress, 2) ?>%"
+                                                 style="width: <?= round($tprogress, 2) ?>%"></div>
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -1168,7 +1183,9 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     <div class="col-sm-4">
                                         <strong><?= $completed_task . ' / ' . $total_subtask . ' ' . lang('open') . ' ' . lang('tasks') . ' (' . round($task_progress, 2) . '% )'; ?> </strong>
                                         <div class="mt progress progress-striped progress-xs">
-                                            <div class="progress-bar <?= $progress ?> " data-toggle="tooltip" data-original-title="<?= $task_progress ?>%" style="width: <?= $task_progress ?>%"></div>
+                                            <div class="progress-bar <?= $progress ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= $task_progress ?>%"
+                                                 style="width: <?= $task_progress ?>%"></div>
                                         </div>
                                     </div>
                                 </div>
