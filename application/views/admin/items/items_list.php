@@ -282,6 +282,30 @@ if (!empty($created) || !empty($edited)) {
 
                                 </div>
                                 <div class="form-group">
+                                    <label class="col-lg-3 control-label"><?= lang('Projects') ?></label>
+                                    <div class="col-lg-9">
+                                        <?php
+
+                                        $projects = $this->db->order_by('project_name', 'ASC')
+                                            ->select('project_name,project_id')
+                                            ->get('tbl_project')->result();
+                                        $select = '<select class="selectpicker" data-width="100%" name="project_id" data-none-selected-text="' . lang('Projects') . '">';
+                                        $select .= '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
+                                        if (!empty($projects)) {
+                                            foreach ($projects as $project) {
+                                                $select .= '<option value="' . $project->project_id . '"';
+                                                if (!empty($items_info) && $items_info->project_id == $project->project_id) {
+                                                    $select .= ' selected';
+                                                }
+                                                $select .= '>' . $project->project_name . '</option>';
+                                            }
+                                        }
+                                        $select .= '</select>';
+                                        echo $select;
+                                        ?>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="col-lg-3 control-label"><?= lang('item') . ' ' . lang('group') ?> </label>
                                     <div class="col-lg-9">
                                         <div class="input-group">
