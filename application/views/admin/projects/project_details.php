@@ -175,6 +175,10 @@ $edited = can_action('57', 'edited');
                 </ul>
 
             </li>
+            <li  style="margin-right: 0px; "><a href="#stock" data-toggle="tab"><?= lang('Stock') ?></a>
+            </li>
+            <li  style="margin-right: 0px; "><a href="#purchase" data-toggle="tab"><?= lang('Purchase') ?></a>
+            </li>
             <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#activities" data-toggle="tab"><?= lang('activities') ?>
                     <strong class="pull-right"><?= (!empty($activities_info) ? count($activities_info) : null) ?></strong>
             </li>
