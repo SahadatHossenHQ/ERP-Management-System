@@ -81,6 +81,7 @@ class Items extends Admin_Controller
                 }
                 $sub_array[] = display_money($v_items->unit_cost, default_currency());
                 $sub_array[] = $v_items->unit_type;
+                $sub_array[] = $v_items->project_name;
                 if (!is_numeric($v_items->tax_rates_id)) {
                     $tax_rates = json_decode($v_items->tax_rates_id);
                 } else {
