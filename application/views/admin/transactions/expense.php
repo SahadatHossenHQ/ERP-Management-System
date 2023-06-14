@@ -29,7 +29,7 @@ if (!empty($created) || !empty($edited)){
                     style="width:300px;">
                     <li class="filter_by all_filter"><a href="#"><?php echo lang('all'); ?></a></li>
                     <li class="divider"></li>
-                    
+
                     <li class="dropdown-submenu pull-left  " id="from_account">
                         <a href="#" tabindex="-1"><?php echo lang('by') . ' ' . lang('account'); ?></a>
                         <ul class="dropdown-menu dropdown-menu-left from_account"
@@ -197,7 +197,7 @@ if (!empty($created) || !empty($edited)){
                                       echo $expense_info->transactions_id;
                                   }
                                   ?>" method="post" class="form-horizontal  ">
-                                
+
                                 <div class="form-group">
                                     <label class="col-lg-2 control-label"><?= lang('expense') . ' ' . lang('prefix') ?></label>
                                     <div class="col-lg-4">
@@ -215,7 +215,7 @@ if (!empty($created) || !empty($edited)){
                                                }
                                                ?>">
                                     </div>
-                                    
+
                                     <label class="col-lg-2 control-label"><?= lang('name') . '/' . lang('title') ?></label>
                                     <div class="col-lg-4">
                                         <input type="text" required
@@ -232,15 +232,45 @@ if (!empty($created) || !empty($edited)){
                                 }
                                 $project = $this->db->where('project_id', $project_id)->get('tbl_project')->row();
                                 if (!empty($project)) {
+                                    $tasks_id = get_all_tasks($project_id);
+                                    $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
                                     ?>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label"><?= lang('project') ?></label>
-                                        <div class="col-lg-5">
+                                        <div class="col-lg-4">
                                             <select class="form-control select_box" style="width: 100%"
                                                     name="project_id">
                                                 <option
                                                         value="<?php echo $project_id; ?>"><?= $project->project_name ?></option>
                                             </select>
+                                        </div>
+                                        <label class="col-lg-2 control-label"><?= lang('task') ?> / Sub <?= lang('task') ?></label>
+                                        <div class="col-lg-4">
+                                            <select class="form-control select_box" style="width: 100%" required
+                                                    name="task_id">
+                                                <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                <?php
+                                                foreach ($tasks as $key => $task) {
+                                                    if ($task->sub_task_id){
+                                                        $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
+                                                        if ($s_task->sub_task_id){
+                                                            $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
+                                                            $task_title = $s1_task->task_name." => ".$s_task->task_name." => ".$task->task_name;
+                                                        } else {
+                                                            $task_title = $s_task->task_name." => ".$task->task_name;
+                                                        }
+                                                    } else {
+                                                        $task_title = $task->task_name;
+                                                    }
+                                                    ?>
+                                                    <option value="<?php echo $task->task_id; ?>"><?= $task_title ?></option>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <div id="show-sub-task">
+
                                         </div>
                                     </div>
                                 <?php } ?>
@@ -261,7 +291,7 @@ if (!empty($created) || !empty($edited)){
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <label class="col-lg-2 control-label"><?= lang('amount') ?> <span
                                                 class="text-danger">*</span>
                                     </label>
@@ -395,7 +425,7 @@ if (!empty($created) || !empty($edited)){
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <label class="col-lg-2 control-label"><?= lang('paid_by') ?> </label>
                                     <div class="col-lg-4">
                                         <div class="input-group">
@@ -437,7 +467,7 @@ if (!empty($created) || !empty($edited)){
                                             <?php } ?>
                                         </div>
                                     </div>
-                                
+
                                 </div>
                                 <div class="form-group">
                                     <label class="col-lg-2 control-label"><?= lang('tags') ?> </label>
@@ -450,7 +480,7 @@ if (!empty($created) || !empty($edited)){
                                                }
                                                ?>">
                                     </div>
-                                    
+
                                     <label class="col-lg-2 control-label"><?= lang('reference') ?> </label>
                                     <div class="col-lg-4">
                                         <input class="form-control " type="text" value="<?php
@@ -466,8 +496,8 @@ if (!empty($created) || !empty($edited)){
                                            value="<?php echo $expense_info->amount; ?>"
                                            name="amount">
                                 <?php } ?>
-                                
-                                
+
+
                                 <div class="form-group" style="margin-bottom: 0px">
                                     <label class="col-lg-2 control-label"><?= lang('notes') ?> </label>
                                     <div class="col-lg-4">
@@ -481,12 +511,12 @@ if (!empty($created) || !empty($edited)){
                                            class="col-lg-2 control-label"><?= lang('attachment') ?></label>
                                     <div class="col-lg-4">
                                         <div id="comments_file-dropzone" class="dropzone mb15">
-                                        
+
                                         </div>
                                         <div id="comments_file-dropzone-scrollbar">
                                             <div id="comments_file-previews">
                                                 <div id="file-upload-row" class="mt pull-left">
-                                                    
+
                                                     <div class="preview box-content pr-lg" style="width:100px;">
                                                     <span data-dz-remove class="pull-right" style="cursor: pointer">
                                     <i class="fa fa-times"></i>
@@ -526,7 +556,7 @@ if (!empty($created) || !empty($edited)){
                                                               class="mailbox-attachment-icon"><i
                                                                     class="fa fa-file-text-o"></i></span>
                                                     <?php } ?>
-                                                    
+
                                                     <input type="hidden" name="path[]"
                                                            value="<?php echo $v_files_image->path ?>">
                                                     <input type="hidden" name="fileName[]"
@@ -663,7 +693,7 @@ if (!empty($created) || !empty($edited)){
                                                 echo 'selected';
                                             } ?>><?php echo lang('custom'); ?></option>
                                         </select>
-                                        
+
                                         <div class="recurring_custom <?php if ((isset($expense_info) && $expense_info->custom_recurring != 1) || (!isset($expense_info))) {
                                             echo 'hide';
                                         } ?>">
@@ -762,7 +792,7 @@ if (!empty($created) || !empty($edited)){
                                         </div>
                                     </div>
                                 <?php endif ?>
-                                
+
                                 <input class="form-control " type="hidden" value="<?php
                                 if (!empty($expense_info)) {
                                     echo $expense_info->account_id;
@@ -799,6 +829,41 @@ if (!empty($created) || !empty($edited)){
     </div>
 </div>
 <script>
+    function getSubTask(val, id = 'show-sub-task'){
+        if (val == '') {
+            return false;
+        }
+        var showSubTaskDiv = document.getElementById(id);
+        var element = document.getElementById(val);
+        if (element != null) {
+            element.remove();
+        }
+        fetch(base_url + "admin/tasks/getSubTaskByTask/" + val)
+            .then(response => response.json())
+            .then(data => {
+                if(data.tasks.length > 0){
+                    var newElement = document.createElement('div');
+                    newElement.id = val;
+                    newElement.innerHTML = data.task_select_options;
+                    showSubTaskDiv.appendChild(newElement);
+                    setTimeout(function () {
+                        $('.select_box').select2();
+                    }, 300);
+                } else {
+                    setTimeout(function () {
+                        // $('#'+val).hide();
+                        // const e = document.getElementById(val);
+                        // e.style.display = 'none';
+
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                // Handle any errors that occur during the API call
+                console.error(error)
+            });
+
+    }
     $('#repeat_every').on('change', function () {
         if ($('input[name="billable"]').prop('checked') == true) {
             $('.billable_recurring_options').removeClass('hide');

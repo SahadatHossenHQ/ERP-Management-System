@@ -2370,4 +2370,12 @@ class Tasks extends Admin_Controller
             ]);
         }
     }
+
+    public function getSubTaskByTask($id)
+    {
+        $data['tasks'] = $this->db->where('sub_task_id', $id)->get('tbl_task')->result();
+        $data['task_select_options'] = $this->load->view('admin/tasks/tasks-select-options', $data, true);
+        echo json_encode($data);
+        exit();
+    }
 }
