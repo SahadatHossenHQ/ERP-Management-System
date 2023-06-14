@@ -815,7 +815,7 @@ class Transactions extends Admin_Controller
         $edited = can_action('31', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
             $data = $this->transactions_model->array_from_post(array('transaction_prefix', 'name', 'date', 'notes', 'category_id', 'paid_by', 'tags', 'payment_methods_id', 'reference', 'project_id', 'billable', 'client_visible',
-                'repeat_every', 'total_cycles', 'done_cycles'));
+                'repeat_every', 'total_cycles', 'done_cycles', 'task_id'));
             
             $repeat_every_custom = $this->input->post('repeat_every_custom', true);
             $repeat_type_custom = $this->input->post('repeat_type_custom', true);
