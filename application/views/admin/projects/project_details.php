@@ -2353,9 +2353,12 @@ $edited = can_action('57', 'edited');
                                         <thead>
                                             <tr>
                                                 <th><?= lang('name') ?></th>
-                                                <th><?= lang('task') ?></th>
-                                                <th><?= lang('budget') ?></th>
+                                                <th><?= lang('task') ?> Name</th>
                                                 <th><?= lang('progress') ?></th>
+                                                <th><?= lang('status') ?></th>
+                                                <th><?= lang('budget') ?></th>
+                                                <th><?= lang('Paid') ?></th>
+                                                <th><?= lang('Due') ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -2363,13 +2366,16 @@ $edited = can_action('57', 'edited');
 
                                             $sub_task_ids = get_all_tasks($project_details->project_id);
                                             $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
+                                                ->select('tbl_task.*,tbl_customer_group.customer_group')
                                                 ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
                                                 ->get('tbl_task')
                                                 ->result();
-
-
                                             if (!empty($tasks)) :
                                                 foreach ($tasks as $key => $task) :
+                                                    $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
+                                                        ->where('task_id',$task->task_id)
+                                                        ->get('tbl_transactions')
+                                                        ->row();
                                            ?>
                                                     <tr id="table-bugs-<?= $task->task_id ?>">
                                                         <td>
@@ -2380,9 +2386,7 @@ $edited = can_action('57', 'edited');
                                                             <a class="text-info"
                                                                href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
                                                         </td>
-                                                        <td>
-                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget) ?></span>
-                                                        </td>
+
                                                         <td>
                                                             <div class="inline ">
                                                                 <div class="easypiechart text-success" style="margin: 0px;" data-percent="<?= $task->task_progress ?>" data-line-width="5" data-track-Color="#f0f0f0" data-bar-color="#<?php
@@ -2396,6 +2400,18 @@ $edited = can_action('57', 'edited');
                                                                         %</span>
                                                                 </div>
                                                             </div>
+                                                        </td>
+                                                        <td>
+                                                            <span class=""><?=  ($task->task_status) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="label label-<?= $label ?>"><?=  display_money($expense->amount) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget-$expense->amount) ?></span>
                                                         </td>
 
                                                     </tr>
