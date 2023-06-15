@@ -14,6 +14,7 @@
         $group = $this->db->where('customer_group_id', $items_info->customer_group_id)->get('tbl_customer_group')->row();
         $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
         $manufacturer_info = get_row('tbl_manufacturer', array('manufacturer_id' => $items_info->manufacturer_id));
+        $project = get_row('tbl_project', array('project_id' => $items_info->project_id));
         ?>
         <div class="row">
             <div class="col-xs-4">
@@ -161,6 +162,10 @@
                             <tr>
                                 <td class="text-right"><strong><?= lang('unit') . ' ' . lang('type') ?> : </strong></td>
                                 <td><?= $items_info->unit_type; ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-right"><strong><?= lang('project') ?> : </strong></td>
+                                <td><?= $project->project_name; ?></td>
                             </tr>
                             <tr>
                                 <td class="text-right"><strong><?= lang('tax') ?> : </strong></td>

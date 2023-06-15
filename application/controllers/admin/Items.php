@@ -36,12 +36,12 @@ class Items extends Admin_Controller
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_saved_items';
-            $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer');
-            $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id');
+            $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer','tbl_project');
+            $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id','tbl_project.project_id=tbl_saved_items.project_id');
 
             $custom_field = custom_form_table_search(18);
             $action_array = array('saved_items_id');
-            $main_column = array('item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
+            $main_column = array('project_id','item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
             $this->datatables->column_search = $result;
@@ -81,6 +81,7 @@ class Items extends Admin_Controller
                 }
                 $sub_array[] = display_money($v_items->unit_cost, default_currency());
                 $sub_array[] = $v_items->unit_type;
+                $sub_array[] = $v_items->project_name;
                 if (!is_numeric($v_items->tax_rates_id)) {
                     $tax_rates = json_decode($v_items->tax_rates_id);
                 } else {
@@ -133,7 +134,7 @@ class Items extends Admin_Controller
         $this->items_model->_table_name = 'tbl_saved_items';
         $this->items_model->_primary_key = 'saved_items_id';
 
-        $data = $this->items_model->array_from_post(array('item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost', 'unit_type', 'customer_group_id', 'quantity'));
+        $data = $this->items_model->array_from_post(array('project_id','item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost', 'unit_type', 'customer_group_id', 'quantity'));
         $tax_rates = $this->input->post('tax_rates_id', true);
         $total_tax = 0;
         if (!empty($tax_rates)) {
