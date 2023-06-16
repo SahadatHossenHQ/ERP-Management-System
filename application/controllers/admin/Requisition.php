@@ -289,7 +289,8 @@ class Requisition extends Admin_Controller
             $created = can_action('14', 'created');
             $edited = can_action('14', 'edited');
             if (!empty($created) || !empty($edited) && !empty($id)) {
-                $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+                $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags',
+                    'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as', 'task_id'));
                 $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
                 $data['requisition_date'] = date('Y-m-d', strtotime($this->input->post('requisition_date', TRUE)));
                 if (empty($data['requisition_date'])) {
