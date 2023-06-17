@@ -123,7 +123,7 @@ if (!empty($created) || !empty($edited)) {
                         <tbody>
                             <script type="text/javascript">
                                 $(document).ready(function() {
-                                    list = base_url + "admin/items/itemsList";
+                                    list = base_url + "admin/items/itemsList" + "<?php echo (($type === 'project') ? '/'.$project_id.'/'.$type : '' ); ?>";
                                     bulk_url = base_url + "admin/items/bulk_delete";
                                     $('.filtered > .dropdown-toggle').on('click', function() {
                                         if ($('.group').css('display') == 'block') {

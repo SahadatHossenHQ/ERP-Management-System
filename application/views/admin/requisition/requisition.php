@@ -522,6 +522,36 @@
                                                     ?>
                                                 </select>
                                             </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-3 control-label"><?= lang('task') ?> / Sub <?= lang('task') ?></label>
+                                            <div class="col-lg-7">
+                                                <select class="form-control select_box" style="width: 100%" required
+                                                        name="task_id">
+                                                    <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                    <?php
+                                                    $tasks_id = get_all_tasks($project_id);
+                                                    $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
+                                                    foreach ($tasks as $key => $task) {
+                                                        if ($task->sub_task_id){
+                                                            $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
+                                                            if ($s_task->sub_task_id){
+                                                                $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
+                                                                $task_title = $s1_task->task_name." => ".$s_task->task_name." => ".$task->task_name;
+                                                            } else {
+                                                                $task_title = $s_task->task_name." => ".$task->task_name;
+                                                            }
+                                                        } else {
+                                                            $task_title = $task->task_name;
+                                                        }
+                                                        ?>
+                                                        <option value="<?php echo $task->task_id; ?>"><?= $task_title ?></option>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1"

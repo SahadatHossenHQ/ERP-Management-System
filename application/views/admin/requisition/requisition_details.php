@@ -26,7 +26,7 @@ $deleted = can_action('14', 'deleted');
             };
         };
     </script>
-    <div class="col-sm-8">
+    <div class="col-sm-9">
         <?php
         $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $estimates_info->requisition_id, 'module_name' => 'requisition');
         $check_existing = $this->requisition_model->check_by($where, 'tbl_pinaction');
@@ -184,8 +184,19 @@ $deleted = can_action('14', 'deleted');
                 <?= $project_info->project_name ?>
             </a>
         <?php } ?>
+        <?php
+        if (!empty($estimates_info->task_id)) {
+            $task_d = $this->db->where('task_id', $estimates_info->task_id)->get('tbl_task')->row();
+            ?>
+            <strong> <?= lang('Task') ?> :</strong>
+            <a
+                href="<?= base_url() ?>admin/tasks/view_task_details/<?= $estimates_info->task_id ?>"
+                class="">
+                <?= $task_d->task_name ?>
+            </a>
+        <?php } ?>
     </div>
-    <div class="col-sm-4 pull-right">
+    <div class="col-sm-3 pull-right">
         <a
             href="<?= base_url() ?>admin/estimates/send_estimates_email/<?= $estimates_info->requisition_id . '/' . true ?>"
             data-toggle="tooltip" data-placement="top" title="<?= lang('send_email') ?>"
