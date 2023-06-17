@@ -1156,7 +1156,7 @@ class Requisition extends Admin_Controller
     function converted($requisition_id)
     {
         try {
-            $data1 = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id',
+            $data1 = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id','task_id',
                 'discount_type','amount','account_id','name','due_date','notes','category_id','paid_by','payment_methods_id',
                 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
             if (!empty($requisition_id)) {
@@ -1173,6 +1173,7 @@ class Requisition extends Admin_Controller
                 $data['tags'] = $data1['tags'] ?? 'Converted';
                 $data['payment_methods_id'] = $data1['payment_methods_id'] ?? null;
                 $data['project_id'] = $data1['project_id'] ?? null;
+                $data['task_id'] = $data1['task_id'] ?? null;
                 $data['billable'] = $data1['billable'] ?? 'no';
                 $data['client_visible'] = $data1['client_visible'] ?? null;
                 $data['repeat_every'] = $data1['repeat_every'] ?? null;
