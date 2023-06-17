@@ -92,9 +92,9 @@ $sub_tasks = config_item('allow_sub_tasks');
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
 
-    $total_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
-    $billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
-    $not_billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
+    $total_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
+    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
     $paid_expense = 0;
     $comment_type = 'tasks';
     ?>
@@ -1094,10 +1094,10 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($billable_amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget-$billable_amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget-$total_expense->amount, $currency->symbol) ?>
                                         </p>
 <!--                                        <p class="p0 m0">-->
 <!--                                            <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>

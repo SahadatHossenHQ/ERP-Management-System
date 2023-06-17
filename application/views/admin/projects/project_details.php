@@ -2410,7 +2410,22 @@ $edited = can_action('57', 'edited');
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <span class=""><?=  ($task->task_status) ?></span>
+                                                            <?php
+                                                            $disabled = null;
+                                                            if (!empty($task->task_status)) {
+                                                                if ($task->task_status == 'completed') {
+                                                                    $status = "<div class='label label-success'>" . lang($task->task_status) . "</div>";
+                                                                    $disabled = 'disabled';
+                                                                } elseif ($task->task_status == 'in_progress') {
+                                                                    $status = "<div class='label label-primary'>" . lang($task->task_status) . "</div>";
+                                                                } elseif ($task->task_status == 'cancel') {
+                                                                    $status = "<div class='label label-danger'>" . lang($task->task_status) . "</div>";
+                                                                } else {
+                                                                    $status = "<div class='label label-warning'>" . lang($task->task_status) . "</div>";
+                                                                } ?>
+                                                                <?= $status; ?>
+                                                            <?php }
+                                                            ?>
                                                         </td>
                                                         <td>
                                                             <span class="label label-<?= $label ?>"><?=  display_money($task->budget) ?></span>
