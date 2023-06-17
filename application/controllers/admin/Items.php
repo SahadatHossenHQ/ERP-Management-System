@@ -15,7 +15,7 @@ class Items extends Admin_Controller
     public function items_list($id = NULL, $opt = null)
     {
         $data['title'] = lang('all_items');
-        if (!empty($id)) {
+        if (!empty($id) && $opt !== 'project') {
             if (is_numeric($id)) {
                 $data['active'] = 2;
                 $data['items_info'] = $this->items_model->check_by(array('saved_items_id' => $id), 'tbl_saved_items');
@@ -23,6 +23,10 @@ class Items extends Admin_Controller
                 $data['active'] = 3;
                 $data['group_info'] = $this->items_model->check_by(array('customer_group_id' => $opt), 'tbl_customer_group');
             }
+        } else if ($opt === 'project') {
+            $data['active'] = 1;
+            $data['project_id'] = $id;
+            $data['type'] = $opt;
         } else {
             $data['active'] = 1;
         }
@@ -30,6 +34,7 @@ class Items extends Admin_Controller
         $data['subview'] = $this->load->view('admin/items/items_list', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
+
 
     public function itemsList($group_id = null, $type = null)
     {
@@ -53,6 +58,8 @@ class Items extends Admin_Controller
                 $where = array('tbl_saved_items.customer_group_id' => $group_id);
             } else if (!empty($type) && $type == 'by_manufacturer') {
                 $where = array('tbl_saved_items.manufacturer_id' => $group_id);
+            } else if (!empty($type) && $type == 'project') {
+                $where = array('tbl_saved_items.project_id' => $group_id);
             } else {
                 $where = null;
             }
