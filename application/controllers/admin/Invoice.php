@@ -124,6 +124,11 @@ class Invoice extends Admin_Controller
 
         if ($action == 'all_payments') {
             $data['sub_active'] = lang('payments_received');
+        } else if ($action == 'project') {
+            $data['sub_active'] = lang('invoice');
+            $data['project_id'] = $id;
+            $prj = $this->db->select('client_id')->where('project_id', $id)->get('tbl_project')->row();
+            $data['client_id'] = $prj->client_id;
         } else {
             $data['sub_active'] = lang('invoice');
         }
@@ -134,7 +139,7 @@ class Invoice extends Admin_Controller
                 $data['item_info'] = $this->invoice_model->check_by(array('items_id' => $item_id), 'tbl_items');
             }
         }
-        if (!empty($id) && $action != 'payments_details') {
+        if (!empty($id) && $action != 'payments_details' && $action != 'project') {
             // get all invoice info by id
             $can_edit = $this->invoice_model->can_action('tbl_invoices', 'edit', array('invoices_id' => $id));
 
@@ -145,7 +150,7 @@ class Invoice extends Admin_Controller
                 }
             }
         }
-        if ($action == 'create_invoice') {
+        if ($action == 'create_invoice' || $action == 'project') {
             $data['active'] = 2;
         } else {
             $data['active'] = 1;
