@@ -3680,3 +3680,9 @@ function sub_tasks($task_id,$ids){
     }
     return $ids;
 }
+
+function get_all_sub_tasks($task_id){
+    $tasks_array = array();
+    $tasks_array = sub_tasks($task_id,$tasks_array);
+    return $tasks_array;
+}

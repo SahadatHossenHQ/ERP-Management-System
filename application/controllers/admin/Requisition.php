@@ -1391,6 +1391,26 @@ class Requisition extends Admin_Controller
                         array_push($all_admin, $head);
                     }
 
+                    $requisition = $this->db->where('tbl_requisitions.requisition_id', $requisition_id)
+                        ->join('tbl_requisition_items','tbl_requisitions.requisition_id = tbl_requisition_items.requisition_id')
+                        ->get('tbl_requisitions')->row();
+
+                    if ($requisition->saved_items_id !== 0){
+                        $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $requisition->saved_items_id)
+                            ->get('tbl_saved_items')->row();
+                        $array = json_decode(json_encode($saved_item), true);
+
+                        $array['unit_cost'] = $requisition->unit_cost;
+                        $array['project_id'] = $requisition->project_id;
+                        $array['total_cost'] = $requisition->total_cost;
+                        $array['quantity'] = $requisition->quantity;
+                        $array['unit_type'] = $requisition->unit_type;
+
+                        unset($array['saved_items_id']);
+                        $this->db->insert('tbl_saved_items',$array);
+                    }
+
+
                     $notifyUser = array();
                     if (!empty($all_admin)) {
                         foreach ($all_admin as $v_user) {
@@ -1428,6 +1448,8 @@ class Requisition extends Admin_Controller
         } catch (Exception $e) {
             $type = 'error';
             $text = $e->getMessage();
+            var_dump($text);
+            die();
             redirect('admin/requisition');
         }
     }

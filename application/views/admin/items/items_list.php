@@ -298,6 +298,9 @@ if (!empty($created) || !empty($edited)) {
                                                 if (!empty($items_info) && $items_info->project_id == $project->project_id) {
                                                     $select .= ' selected';
                                                 }
+                                                if (!empty($project_id) && $project_id == $project->project_id) {
+                                                    $select .= ' selected';
+                                                }
                                                 $select .= '>' . $project->project_name . '</option>';
                                             }
                                         }

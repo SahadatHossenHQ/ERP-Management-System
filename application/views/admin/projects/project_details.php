@@ -36,7 +36,7 @@ $total_requisition = $this->db->select_sum('tbl_requisition_items.total_cost')->
     ->join('tbl_requisition_items', 'tbl_requisitions.requisition_id = tbl_requisition_items.requisition_id')
     ->get('tbl_requisitions')->row();
 
-$billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+$billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Income'))->get('tbl_transactions')->row();
 $not_billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
 
 $activities_info = $this->db->where(array('module' => 'projects', 'module_field_id' => $project_details->project_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
@@ -93,91 +93,132 @@ $edited = can_action('57', 'edited');
     <div class="col-sm-2">
         <?php if (!empty($can_edit) && !empty($edited)) { ?>
             <span data-placement="top" data-toggle="tooltip" title="<?= lang('generate_bill') ?>">
-                <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>" class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('bill_received') ?>
+                <a data-toggle="modal" data-target="#myModal"
+                   href="<?= base_url() ?>admin/projects/invoice/<?= $project_details->project_id ?>"
+                   class="mr-lg btn btn-info"><i class="fa fa-money"></i> <?= lang('bill_received') ?>
                 </a>
             </span>
 
         <?php } ?>
         <?php if (timer_status('projects', $project_details->project_id, 'on')) { ?>
-            <a data-toggle="tooltip" data-placement="top" title="<?= lang('stop_timer') ?>" class="btn btn-danger " href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><i class="fa fa-clock-o fa-spin"></i></a>
+            <a data-toggle="tooltip" data-placement="top" title="<?= lang('stop_timer') ?>" class="btn btn-danger "
+               href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><i
+                        class="fa fa-clock-o fa-spin"></i></a>
         <?php } else {
-        ?>
-            <a data-toggle="tooltip" data-placement="top" title="<?= lang('start_timer') ?>" class="btn btn-success" href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><i class="fa fa-clock-o"></i></a>
+            ?>
+            <a data-toggle="tooltip" data-placement="top" title="<?= lang('start_timer') ?>" class="btn btn-success"
+               href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><i
+                        class="fa fa-clock-o"></i></a>
         <?php }
         ?>
         <?php if (!empty($can_edit) && !empty($edited)) { ?>
-            <a data-toggle="modal" data-target="#myModal" title="<?= lang('clone_project') ?>" href="<?= base_url() ?>admin/projects/clone_project/<?= $project_details->project_id ?>" class="btn btn-purple pull-right"><i class="fa fa-copy"></i></a>
+            <a data-toggle="modal" data-target="#myModal" title="<?= lang('clone_project') ?>"
+               href="<?= base_url() ?>admin/projects/clone_project/<?= $project_details->project_id ?>"
+               class="btn btn-purple pull-right"><i class="fa fa-copy"></i></a>
         <?php } ?>
 
-        <a data-toggle="tooltip" data-placement="top" title="<?= $title ?>" href="<?= base_url() ?>admin/projects/<?= $url ?>" class="btn btn-<?= $btn ?>"><i class="fa fa-thumb-tack"></i></a>
+        <a data-toggle="tooltip" data-placement="top" title="<?= $title ?>"
+           href="<?= base_url() ?>admin/projects/<?= $url ?>" class="btn btn-<?= $btn ?>"><i
+                    class="fa fa-thumb-tack"></i></a>
 
 
         <ul class="mt nav nav-pills nav-stacked navbar-custom-nav">
             <li class="btn-success" style="margin-right: 0px; "></li>
-            <li class="<?= $active == 1 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#task_details" data-toggle="tab"><?= lang('project_details') ?></a>
+            <li class="<?= $active == 1 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#task_details"
+                                                                                           data-toggle="tab"><?= lang('project_details') ?></a>
             </li>
 
-            <li class="<?= $active == 15 ? 'active' : '' ?>"><a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/15"><?= lang('calendar') ?></a>
+            <li class="<?= $active == 15 ? 'active' : '' ?>"><a
+                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/15"><?= lang('calendar') ?></a>
             </li>
 
-            <li class="<?= $active == 3 ? 'active' : '' ?>"><a href="#task_comments" data-toggle="tab"><?= lang('comments') ?><strong class="pull-right"><?= (!empty($comment_details) ? count($comment_details) : null) ?></strong></a>
+            <li class="<?= $active == 3 ? 'active' : '' ?>"><a href="#task_comments"
+                                                               data-toggle="tab"><?= lang('comments') ?><strong
+                            class="pull-right"><?= (!empty($comment_details) ? count($comment_details) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments" data-toggle="tab"><?= lang('attachment') ?><strong class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
+            <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments"
+                                                               data-toggle="tab"><?= lang('attachment') ?><strong
+                            class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
             </li>
-<!--            <li class="--><?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">--><?php //= lang('milestones') ?><!--<strong class="pull-right">--><?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
-<!--            </li>-->
+            <!--            <li class="-->
+            <?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">-->
+            <?php //= lang('milestones') ?><!--<strong class="pull-right">-->
+            <?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
+            <!--            </li>-->
             <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
                     <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 70 ? 'active' : '' ?>"><a href="#contactor" data-toggle="tab"><?= lang('contactor') ?></a></li>
-            <li class="<?= $active == 9 ? 'active' : '' ?>"><a href="#bugs" data-toggle="tab"><?= lang('bugs') ?><strong class="pull-right"><?= (!empty($all_bugs_info) ? count($all_bugs_info) : null) ?></strong></a>
+            <li class="<?= $active == 70 ? 'active' : '' ?>"><a href="#contactor"
+                                                                data-toggle="tab"><?= lang('contactor') ?></a></li>
+            <li class="<?= $active == 9 ? 'active' : '' ?>"><a href="#bugs" data-toggle="tab"><?= lang('bugs') ?><strong
+                            class="pull-right"><?= (!empty($all_bugs_info) ? count($all_bugs_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 13 ? 'active' : '' ?>"><a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/13"><?= lang('gantt') ?></a>
+            <li class="<?= $active == 13 ? 'active' : '' ?>"><a
+                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/13"><?= lang('gantt') ?></a>
             </li>
-            <li class="<?= $active == 8 ? 'active' : '' ?>"><a href="#task_notes" data-toggle="tab"><?= lang('notes') ?></a></li>
-            <li class="<?= $active == 7 ? 'active' : '' ?>"><a href="#timesheet" data-toggle="tab"><?= lang('timesheet') ?><strong class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong></a>
+            <li class="<?= $active == 8 ? 'active' : '' ?>"><a href="#task_notes"
+                                                               data-toggle="tab"><?= lang('notes') ?></a></li>
+            <li class="<?= $active == 7 ? 'active' : '' ?>"><a href="#timesheet"
+                                                               data-toggle="tab"><?= lang('timesheet') ?><strong
+                            class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong></a>
             </li>
 
-            <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets" data-toggle="tab"><?= lang('tickets') ?><strong class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
+            <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets"
+                                                                data-toggle="tab"><?= lang('tickets') ?><strong
+                            class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
             </li>
 
-            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice" data-toggle="tab"><?= lang('bill_received') ?><strong class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
+            <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice"
+                                                                data-toggle="tab"><?= lang('bill_received') ?><strong
+                            class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note" data-toggle="tab"><?= lang('credit_note') ?><strong class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
+            <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note"
+                                                                data-toggle="tab"><?= lang('credit_note') ?><strong
+                            class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 12 ? 'active' : '' ?>"><a href="#estimates" data-toggle="tab"><?= lang('estimates') ?><strong class="pull-right"><?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong></a>
+            <li class="<?= $active == 12 ? 'active' : '' ?>"><a href="#estimates"
+                                                                data-toggle="tab"><?= lang('estimates') ?><strong
+                            class="pull-right"><?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 20 ? 'active' : '' ?>"><a href="#requisition" data-toggle="tab"><?= lang('requisition') ?><strong class="pull-right"><?= (!empty($all_requisition_info) ? count($all_requisition_info) : null) ?></strong></a>
+            <li class="<?= $active == 20 ? 'active' : '' ?>"><a href="#requisition"
+                                                                data-toggle="tab"><?= lang('requisition') ?><strong
+                            class="pull-right"><?= (!empty($all_requisition_info) ? count($all_requisition_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 10 ? 'active' : '' ?>"><a href="#expense" data-toggle="tab"><?= lang('expense') ?><strong class="pull-right"><?php
-                                                                                                                                                    echo (!empty($all_expense_info) ? display_money($total_expense->amount, $currency->symbol) : null) ?></strong></a>
+            <li class="<?= $active == 10 ? 'active' : '' ?>"><a href="#expense" data-toggle="tab"><?= lang('expense') ?>
+                    <strong class="pull-right"><?php
+                        echo(!empty($all_expense_info) ? display_money($total_expense->amount, $currency->symbol) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 16 ? 'active' : '' ?>"><a href="#project_settings" data-toggle="tab"><?= lang('project_settings') ?></a>
+            <li class="<?= $active == 16 ? 'active' : '' ?>"><a href="#project_settings"
+                                                                data-toggle="tab"><?= lang('project_settings') ?></a>
             </li>
             <li class="<?= $active == 2 ? 'active' : '' ?> sub-var" style="margin-right: 0px; ">
-<!--                <a href="#reports_part" data-toggle="tab">--><?php //= lang('report') ?>
-<!--                </a>-->
+                <!--                <a href="#reports_part" data-toggle="tab">--><?php //= lang('report') ?>
+                <!--                </a>-->
                 <a data-toggle="collapse" href="#project_reports" class="collapsed" aria-expanded="false">
                     <span><?= lang('report') ?></span>
                 </a>
                 <ul id="project_reports" class="nav s-menu collapse" aria-expanded="false" style="height: 0px;">
-<!--                    <li class="sidebar-subnav-header">Transactions</li>-->
-<!--                    <li class="">-->
-<!--                        <a title="Account Statement" href="http://127.0.0.1/f3/admin/report/account_statement">-->
-<!--                            <em class="fa fa-circle-o"></em><span>Account Statement</span></a>-->
-<!--                        <a title="Account Statement" href="--><?php //= base_url() ?><!--admin/report/account_statement">-->
-<!--                            <span>Account Statement</span></a>-->
-<!--                    </li>-->
+                    <!--                    <li class="sidebar-subnav-header">Transactions</li>-->
+                    <!--                    <li class="">-->
+                    <!--                        <a title="Account Statement" href="http://127.0.0.1/f3/admin/report/account_statement">-->
+                    <!--                            <em class="fa fa-circle-o"></em><span>Account Statement</span></a>-->
+                    <!--                        <a title="Account Statement" href="-->
+                    <?php //= base_url() ?><!--admin/report/account_statement">-->
+                    <!--                            <span>Account Statement</span></a>-->
+                    <!--                    </li>-->
                     <li class="">
-                        <a title="Expense Report" href="<?= base_url() ?>admin/report/expense_report/project/<?= $project_details->project_id ?>">
+                        <a title="Expense Report"
+                           href="<?= base_url() ?>admin/report/expense_report/project/<?= $project_details->project_id ?>">
                             <span>Expense Report</span></a>
                     </li>
                     <li class="">
-                        <a title="Income Reports" href="<?= base_url() ?>admin/report/income_report/project/<?= $project_details->project_id ?>">
+                        <a title="Income Reports"
+                           href="<?= base_url() ?>admin/report/income_report/project/<?= $project_details->project_id ?>">
                             <span>Income Reports</span></a>
                     </li>
                     <li class="">
-                        <a title="Income Vs Expense" href="<?= base_url() ?>admin/report/income_expense/project/<?= $project_details->project_id ?>">
+                        <a title="Income Vs Expense"
+                           href="<?= base_url() ?>admin/report/income_expense/project/<?= $project_details->project_id ?>">
                             <span>Income Vs Expense</span></a>
                     </li>
                 </ul>
@@ -185,19 +226,24 @@ $edited = can_action('57', 'edited');
             </li>
 
             <li class="">
-                <a title="Expense Report" href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project">
+                <a title="Expense Report"
+                   href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project">
                     <span><?= lang('Stock') ?></span>
                 </a>
             </li>
-<!--            <li  style="margin-right: 0px; "><a href="#purchase" data-toggle="tab">--><?php //= lang('Purchase') ?><!--</a>-->
-<!--            </li>-->
-            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#activities" data-toggle="tab"><?= lang('activities') ?>
+            <!--            <li  style="margin-right: 0px; "><a href="#purchase" data-toggle="tab">-->
+            <?php //= lang('Purchase') ?><!--</a>-->
+            <!--            </li>-->
+            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#activities"
+                                                                                           data-toggle="tab"><?= lang('activities') ?>
                     <strong class="pull-right"><?= (!empty($activities_info) ? count($activities_info) : null) ?></strong>
             </li>
         </ul>
     </div>
     <div class="col-sm-10">
-        <a data-toggle="tooltip" data-placement="top" title="<?= lang('export_report') ?>" href="<?= base_url() ?>admin/projects/export_project/<?= $project_details->project_id ?>" class="btn btn-danger"><i class="fa fa-file-pdf-o"></i></a>
+        <a data-toggle="tooltip" data-placement="top" title="<?= lang('export_report') ?>"
+           href="<?= base_url() ?>admin/projects/export_project/<?= $project_details->project_id ?>"
+           class="btn btn-danger"><i class="fa fa-file-pdf-o"></i></a>
         <!-- Tabs within a box -->
         <div class="tab-content mt" style="border: 0;padding:0;">
             <!-- Task Details tab Starts -->
@@ -230,7 +276,7 @@ $edited = can_action('57', 'edited');
                         ?>
                         <?php $project_details_view = config_item('project_details_view');
                         if (!empty($project_details_view) && $project_details_view == '2') {
-                        ?>
+                            ?>
                             <div class="row">
                                 <div class="col-md-3 br">
                                     <p class="lead bb"></p>
@@ -307,13 +353,14 @@ $edited = can_action('57', 'edited');
                                             <div class="col-sm-4"><strong><?= lang('demo_url') ?> :</strong></div>
                                             <div class="col-sm-8">
                                                 <strong><?php
-                                                        if (!empty($project_details->demo_url)) {
+                                                    if (!empty($project_details->demo_url)) {
                                                         ?>
-                                                        <a href="<?php echo $project_details->demo_url; ?>" target="_blank"><?php echo $project_details->demo_url ?></a>
-                                                    <?php
-                                                        } else {
-                                                            echo '-';
-                                                        }
+                                                        <a href="<?php echo $project_details->demo_url; ?>"
+                                                           target="_blank"><?php echo $project_details->demo_url ?></a>
+                                                        <?php
+                                                    } else {
+                                                        echo '-';
+                                                    }
                                                     ?></strong>
                                             </div>
                                         </div>
@@ -339,7 +386,8 @@ $edited = can_action('57', 'edited');
                                                 ?>
                                                 <?php if (!empty($can_edit) && !empty($edited)) { ?>
                                                     <div class="btn-group">
-                                                        <button class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown">
+                                                        <button class="btn btn-xs btn-success dropdown-toggle"
+                                                                data-toggle="dropdown">
                                                             <?= lang('change') ?>
                                                             <span class="caret"></span></button>
                                                         <ul class="dropdown-menu animated zoomIn">
@@ -374,14 +422,16 @@ $edited = can_action('57', 'edited');
                                                 <?php if (timer_status('projects', $project_details->project_id, 'on')) { ?>
 
                                                     <span class="label label-success"><?= lang('on') ?></span>
-                                                    <a class="btn btn-xs btn-danger " href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><?= lang('stop_timer') ?> </a>
+                                                    <a class="btn btn-xs btn-danger "
+                                                       href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><?= lang('stop_timer') ?> </a>
                                                 <?php } else {
-                                                ?>
+                                                    ?>
                                                     <span class="label label-danger"><?= lang('off') ?></span>
                                                     <?php $this_permission = $this->items_model->can_action('tbl_project', 'view', array('project_id' => $project_details->project_id), true);
                                                     if (!empty($this_permission)) { ?>
-                                                        <a class="btn btn-xs btn-success <?= $disabled ?>" href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
-                                                <?php }
+                                                        <a class="btn btn-xs btn-success <?= $disabled ?>"
+                                                           href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
+                                                    <?php }
                                                 }
                                                 ?>
                                             </div>
@@ -399,10 +449,10 @@ $edited = can_action('57', 'edited');
                                             <div class="col-sm-8">
                                                 <?= ($project_details->estimate_hours); ?> m
                                                 <?php if (!empty($project_details) && $project_details->billing_type == 'project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_and_project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_sub_tasks_and_project_hours') { ?>
-                                                    <small class="small text-muted">
-                                                        <?= $project_details->hourly_rate . "/" . lang('hour') ?>
+                                                <small class="small text-muted">
+                                                    <?= $project_details->hourly_rate . "/" . lang('hour') ?>
                                                     <?php } ?>
-                                                    </small>
+                                                </small>
                                             </div>
                                         </div>
                                         <?php if (!empty($staff_finance)) { ?>
@@ -412,10 +462,10 @@ $edited = can_action('57', 'edited');
                                                 <div class="col-sm-8">
                                                     <strong><?= display_money($project_cost, $currency->symbol); ?></strong>
                                                     <?php if (!empty($project_details) && $project_details->billing_type == 'project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_and_project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_sub_tasks_and_project_hours') { ?>
-                                                        <small class="small text-muted">
-                                                            <?= $project_details->hourly_rate . "/" . lang('hour') ?>
+                                                    <small class="small text-muted">
+                                                        <?= $project_details->hourly_rate . "/" . lang('hour') ?>
                                                         <?php } ?>
-                                                        </small>
+                                                    </small>
                                                 </div>
                                             </div>
                                         <?php } ?>
@@ -436,27 +486,35 @@ $edited = can_action('57', 'edited');
                                                                     $label = 'circle-success';
                                                                 }
                                                                 $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
-                                                    ?>
+                                                                ?>
 
 
-                                                                <a href="#" data-toggle="tooltip" data-placement="top" title="<?= $profile_info->fullname ?>"><img src="<?= base_url() . $profile_info->avatar ?>" class="img-circle img-xs" alt="">
+                                                                <a href="#" data-toggle="tooltip" data-placement="top"
+                                                                   title="<?= $profile_info->fullname ?>"><img
+                                                                            src="<?= base_url() . $profile_info->avatar ?>"
+                                                                            class="img-circle img-xs" alt="">
                                                                     <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                                                 </a>
-                                                        <?php
+                                                            <?php
                                                             endforeach;
                                                         endif;
                                                     } else { ?>
                                                         <strong><?= lang('everyone') ?></strong>
-                                                        <i title="<?= lang('permission_for_all') ?>" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
+                                                        <i title="<?= lang('permission_for_all') ?>"
+                                                           class="fa fa-question-circle" data-toggle="tooltip"
+                                                           data-placement="top"></i>
 
-                                                    <?php
+                                                        <?php
                                                     }
                                                     ?>
                                                     <?php if (!empty($can_edit) && !empty($edited)) { ?>
-                                                        <span data-placement="top" data-toggle="tooltip" title="<?= lang('add_more') ?>">
-                                                            <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/update_users/<?= $project_details->project_id ?>" class="text-default ml"><i class="fa fa-plus"></i></a>
+                                                        <span data-placement="top" data-toggle="tooltip"
+                                                              title="<?= lang('add_more') ?>">
+                                                            <a data-toggle="modal" data-target="#myModal"
+                                                               href="<?= base_url() ?>admin/projects/update_users/<?= $project_details->project_id ?>"
+                                                               class="text-default ml"><i class="fa fa-plus"></i></a>
                                                         </span>
-                                                    <?php
+                                                        <?php
                                                     }
                                                     ?>
                                                 </div>
@@ -467,14 +525,14 @@ $edited = can_action('57', 'edited');
                                         if (!empty($show_custom_fields)) {
                                             foreach ($show_custom_fields as $c_label => $v_fields) {
                                                 if (!empty($v_fields)) {
-                                        ?>
+                                                    ?>
                                                     <div class="form-group">
                                                         <div class="col-sm-4"><strong><?= $c_label ?> :</strong></div>
                                                         <div class="col-sm-8">
                                                             <?= $v_fields ?>
                                                         </div>
                                                     </div>
-                                        <?php }
+                                                <?php }
                                             }
                                         }
                                         ?>
@@ -600,25 +658,25 @@ $edited = can_action('57', 'edited');
                                         ?>
                                         <div class="<?= $col_ ?>">
                                             <?php if (!empty($col_)) { ?>
-                                                <div class="panel panel-custom">
-                                                    <div class="panel-heading">
-                                                        <div class="panel-title"><?= lang('project_hours') ?></div>
-                                                    </div>
+                                            <div class="panel panel-custom">
+                                                <div class="panel-heading">
+                                                    <div class="panel-title"><?= lang('project_hours') ?></div>
+                                                </div>
                                                 <?php } ?>
                                                 <?= $this->items_model->get_time_spent_result($project_hours); ?>
 
                                                 <?php if ($project_details->billing_type == 'tasks_and_project_hours') {
                                                     $total_hours = $project_hours + $tasks_hours;
-                                                ?>
+                                                    ?>
                                                     <h2 style="font-size: 22px"><?= lang('total') ?>
                                                         <span style="font-size: 20px">: <?= $this->items_model->get_spent_time($total_hours); ?></span>
                                                     </h2>
 
                                                 <?php } ?>
                                                 <?php if (!empty($col_)) { ?>
-                                                </div>
+                                            </div>
 
-                                            <?php } ?>
+                                        <?php } ?>
                                         </div>
                                         <div class="text-center">
                                             <div class="">
@@ -630,35 +688,35 @@ $edited = can_action('57', 'edited');
                                         </div>
                                         <div class="<?= $col_ ?>">
                                             <?php if (!empty($col_)) { ?>
-                                                <div class="panel panel-custom mb-lg">
-                                                    <div class="panel-heading">
-                                                        <div class="panel-title"><?= lang('task_hours') ?></div>
-                                                    </div>
-                                                    <?= $this->items_model->get_time_spent_result($tasks_hours); ?>
-                                                    <div class="ml-lg">
-                                                        <p class="p0 m0">
-                                                            <strong><?= lang('billable') ?></strong>: <?= $this->items_model->get_spent_time($tasks_hours) ?>
-                                                        </p>
-                                                        <p class="p0 m0"><strong><?= lang('not_billable') ?></strong>:
-                                                            <?php
-                                                            $non_billable_time = 0;
-                                                            foreach ($all_task_info as $v_n_tasks) {
-                                                                if (!empty($v_n_tasks->billable) && $v_n_tasks->billable == 'No') {
-                                                                    $non_billable_time += $this->items_model->task_spent_time_by_id($v_n_tasks->task_id);
-                                                                }
+                                            <div class="panel panel-custom mb-lg">
+                                                <div class="panel-heading">
+                                                    <div class="panel-title"><?= lang('task_hours') ?></div>
+                                                </div>
+                                                <?= $this->items_model->get_time_spent_result($tasks_hours); ?>
+                                                <div class="ml-lg">
+                                                    <p class="p0 m0">
+                                                        <strong><?= lang('billable') ?></strong>: <?= $this->items_model->get_spent_time($tasks_hours) ?>
+                                                    </p>
+                                                    <p class="p0 m0"><strong><?= lang('not_billable') ?></strong>:
+                                                        <?php
+                                                        $non_billable_time = 0;
+                                                        foreach ($all_task_info as $v_n_tasks) {
+                                                            if (!empty($v_n_tasks->billable) && $v_n_tasks->billable == 'No') {
+                                                                $non_billable_time += $this->items_model->task_spent_time_by_id($v_n_tasks->task_id);
                                                             }
-                                                            echo $this->items_model->get_spent_time($non_billable_time);
-                                                            ?>
-                                                        </p>
-                                                    </div>
+                                                        }
+                                                        echo $this->items_model->get_spent_time($non_billable_time);
+                                                        ?>
+                                                    </p>
+                                                </div>
                                                 <?php } ?>
                                                 <?php if (!empty($staff_finance)) { ?>
                                                     <h2 class="text-center mt"><?= lang('total_bill') ?>
                                                         : <?= display_money($project_cost, $currency->symbol) ?></h2>
                                                 <?php } ?>
                                                 <?php if (!empty($col_)) { ?>
-                                                </div>
-                                            <?php } ?>
+                                            </div>
+                                        <?php } ?>
                                         </div>
                                     </form>
                                 </div>
@@ -668,10 +726,10 @@ $edited = can_action('57', 'edited');
                                     <p class="lead bb"></p>
                                     <form class="form-horizontal p-20">
                                         <blockquote style="font-size: 12px;word-wrap: break-word;"><?php
-                                                                                                    if (!empty($project_details->description)) {
-                                                                                                        echo $project_details->description;
-                                                                                                    }
-                                                                                                    ?></blockquote>
+                                            if (!empty($project_details->description)) {
+                                                echo $project_details->description;
+                                            }
+                                            ?></blockquote>
                                     </form>
                                 </div>
                                 <div class="col-md-6">
@@ -682,7 +740,9 @@ $edited = can_action('57', 'edited');
                                         </div>
                                         <div class="col-sm-12">
                                             <div class="mt progress progress-striped progress-xs">
-                                                <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip" data-original-title="<?= round($tprogress, 2) ?>%" style="width: <?= round($tprogress, 2) ?>%"></div>
+                                                <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip"
+                                                     data-original-title="<?= round($tprogress, 2) ?>%"
+                                                     style="width: <?= round($tprogress, 2) ?>%"></div>
                                             </div>
                                         </div>
 
@@ -691,7 +751,9 @@ $edited = can_action('57', 'edited');
                                         </div>
                                         <div class="col-sm-12">
                                             <div class="mt progress progress-striped progress-xs">
-                                                <div class="progress-bar progress-<?= $t_bar ?> " data-toggle="tooltip" data-original-title="<?= $task_progress ?>%" style="width: <?= $task_progress ?>%"></div>
+                                                <div class="progress-bar progress-<?= $t_bar ?> " data-toggle="tooltip"
+                                                     data-original-title="<?= $task_progress ?>%"
+                                                     style="width: <?= $task_progress ?>%"></div>
                                             </div>
                                         </div>
                                         <div class="col-sm-12">
@@ -711,7 +773,9 @@ $edited = can_action('57', 'edited');
                                             ?>
                                             <span class="">
                                                 <div class="mt progress progress-striped progress-xs">
-                                                    <div class="progress-bar <?= $progress_b ?> " data-toggle="tooltip" data-original-title="<?= $progress ?>%" style="width: <?= $progress ?>%"></div>
+                                                    <div class="progress-bar <?= $progress_b ?> " data-toggle="tooltip"
+                                                         data-original-title="<?= $progress ?>%"
+                                                         style="width: <?= $progress ?>%"></div>
                                                 </div>
                                             </span>
                                         </div>
@@ -725,10 +789,10 @@ $edited = can_action('57', 'edited');
                                             :</strong></label>
                                     <p class="form-control-static">
                                         <strong><?php
-                                                if (!empty($project_details->project_no)) {
-                                                    echo $project_details->project_no;
-                                                }
-                                                ?></strong>
+                                            if (!empty($project_details->project_no)) {
+                                                echo $project_details->project_no;
+                                            }
+                                            ?></strong>
                                     </p>
                                 </div>
                                 <div class="col-sm-6">
@@ -784,14 +848,16 @@ $edited = can_action('57', 'edited');
                                         <?php if ($project_details->timer_status == 'on') { ?>
 
                                             <span class="label label-success"><?= lang('on') ?></span>
-                                            <a class="btn btn-xs btn-danger " href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><?= lang('stop_timer') ?> </a>
+                                            <a class="btn btn-xs btn-danger "
+                                               href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><?= lang('stop_timer') ?> </a>
                                         <?php } else {
-                                        ?>
+                                            ?>
                                             <span class="label label-danger"><?= lang('off') ?></span>
                                             <?php $this_permission = $this->items_model->can_action('tbl_project', 'view', array('project_id' => $project_details->project_id), true);
                                             if (!empty($this_permission)) { ?>
-                                                <a class="btn btn-xs btn-success <?= $disabled ?>" href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
-                                        <?php }
+                                                <a class="btn btn-xs btn-success <?= $disabled ?>"
+                                                   href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
+                                            <?php }
                                         }
                                         ?>
                                     </div>
@@ -841,10 +907,10 @@ $edited = can_action('57', 'edited');
                                         <strong><?= ($project_details->estimate_hours); ?> m
                                         </strong>
                                         <?php if (!empty($project_details) && $project_details->billing_type == 'project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_and_project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_sub_tasks_and_project_hours') { ?>
-                                            <small class="small text-muted">
-                                                <?= $project_details->hourly_rate . "/" . lang('hour') ?>
+                                        <small class="small text-muted">
+                                            <?= $project_details->hourly_rate . "/" . lang('hour') ?>
                                             <?php } ?>
-                                            </small>
+                                        </small>
                                     </p>
                                 </div>
                             </div>
@@ -855,9 +921,10 @@ $edited = can_action('57', 'edited');
                                     <p class="form-control-static" style="overflow: hidden;">
                                         <?php
                                         if (!empty($project_details->demo_url)) {
-                                        ?>
-                                            <a href="<?php echo $project_details->demo_url; ?>" target="_blank"><?php echo $project_details->demo_url ?></a>
-                                        <?php
+                                            ?>
+                                            <a href="<?php echo $project_details->demo_url; ?>"
+                                               target="_blank"><?php echo $project_details->demo_url ?></a>
+                                            <?php
                                         } else {
                                             echo '-';
                                         }
@@ -872,10 +939,10 @@ $edited = can_action('57', 'edited');
                                         <p class="form-control-static">
                                             <strong><?php echo display_money($project_cost, $currency->symbol); ?></strong>
                                             <?php if (!empty($project_details) && $project_details->billing_type == 'project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_and_project_hours' || !empty($project_details) && $project_details->billing_type == 'tasks_sub_tasks_and_project_hours') { ?>
-                                                <small class="small text-muted">
-                                                    <?= $project_details->hourly_rate . "/" . lang('hour') ?>
+                                            <small class="small text-muted">
+                                                <?= $project_details->hourly_rate . "/" . lang('hour') ?>
                                                 <?php } ?>
-                                                </small>
+                                            </small>
                                         </p>
                                     </div>
                                 <?php } ?>
@@ -905,7 +972,8 @@ $edited = can_action('57', 'edited');
                                     <?php if (!empty($can_edit) && !empty($edited)) { ?>
                                         <div class="col-sm-1 mt">
                                             <div class="btn-group">
-                                                <button class="btn btn-xs btn-success dropdown-toggle" data-toggle="dropdown">
+                                                <button class="btn btn-xs btn-success dropdown-toggle"
+                                                        data-toggle="dropdown">
                                                     <?= lang('change') ?>
                                                     <span class="caret"></span></button>
                                                 <ul class="dropdown-menu animated zoomIn">
@@ -945,30 +1013,37 @@ $edited = can_action('57', 'edited');
                                                         $label = 'circle-success';
                                                     }
                                                     $profile_info = $this->db->where(array('user_id' => $permission))->get('tbl_account_details')->row();
-                                        ?>
+                                                    ?>
 
 
-                                                    <a href="#" data-toggle="tooltip" data-placement="top" title="<?= $profile_info->fullname ?>"><img src="<?= base_url() . $profile_info->avatar ?>" class="img-circle img-xs" alt="">
+                                                    <a href="#" data-toggle="tooltip" data-placement="top"
+                                                       title="<?= $profile_info->fullname ?>"><img
+                                                                src="<?= base_url() . $profile_info->avatar ?>"
+                                                                class="img-circle img-xs" alt="">
                                                         <span class="custom-permission circle <?= $label ?>  circle-lg"></span>
                                                     </a>
-                                            <?php
+                                                <?php
                                                 endforeach;
                                             endif;
                                         } else { ?>
-                                            <p class="form-control-static"><strong><?= lang('everyone') ?></strong>
-                                                <i title="<?= lang('permission_for_all') ?>" class="fa fa-question-circle" data-toggle="tooltip" data-placement="top"></i>
+                                        <p class="form-control-static"><strong><?= lang('everyone') ?></strong>
+                                            <i title="<?= lang('permission_for_all') ?>" class="fa fa-question-circle"
+                                               data-toggle="tooltip" data-placement="top"></i>
 
                                             <?php
-                                        }
+                                            }
                                             ?>
                                             <?php if (!empty($can_edit) && !empty($edited)) { ?>
-                                                <span data-placement="top" data-toggle="tooltip" title="<?= lang('add_more') ?>">
-                                                    <a data-toggle="modal" data-target="#myModal" href="<?= base_url() ?>admin/projects/update_users/<?= $project_details->project_id ?>" class="text-default ml"><i class="fa fa-plus"></i></a>
+                                            <span data-placement="top" data-toggle="tooltip"
+                                                  title="<?= lang('add_more') ?>">
+                                                    <a data-toggle="modal" data-target="#myModal"
+                                                       href="<?= base_url() ?>admin/projects/update_users/<?= $project_details->project_id ?>"
+                                                       class="text-default ml"><i class="fa fa-plus"></i></a>
                                                 </span>
-                                            </p>
-                                        <?php
-                                            }
-                                        ?>
+                                        </p>
+                                    <?php
+                                    }
+                                    ?>
                                     </div>
                                 </div>
                             </div>
@@ -987,7 +1062,7 @@ $edited = can_action('57', 'edited');
                                             $style = null;
                                         }
 
-                            ?>
+                                        ?>
                                         <div class="form-group  <?= $col ?>" style="<?= $style ?>">
                                             <label class="control-label <?= $sub_col ?>"><strong><?= $c_label ?>
                                                     :</strong></label>
@@ -997,7 +1072,7 @@ $edited = can_action('57', 'edited');
                                                 </p>
                                             </div>
                                         </div>
-                            <?php }
+                                    <?php }
                                 }
                             }
                             ?>
@@ -1018,7 +1093,9 @@ $edited = can_action('57', 'edited');
                                     ?>
                                     <span class="">
                                         <div class="mt progress progress-striped ">
-                                            <div class="progress-bar <?= $progress_b ?> " data-toggle="tooltip" data-original-title="<?= $progress ?>%" style="width: <?= $progress ?>%"></div>
+                                            <div class="progress-bar <?= $progress_b ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= $progress ?>%"
+                                                 style="width: <?= $progress ?>%"></div>
                                         </div>
                                     </span>
                                 </div>
@@ -1078,10 +1155,10 @@ $edited = can_action('57', 'edited');
                                 ?>
                                 <div class="<?= $col_ ?>">
                                     <?php if (!empty($col_)) { ?>
-                                        <div class="panel panel-custom">
-                                            <div class="panel-heading">
-                                                <div class="panel-title"><?= lang('project_hours') ?></div>
-                                            </div>
+                                    <div class="panel panel-custom">
+                                        <div class="panel-heading">
+                                            <div class="panel-title"><?= lang('project_hours') ?></div>
+                                        </div>
                                         <?php } ?>
                                         <?= $this->items_model->get_time_spent_result($project_hours); ?>
                                         <?php
@@ -1103,14 +1180,16 @@ $edited = can_action('57', 'edited');
                                                 <p class="p0 m0">
                                                     <strong><?= lang('total') . ' ' . lang('budget') ?></strong>: <?= display_money($project_cost, $currency->symbol) ?>
                                                 </p>
-<!--                                                <p class="p0 m0">-->
-<!--                                                    <strong>--><?php //= lang('billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount, $currency->symbol) ?>
-<!--                                                </p>-->
-<!--                                                <p class="p0 m0">-->
-<!--                                                    <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
-<!--                                                </p>-->
+                                                <!--                                                <p class="p0 m0">-->
+                                                <!--                                                    <strong>-->
+                                                <?php //= lang('billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount, $currency->symbol) ?>
+                                                <!--                                                </p>-->
+                                                <!--                                                <p class="p0 m0">-->
+                                                <!--                                                    <strong>-->
+                                                <?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
+                                                <!--                                                </p>-->
                                                 <p class="p0 m0">
-                                                    <strong><?= lang('total') . ' ' . lang('Bill Received') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
+                                                    <strong><?= lang('total') . ' ' . lang('Bill Received') ?></strong>: <?= display_money($billable_expense->amount, $currency->symbol) ?>
                                                 </p>
 
                                                 <p class="p0 m0">
@@ -1118,62 +1197,65 @@ $edited = can_action('57', 'edited');
                                                 </p>
 
                                                 <p class="p0 m0">
-                                                    <strong><?= lang('total') . ' ' . lang('balance') ?></strong>: <?= display_money($project_cost-($paid_expense+$total_expense->amount), $currency->symbol) ?>
+                                                    <strong><?= lang('total') . ' ' . lang('balance') ?></strong>: <?= display_money($project_cost - ($paid_expense + $total_expense->amount), $currency->symbol) ?>
                                                 </p>
-<!--                                                <p class="p0 m0">-->
-<!--                                                    <strong>--><?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount - $paid_expense, $currency->symbol) ?>
-<!--                                                </p>-->
+                                                <!--                                                <p class="p0 m0">-->
+                                                <!--                                                    <strong>-->
+                                                <?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($billable_expense->amount - $paid_expense, $currency->symbol) ?>
+                                                <!--                                                </p>-->
                                             </div>
                                         <?php } ?>
                                         <?php if ($project_details->billing_type == 'tasks_and_project_hours') {
                                             $total_hours = $project_hours + $tasks_hours;
-                                        ?>
+                                            ?>
                                             <h2 style="font-size: 22px"><?= lang('total') ?>
                                                 <span style="font-size: 20px">: <?= $this->items_model->get_spent_time($total_hours); ?></span>
                                             </h2>
                                         <?php } ?>
                                         <?php if (!empty($col_)) { ?>
-                                        </div>
+                                    </div>
 
-                                    <?php } ?>
+                                <?php } ?>
                                 </div>
                                 <div class="<?= $col_ ?>">
                                     <?php if (!empty($col_)) { ?>
-                                        <div class="panel panel-custom mb-lg">
-                                            <div class="panel-heading">
-                                                <div class="panel-title"><?= lang('task_hours') ?></div>
-                                            </div>
-                                            <?= $this->items_model->get_time_spent_result($tasks_hours); ?>
-                                            <div class="ml-lg">
-                                                <p class="p0 m0">
-                                                    <strong><?= lang('billable') ?></strong>: <?= $this->items_model->get_spent_time($tasks_hours) ?>
-                                                </p>
-                                                <p class="p0 m0"><strong><?= lang('not_billable') ?></strong>:
-                                                    <?php
-                                                    $non_billable_time = 0;
-                                                    foreach ($all_task_info as $v_n_tasks) {
-                                                        if (!empty($v_n_tasks->billable) && $v_n_tasks->billable == 'No') {
-                                                            $non_billable_time += $this->items_model->task_spent_time_by_id($v_n_tasks->task_id);
-                                                        }
+                                    <div class="panel panel-custom mb-lg">
+                                        <div class="panel-heading">
+                                            <div class="panel-title"><?= lang('task_hours') ?></div>
+                                        </div>
+                                        <?= $this->items_model->get_time_spent_result($tasks_hours); ?>
+                                        <div class="ml-lg">
+                                            <p class="p0 m0">
+                                                <strong><?= lang('billable') ?></strong>: <?= $this->items_model->get_spent_time($tasks_hours) ?>
+                                            </p>
+                                            <p class="p0 m0"><strong><?= lang('not_billable') ?></strong>:
+                                                <?php
+                                                $non_billable_time = 0;
+                                                foreach ($all_task_info as $v_n_tasks) {
+                                                    if (!empty($v_n_tasks->billable) && $v_n_tasks->billable == 'No') {
+                                                        $non_billable_time += $this->items_model->task_spent_time_by_id($v_n_tasks->task_id);
                                                     }
-                                                    echo $this->items_model->get_spent_time($non_billable_time);
-                                                    ?>
-                                                </p>
-                                            </div>
+                                                }
+                                                echo $this->items_model->get_spent_time($non_billable_time);
+                                                ?>
+                                            </p>
+                                        </div>
                                         <?php } ?>
                                         <?php if (!empty($staff_finance)) { ?>
                                             <h2 class="text-center mt"><?= lang('total_bill') ?>
                                                 : <?= display_money($project_cost, $currency->symbol) ?></h2>
                                         <?php } ?>
                                         <?php if (!empty($col_)) { ?>
-                                        </div>
-                                    <?php } ?>
+                                    </div>
+                                <?php } ?>
                                 </div>
                                 <div class="col-sm-12 mt-lg">
                                     <div class="col-sm-4">
                                         <strong><?= $TotalGone . ' / ' . $totalDays . ' ' . $lang . ' (' . round($tprogress, 2) . '% )'; ?></strong>
                                         <div class="mt progress progress-striped progress-xs">
-                                            <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip" data-original-title="<?= round($tprogress, 2) ?>%" style="width: <?= round($tprogress, 2) ?>%"></div>
+                                            <div class="progress-bar progress-<?= $p_bar ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= round($tprogress, 2) ?>%"
+                                                 style="width: <?= round($tprogress, 2) ?>%"></div>
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -1191,7 +1273,9 @@ $edited = can_action('57', 'edited');
                                     <div class="col-sm-4">
                                         <strong><?= $completed . ' / ' . $total_task . ' ' . lang('open') . ' ' . lang('tasks') . ' (' . round($task_progress, 2) . '% )'; ?> </strong>
                                         <div class="mt progress progress-striped progress-xs">
-                                            <div class="progress-bar progress-<?= $t_bar ?> " data-toggle="tooltip" data-original-title="<?= $task_progress ?>%" style="width: <?= $task_progress ?>%"></div>
+                                            <div class="progress-bar progress-<?= $t_bar ?> " data-toggle="tooltip"
+                                                 data-original-title="<?= $task_progress ?>%"
+                                                 style="width: <?= $task_progress ?>%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1202,17 +1286,18 @@ $edited = can_action('57', 'edited');
                             <div class="form-group col-sm-12">
                                 <div class="col-sm-12">
                                     <blockquote style="font-size: 12px;word-wrap: break-word;"><?php
-                                                                                                if (!empty($project_details->description)) {
-                                                                                                    echo $project_details->description;
-                                                                                                }
-                                                                                                ?></blockquote>
+                                        if (!empty($project_details->description)) {
+                                            echo $project_details->description;
+                                        }
+                                        ?></blockquote>
                                 </div>
                             </div>
                         <?php } ?>
                     </div>
                 </div>
             </div>
-            <div class="tab-pane <?= $active == 15 ? 'active' : '' ?>" id="project_calendar" style="position: relative;">
+            <div class="tab-pane <?= $active == 15 ? 'active' : '' ?>" id="project_calendar"
+                 style="position: relative;">
                 <div class="panel panel-custom">
                     <div class="panel-heading">
                         <h3 class="panel-title"><?= lang('calendar') ?></h3>
@@ -1221,7 +1306,8 @@ $edited = can_action('57', 'edited');
                         <div class="">
                             <div id="calendar"></div>
                         </div>
-                        <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css" rel="stylesheet" type="text/css">
+                        <link href="<?php echo base_url() ?>assets/plugins/fullcalendar/fullcalendar.min.css"
+                              rel="stylesheet" type="text/css">
 
                         <style type="text/css">
                             .datepicker {
@@ -1234,8 +1320,7 @@ $edited = can_action('57', 'edited');
 
                             .fc-state-default {
                                 background: none;
-                                color: inherit !important;
-                                ;
+                                color: inherit !important;;
                             }
                         </style>
                         <?php
@@ -1243,7 +1328,7 @@ $edited = can_action('57', 'edited');
                         $gcal_id = config_item('gcal_id');
                         ?>
                         <script type="text/javascript">
-                            $(document).ready(function() {
+                            $(document).ready(function () {
                                 if ($('#calendar').length) {
                                     var date = new Date();
                                     var d = date.getDate();
@@ -1251,7 +1336,7 @@ $edited = can_action('57', 'edited');
                                     var y = date.getFullYear();
                                     var calendar = $('#calendar').fullCalendar({
                                         googleCalendarApiKey: '<?= $gcal_api_key ?>',
-                                        eventAfterRender: function(event, element, view) {
+                                        eventAfterRender: function (event, element, view) {
                                             if (event.type == 'fo') {
                                                 $(element).attr('data-toggle', 'ajaxModal').addClass('ajaxModal');
                                             }
@@ -1267,7 +1352,7 @@ $edited = can_action('57', 'edited');
                                         // },
                                         selectable: true,
                                         selectHelper: true,
-                                        select: function(start, end, allDay) {
+                                        select: function (start, end, allDay) {
                                             var endtime = $.fullCalendar.formatDate(end, 'h:mm tt');
                                             var starttime = $.fullCalendar.formatDate(start, 'yyyy/MM/dd');
                                             var mywhen = starttime + ' - ' + endtime;
@@ -1281,45 +1366,45 @@ $edited = can_action('57', 'edited');
                                             <?php
                                             $invoice_info = $this->db->where('project_id', $project_details->project_id)->get('tbl_invoices')->result();
                                             if (!empty($invoice_info)) {
-                                                foreach ($invoice_info as $v_invoice) :
-                                                    $start_day = date('d', strtotime($v_invoice->due_date));
-                                                    $smonth = date('n', strtotime($v_invoice->due_date));
-                                                    $start_month = $smonth - 1;
-                                                    $start_year = date('Y', strtotime($v_invoice->due_date));
-                                                    $end_year = date('Y', strtotime($v_invoice->due_date));
-                                                    $end_day = date('d', strtotime($v_invoice->due_date));
-                                                    $emonth = date('n', strtotime($v_invoice->due_date));
-                                                    $end_month = $emonth - 1;
+                                            foreach ($invoice_info as $v_invoice) :
+                                            $start_day = date('d', strtotime($v_invoice->due_date));
+                                            $smonth = date('n', strtotime($v_invoice->due_date));
+                                            $start_month = $smonth - 1;
+                                            $start_year = date('Y', strtotime($v_invoice->due_date));
+                                            $end_year = date('Y', strtotime($v_invoice->due_date));
+                                            $end_day = date('d', strtotime($v_invoice->due_date));
+                                            $emonth = date('n', strtotime($v_invoice->due_date));
+                                            $end_month = $emonth - 1;
                                             ?> {
-                                                        title: "<?php echo $v_invoice->reference_no ?>",
-                                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
-                                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
-                                                        color: '<?= config_item('invoice_color') ?>',
-                                                        url: '<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoice->invoices_id ?>'
-                                                    },
-                                                <?php
-                                                endforeach;
+                                                title: "<?php echo $v_invoice->reference_no ?>",
+                                                start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                                end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                                color: '<?= config_item('invoice_color') ?>',
+                                                url: '<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoice->invoices_id ?>'
+                                            },
+                                            <?php
+                                            endforeach;
                                             }
                                             $estimates_info = $this->db->where('project_id', $project_details->project_id)->get('tbl_estimates')->result();;
                                             if (!empty($estimates_info)) {
-                                                foreach ($estimates_info as $v_estimates) :
-                                                    $start_day = date('d', strtotime($v_estimates->due_date));
-                                                    $smonth = date('n', strtotime($v_estimates->due_date));
-                                                    $start_month = $smonth - 1;
-                                                    $start_year = date('Y', strtotime($v_estimates->due_date));
-                                                    $end_year = date('Y', strtotime($v_estimates->due_date));
-                                                    $end_day = date('d', strtotime($v_estimates->due_date));
-                                                    $emonth = date('n', strtotime($v_estimates->due_date));
-                                                    $end_month = $emonth - 1;
-                                                ?> {
-                                                        title: "<?php echo $v_estimates->reference_no ?>",
-                                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
-                                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
-                                                        color: '<?= config_item('estimate_color') ?>',
-                                                        url: '<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_estimates->estimates_id ?>'
-                                                    },
+                                            foreach ($estimates_info as $v_estimates) :
+                                            $start_day = date('d', strtotime($v_estimates->due_date));
+                                            $smonth = date('n', strtotime($v_estimates->due_date));
+                                            $start_month = $smonth - 1;
+                                            $start_year = date('Y', strtotime($v_estimates->due_date));
+                                            $end_year = date('Y', strtotime($v_estimates->due_date));
+                                            $end_day = date('d', strtotime($v_estimates->due_date));
+                                            $emonth = date('n', strtotime($v_estimates->due_date));
+                                            $end_month = $emonth - 1;
+                                            ?> {
+                                                title: "<?php echo $v_estimates->reference_no ?>",
+                                                start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                                end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                                color: '<?= config_item('estimate_color') ?>',
+                                                url: '<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_estimates->estimates_id ?>'
+                                            },
                                             <?php
-                                                endforeach;
+                                            endforeach;
                                             }
                                             $start_day = date('d', strtotime($project_details->end_date));
                                             $smonth = date('n', strtotime($project_details->end_date));
@@ -1340,66 +1425,66 @@ $edited = can_action('57', 'edited');
 
                                             $milestone_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_milestones')->result();
                                             if (!empty($milestone_info)) {
-                                                foreach ($milestone_info as $v_milestone) :
-                                                    $start_day = date('d', strtotime($v_milestone->end_date));
-                                                    $smonth = date('n', strtotime($v_milestone->end_date));
-                                                    $start_month = $smonth - 1;
-                                                    $start_year = date('Y', strtotime($v_milestone->end_date));
-                                                    $end_year = date('Y', strtotime($v_milestone->end_date));
-                                                    $end_day = date('d', strtotime($v_milestone->end_date));
-                                                    $emonth = date('n', strtotime($v_milestone->end_date));
-                                                    $end_month = $emonth - 1;
+                                            foreach ($milestone_info as $v_milestone) :
+                                            $start_day = date('d', strtotime($v_milestone->end_date));
+                                            $smonth = date('n', strtotime($v_milestone->end_date));
+                                            $start_month = $smonth - 1;
+                                            $start_year = date('Y', strtotime($v_milestone->end_date));
+                                            $end_year = date('Y', strtotime($v_milestone->end_date));
+                                            $end_day = date('d', strtotime($v_milestone->end_date));
+                                            $emonth = date('n', strtotime($v_milestone->end_date));
+                                            $end_month = $emonth - 1;
                                             ?> {
-                                                        title: '<?php echo $v_milestone->milestone_name ?>',
-                                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
-                                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
-                                                        color: '<?= config_item('milestone_color') ?>',
-                                                        url: '<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/5'
-                                                    },
-                                                <?php
-                                                endforeach;
+                                                title: '<?php echo $v_milestone->milestone_name ?>',
+                                                start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                                end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                                color: '<?= config_item('milestone_color') ?>',
+                                                url: '<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/5'
+                                            },
+                                            <?php
+                                            endforeach;
                                             }
                                             $task_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_task')->result();
                                             if (!empty($task_info)) {
-                                                foreach ($task_info as $v_task) :
-                                                    $start_day = date('d', strtotime($v_task->due_date));
-                                                    $smonth = date('n', strtotime($v_task->due_date));
-                                                    $start_month = $smonth - 1;
-                                                    $start_year = date('Y', strtotime($v_task->due_date));
-                                                    $end_year = date('Y', strtotime($v_task->due_date));
-                                                    $end_day = date('d', strtotime($v_task->due_date));
-                                                    $emonth = date('n', strtotime($v_task->due_date));
-                                                    $end_month = $emonth - 1;
-                                                ?> {
-                                                        title: "<?php echo $v_task->task_name ?>",
-                                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
-                                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
-                                                        color: '<?= config_item('tasks_color') ?>',
-                                                        url: '<?= base_url() ?>admin/tasks/view_task_details/<?= $v_task->task_id ?>'
-                                                    },
-                                                <?php
-                                                endforeach;
+                                            foreach ($task_info as $v_task) :
+                                            $start_day = date('d', strtotime($v_task->due_date));
+                                            $smonth = date('n', strtotime($v_task->due_date));
+                                            $start_month = $smonth - 1;
+                                            $start_year = date('Y', strtotime($v_task->due_date));
+                                            $end_year = date('Y', strtotime($v_task->due_date));
+                                            $end_day = date('d', strtotime($v_task->due_date));
+                                            $emonth = date('n', strtotime($v_task->due_date));
+                                            $end_month = $emonth - 1;
+                                            ?> {
+                                                title: "<?php echo $v_task->task_name ?>",
+                                                start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                                end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                                color: '<?= config_item('tasks_color') ?>',
+                                                url: '<?= base_url() ?>admin/tasks/view_task_details/<?= $v_task->task_id ?>'
+                                            },
+                                            <?php
+                                            endforeach;
                                             }
                                             $bug_info = $this->db->where(array('project_id' => $project_details->project_id))->get('tbl_bug')->result();
                                             if (!empty($bug_info)) {
-                                                foreach ($bug_info as $v_bug) :
-                                                    $start_day = date('d', strtotime($v_bug->created_time));
-                                                    $smonth = date('n', strtotime($v_bug->created_time));
-                                                    $start_month = $smonth - 1;
-                                                    $start_year = date('Y', strtotime($v_bug->created_time));
-                                                    $end_year = date('Y', strtotime($v_bug->created_time));
-                                                    $end_day = date('d', strtotime($v_bug->created_time));
-                                                    $emonth = date('n', strtotime($v_bug->created_time));
-                                                    $end_month = $emonth - 1;
-                                                ?> {
-                                                        title: "<?php echo $v_bug->bug_title ?>",
-                                                        start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
-                                                        end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
-                                                        color: '<?= config_item('bugs_color') ?>',
-                                                        url: '<?= base_url() ?>admin/bugs/view_bug_details/<?= $v_bug->bug_id ?>'
-                                                    },
+                                            foreach ($bug_info as $v_bug) :
+                                            $start_day = date('d', strtotime($v_bug->created_time));
+                                            $smonth = date('n', strtotime($v_bug->created_time));
+                                            $start_month = $smonth - 1;
+                                            $start_year = date('Y', strtotime($v_bug->created_time));
+                                            $end_year = date('Y', strtotime($v_bug->created_time));
+                                            $end_day = date('d', strtotime($v_bug->created_time));
+                                            $emonth = date('n', strtotime($v_bug->created_time));
+                                            $end_month = $emonth - 1;
+                                            ?> {
+                                                title: "<?php echo $v_bug->bug_title ?>",
+                                                start: new Date(<?php echo $start_year . ',' . $start_month . ',' . $start_day; ?>),
+                                                end: new Date(<?php echo $end_year . ',' . $end_month . ',' . $end_day; ?>),
+                                                color: '<?= config_item('bugs_color') ?>',
+                                                url: '<?= base_url() ?>admin/bugs/view_bug_details/<?= $v_bug->bug_id ?>'
+                                            },
                                             <?php
-                                                endforeach;
+                                            endforeach;
                                             }
                                             ?>
                                         ],
@@ -1422,29 +1507,33 @@ $edited = can_action('57', 'edited');
             <!-- Task Details tab Ends -->
             <div class="tab-pane <?= $active == 10 ? 'active' : '' ?>" id="expense" style="position: relative;">
                 <div class="box" style="border: none; " data-collapsed="0">
-                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip" data-title="<?php echo lang('filter_by'); ?>">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-filter" aria-hidden="true"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-left" style="width:300px;<?php if (!empty($type) && $type == 'category') {
-                                                                                            echo 'display:block';
-                                                                                        } ?>">
+                        <ul class="dropdown-menu dropdown-menu-left"
+                            style="width:300px;<?php if (!empty($type) && $type == 'category') {
+                                echo 'display:block';
+                            } ?>">
                             <li class="<?php
-                                        if (empty($type)) {
-                                            echo 'active';
-                                        } ?>"><a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                            if (empty($type)) {
+                                echo 'active';
+                            } ?>">
+                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category) > 0) { ?>
                                 <?php foreach ($expense_category as $v_category) {
-                                ?>
+                                    ?>
                                     <li class="<?php if (!empty($category_id)) {
-                                                    if ($type == 'category') {
-                                                        if ($category_id == $v_category->expense_category_id) {
-                                                            echo 'active';
-                                                        }
-                                                    }
-                                                } ?>">
+                                        if ($type == 'category') {
+                                            if ($category_id == $v_category->expense_category_id) {
+                                                echo 'active';
+                                            }
+                                        }
+                                    } ?>">
                                         <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
                                     </li>
                                 <?php }
@@ -1459,7 +1548,8 @@ $edited = can_action('57', 'edited');
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#manage_expense" data-toggle="tab"><?= lang('expense') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/transactions/expense/project_expense/<?= $project_details->project_id ?>"><?= lang('new_expense') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/transactions/expense/project_expense/<?= $project_details->project_id ?>"><?= lang('new_expense') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -1468,83 +1558,84 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="manage_expense" class="table table-striped ">
                                         <thead>
-                                            <tr>
-                                                <th class="col-date"><?= lang('name') . '/' . lang('title') ?></th>
-                                                <th><?= lang('date') ?></th>
-                                                <th><?= lang('categories') ?></th>
-                                                <th class="col-currency"><?= lang('amount') ?></th>
-                                                <th><?= lang('attachment') ?></th>
-                                                <th class="col-options no-sort"><?= lang('action') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th class="col-date"><?= lang('name') . '/' . lang('title') ?></th>
+                                            <th><?= lang('date') ?></th>
+                                            <th><?= lang('categories') ?></th>
+                                            <th class="col-currency"><?= lang('amount') ?></th>
+                                            <th><?= lang('attachment') ?></th>
+                                            <th class="col-options no-sort"><?= lang('action') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            if (!empty($type) && $type == 'category') {
-                                                $cate_expense_info = array();
-                                                $expense_id = $this->uri->segment(7);
-                                                if (!empty($all_expense_info)) {
-                                                    foreach ($all_expense_info as $v_expense) {
-                                                        if ($v_expense->type == 'Expense' && $v_expense->category_id == $expense_id) {
-                                                            array_push($cate_expense_info, $v_expense);
-                                                        }
+                                        <?php
+                                        if (!empty($type) && $type == 'category') {
+                                            $cate_expense_info = array();
+                                            $expense_id = $this->uri->segment(7);
+                                            if (!empty($all_expense_info)) {
+                                                foreach ($all_expense_info as $v_expense) {
+                                                    if ($v_expense->type == 'Expense' && $v_expense->category_id == $expense_id) {
+                                                        array_push($cate_expense_info, $v_expense);
                                                     }
                                                 }
-                                                $all_expense_info = $cate_expense_info;
                                             }
-                                            $all_expense_info = array_reverse($all_expense_info);
-                                            if (!empty($all_expense_info)) :
-                                                foreach ($all_expense_info as $v_expense) :
-                                                    if ($v_expense->type == 'Expense') :
-                                                        $category_info = $this->db->where('expense_category_id', $v_expense->category_id)->get('tbl_expense_category')->row();
-                                                        if (!empty($category_info)) {
-                                                            $category = $category_info->expense_category;
-                                                        } else {
-                                                            $category = lang('undefined_category');
-                                                        }
+                                            $all_expense_info = $cate_expense_info;
+                                        }
+                                        $all_expense_info = array_reverse($all_expense_info);
+                                        if (!empty($all_expense_info)) :
+                                            foreach ($all_expense_info as $v_expense) :
+                                                if ($v_expense->type == 'Expense') :
+                                                    $category_info = $this->db->where('expense_category_id', $v_expense->category_id)->get('tbl_expense_category')->row();
+                                                    if (!empty($category_info)) {
+                                                        $category = $category_info->expense_category;
+                                                    } else {
+                                                        $category = lang('undefined_category');
+                                                    }
 
-                                                        $can_edit = $this->items_model->can_action('tbl_transactions', 'edit', array('transactions_id' => $v_expense->transactions_id));
-                                                        $can_delete = $this->items_model->can_action('tbl_transactions', 'delete', array('transactions_id' => $v_expense->transactions_id));
-                                                        $e_edited = can_action('31', 'edited');
-                                                        $e_deleted = can_action('31', 'deleted');
+                                                    $can_edit = $this->items_model->can_action('tbl_transactions', 'edit', array('transactions_id' => $v_expense->transactions_id));
+                                                    $can_delete = $this->items_model->can_action('tbl_transactions', 'delete', array('transactions_id' => $v_expense->transactions_id));
+                                                    $e_edited = can_action('31', 'edited');
+                                                    $e_deleted = can_action('31', 'deleted');
 
-                                                        $account_info = $this->items_model->check_by(array('account_id' => $v_expense->account_id), 'tbl_accounts');
-                                            ?>
-                                                        <tr id="table-expense-<?= $v_expense->transactions_id ?>">
-                                                            <td>
-                                                                <a href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
-                                                                    <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
-                                                                </a>
-                                                            </td>
-                                                            <td><?= strftime(config_item('date_format'), strtotime($v_expense->date)); ?></td>
-                                                            <td><?= $category ?></td>
-                                                            <td><?= display_money($v_expense->amount, $currency->symbol) ?></td>
+                                                    $account_info = $this->items_model->check_by(array('account_id' => $v_expense->account_id), 'tbl_accounts');
+                                                    ?>
+                                                    <tr id="table-expense-<?= $v_expense->transactions_id ?>">
+                                                        <td>
+                                                            <a href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                                <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
+                                                            </a>
+                                                        </td>
+                                                        <td><?= strftime(config_item('date_format'), strtotime($v_expense->date)); ?></td>
+                                                        <td><?= $category ?></td>
+                                                        <td><?= display_money($v_expense->amount, $currency->symbol) ?></td>
 
-                                                            <td>
-                                                                <?php
-                                                                $attachement_info = json_decode($v_expense->attachement);
-                                                                if (!empty($attachement_info)) { ?>
-                                                                    <a href="<?= base_url() ?>admin/transactions/download/<?= $v_expense->transactions_id ?>"><?= lang('download') ?></a>
-                                                                <?php } ?>
-                                                            </td>
+                                                        <td>
+                                                            <?php
+                                                            $attachement_info = json_decode($v_expense->attachement);
+                                                            if (!empty($attachement_info)) { ?>
+                                                                <a href="<?= base_url() ?>admin/transactions/download/<?= $v_expense->transactions_id ?>"><?= lang('download') ?></a>
+                                                            <?php } ?>
+                                                        </td>
 
-                                                            <td class="">
-                                                                <a class="btn btn-info btn-xs" href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
-                                                                    <span class="fa fa-list-alt"></span>
-                                                                </a>
-                                                                <?php if (!empty($can_edit) && !empty($e_edited)) { ?>
-                                                                    <?= btn_edit('admin/transactions/expense/' . $v_expense->transactions_id) ?>
-                                                                <?php }
-                                                                if (!empty($can_delete) && !empty($e_deleted)) {
+                                                        <td class="">
+                                                            <a class="btn btn-info btn-xs"
+                                                               href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                                <span class="fa fa-list-alt"></span>
+                                                            </a>
+                                                            <?php if (!empty($can_edit) && !empty($e_edited)) { ?>
+                                                                <?= btn_edit('admin/transactions/expense/' . $v_expense->transactions_id) ?>
+                                                            <?php }
+                                                            if (!empty($can_delete) && !empty($e_deleted)) {
                                                                 ?>
-                                                                    <?php echo ajax_anchor(base_url("admin/transactions/delete_expense/" . $v_expense->transactions_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-expense-" . $v_expense->transactions_id)); ?>
-                                                                <?php } ?>
-                                                            </td>
-                                                        </tr>
-                                            <?php
-                                                    endif;
-                                                endforeach;
-                                            endif;
-                                            ?>
+                                                                <?php echo ajax_anchor(base_url("admin/transactions/delete_expense/" . $v_expense->transactions_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-expense-" . $v_expense->transactions_id)); ?>
+                                                            <?php } ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php
+                                                endif;
+                                            endforeach;
+                                        endif;
+                                        ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1562,7 +1653,7 @@ $edited = can_action('57', 'edited');
                             <?php
                             $role = $this->session->userdata('user_type');
                             if ($role == 1) {
-                            ?>
+                                ?>
                                 <span class="btn-xs pull-right mt">
                                     <a href="<?= base_url() ?>admin/tasks/claer_activities/projects/<?= $project_details->project_id ?>"><?= lang('clear') . ' ' . lang('activities') ?></a>
                                 </span>
@@ -1575,27 +1666,30 @@ $edited = can_action('57', 'edited');
                             foreach ($activities_info as $v_activities) {
                                 $profile_info = $this->db->where(array('user_id' => $v_activities->user))->get('tbl_account_details')->row();
                                 $user_info = $this->db->where(array('user_id' => $v_activities->user))->get('tbl_users')->row();
-                        ?>
+                                ?>
                                 <div class="timeline-2">
                                     <div class="time-item">
                                         <div class="item-info">
-                                            <small data-toggle="tooltip" data-placement="top" title="<?= display_datetime($v_activities->activity_date) ?>" class="text-muted"><?= time_ago($v_activities->activity_date); ?></small>
+                                            <small data-toggle="tooltip" data-placement="top"
+                                                   title="<?= display_datetime($v_activities->activity_date) ?>"
+                                                   class="text-muted"><?= time_ago($v_activities->activity_date); ?></small>
 
                                             <p><strong>
                                                     <?php if (!empty($profile_info)) {
-                                                    ?>
-                                                        <a href="<?= base_url() ?>admin/user/user_details/<?= $profile_info->user_id ?>" class="text-info"><?= $profile_info->fullname ?></a>
+                                                        ?>
+                                                        <a href="<?= base_url() ?>admin/user/user_details/<?= $profile_info->user_id ?>"
+                                                           class="text-info"><?= $profile_info->fullname ?></a>
                                                     <?php } ?>
                                                 </strong> <?= sprintf(lang($v_activities->activity)) ?>
                                                 <strong><?= $v_activities->value1 ?></strong>
                                                 <?php if (!empty($v_activities->value2)) { ?>
                                             <p class="m0 p0"><strong><?= $v_activities->value2 ?></strong></p>
-                                        <?php } ?>
-                                        </p>
+                                            <?php } ?>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                        <?php
+                                <?php
                             }
                         }
                         ?>
@@ -1609,7 +1703,7 @@ $edited = can_action('57', 'edited');
                             <?php
                             $role = $this->session->userdata('user_type');
                             if ($role == 1) {
-                            ?>
+                                ?>
                             <?php } ?>
                         </h3>
                     </div>
@@ -1627,10 +1721,10 @@ $edited = can_action('57', 'edited');
                     <div class="panel-body chat">
                         <?php echo form_open(base_url("admin/projects/save_comments"), array("id" => $comment_type . "-comment-form", "class" => "form-horizontal general-form", "enctype" => "multipart/form-data", "role" => "form")); ?>
                         <input type="hidden" name="project_id" value="<?php
-                                                                        if (!empty($project_details->project_id)) {
-                                                                            echo $project_details->project_id;
-                                                                        }
-                                                                        ?>" class="form-control">
+                        if (!empty($project_details->project_id)) {
+                            echo $project_details->project_id;
+                        }
+                        ?>" class="form-control">
                         <div class="form-group">
                             <div class="col-sm-12">
                                 <?php
@@ -1659,10 +1753,14 @@ $edited = can_action('57', 'edited');
                                                     <span data-dz-remove class="pull-right" style="cursor: pointer">
                                                         <i class="fa fa-times"></i>
                                                     </span>
-                                                    <img data-dz-thumbnail class="upload-thumbnail-sm" />
-                                                    <input class="file-count-field" type="hidden" name="files[]" value="" />
-                                                    <div class="mb progress progress-striped upload-progress-sm active mt-sm" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                                                        <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                                                    <img data-dz-thumbnail class="upload-thumbnail-sm"/>
+                                                    <input class="file-count-field" type="hidden" name="files[]"
+                                                           value=""/>
+                                                    <div class="mb progress progress-striped upload-progress-sm active mt-sm"
+                                                         role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                                         aria-valuenow="0">
+                                                        <div class="progress-bar progress-bar-success" style="width:0%;"
+                                                             data-dz-uploadprogress></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1675,11 +1773,12 @@ $edited = can_action('57', 'edited');
                         <div class="form-group">
                             <div class="col-sm-12">
                                 <div class="pull-right">
-                                    <button type="submit" id="file-save-button" class="btn btn-primary"><?= lang('post_comment') ?></button>
+                                    <button type="submit" id="file-save-button"
+                                            class="btn btn-primary"><?= lang('post_comment') ?></button>
                                 </div>
                             </div>
                         </div>
-                        <hr />
+                        <hr/>
                         <?php echo form_close();
                         $comment_reply_type = 'projects-reply';
                         ?>
@@ -1688,15 +1787,15 @@ $edited = can_action('57', 'edited');
                 </div>
             </div>
             <script type="text/javascript">
-                $(document).ready(function() {
-                    $('#file-save-button').on('click', function(e) {
+                $(document).ready(function () {
+                    $('#file-save-button').on('click', function (e) {
                         var ubtn = $(this);
                         ubtn.html('Please wait...');
                         ubtn.addClass('disabled');
                     });
                     $("#<?php echo $comment_type; ?>-comment-form").appForm({
                         isModal: false,
-                        onSuccess: function(result) {
+                        onSuccess: function (result) {
                             $(".comment_description").val("");
                             $(".dz-complete").remove();
                             $('#file-save-button').removeClass("disabled").html('<?= lang('post_comment') ?>');
@@ -1721,7 +1820,7 @@ $edited = can_action('57', 'edited');
                         autoQueue: true,
                         previewsContainer: "#comments_file-previews",
                         clickable: true,
-                        accept: function(file, done) {
+                        accept: function (file, done) {
                             if (file.name.length > 200) {
                                 done("Filename is too long.");
                                 $(file.previewTemplate).find(".description-field").remove();
@@ -1736,7 +1835,7 @@ $edited = can_action('57', 'edited');
                                 cache: false,
                                 type: 'POST',
                                 dataType: "json",
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.success) {
                                         fileSerial++;
                                         $(file.previewTemplate).find(".description-field").attr("name", "comment_" + fileSerial);
@@ -1751,13 +1850,13 @@ $edited = can_action('57', 'edited');
                                 }
                             });
                         },
-                        processing: function() {
+                        processing: function () {
                             $("#file-save-button").prop("disabled", true);
                         },
-                        queuecomplete: function() {
+                        queuecomplete: function () {
                             $("#file-save-button").prop("disabled", false);
                         },
-                        fallback: function() {
+                        fallback: function () {
                             //add custom fallback;
                             $("body").addClass("dropzone-disabled");
                             $('.modal-dialog').find('[type="submit"]').removeAttr('disabled');
@@ -1766,7 +1865,7 @@ $edited = can_action('57', 'edited');
 
                             $("#file-modal-footer").prepend("<button id='add-more-file-button' type='button' class='btn  btn-default pull-left'><i class='fa fa-plus-circle'></i> " + "<?php echo lang("add_more"); ?>" + "</button>");
 
-                            $("#file-modal-footer").on("click", "#add-more-file-button", function() {
+                            $("#file-modal-footer").on("click", "#add-more-file-button", function () {
                                 var newFileRow = "<div class='file-row pb pt10 b-b mb10'>" +
                                     "<div class='pb clearfix '><button type='button' class='btn btn-xs btn-danger pull-left mr remove-file'><i class='fa fa-times'></i></button> <input class='pull-left' type='file' name='manualFiles[]' /></div>" +
                                     "<div class='mb5 pb5'><input class='form-control description-field'  name='comment[]'  type='text' style='cursor: auto;' placeholder='<?php echo lang("comment") ?>' /></div>" +
@@ -1774,12 +1873,12 @@ $edited = can_action('57', 'edited');
                                 $("#comments_file-previews").prepend(newFileRow);
                             });
                             $("#add-more-file-button").trigger("click");
-                            $("#comments_file-previews").on("click", ".remove-file", function() {
+                            $("#comments_file-previews").on("click", ".remove-file", function () {
                                 $(this).closest(".file-row").remove();
                             });
                         },
-                        success: function(file) {
-                            setTimeout(function() {
+                        success: function (file) {
+                            setTimeout(function () {
                                 $(file.previewElement).find(".progress-striped").removeClass("progress-striped").addClass("progress-bar-success");
                             }, 1000);
                         }
@@ -1801,28 +1900,41 @@ $edited = can_action('57', 'edited');
                         <h3 class="panel-title">
                             <?= lang('attach_file_list') ?>
 
-                            <a data-toggle="tooltip" data-placement="top" href="<?= base_url('admin/global_controller/download_all_attachment/project_id/' . $project_details->project_id) ?>" class="btn btn-default" title="<?= lang('download') . ' ' . lang('all') . ' ' . lang('attachment') ?>"><i class="fa fa-cloud-download"></i></a>
+                            <a data-toggle="tooltip" data-placement="top"
+                               href="<?= base_url('admin/global_controller/download_all_attachment/project_id/' . $project_details->project_id) ?>"
+                               class="btn btn-default"
+                               title="<?= lang('download') . ' ' . lang('all') . ' ' . lang('attachment') ?>"><i
+                                        class="fa fa-cloud-download"></i></a>
 
-                            <a data-toggle="tooltip" data-placement="top" class="btn btn-default toggle-media-view <?= (!empty($attach_list) && $attach_list == 'list_view' ? 'hidden' : '') ?>" data-type="list_view" title="<?= lang('switch_to') . ' ' . lang('media_view') ?>"><i class="fa fa-image"></i></a>
+                            <a data-toggle="tooltip" data-placement="top"
+                               class="btn btn-default toggle-media-view <?= (!empty($attach_list) && $attach_list == 'list_view' ? 'hidden' : '') ?>"
+                               data-type="list_view" title="<?= lang('switch_to') . ' ' . lang('media_view') ?>"><i
+                                        class="fa fa-image"></i></a>
 
-                            <a data-toggle="tooltip" data-placement="top" class="btn btn-default toggle-media-view <?= (!empty($attach_list) && $attach_list == 'media_view' ? 'hidden' : '') ?>" data-type="media_view" title="<?= lang('switch_to') . ' ' . lang('list_view') ?>"><i class="fa fa-list"></i></a>
+                            <a data-toggle="tooltip" data-placement="top"
+                               class="btn btn-default toggle-media-view <?= (!empty($attach_list) && $attach_list == 'media_view' ? 'hidden' : '') ?>"
+                               data-type="media_view" title="<?= lang('switch_to') . ' ' . lang('list_view') ?>"><i
+                                        class="fa fa-list"></i></a>
 
 
                             <div class="pull-right hidden-print" style="padding-top: 0px;padding-bottom: 8px">
-                                <a href="<?= base_url() ?>admin/projects/new_attachment/<?= $project_details->project_id ?>" class="text-purple text-sm" data-toggle="modal" data-placement="top" data-target="#myModal_extra_lg">
+                                <a href="<?= base_url() ?>admin/projects/new_attachment/<?= $project_details->project_id ?>"
+                                   class="text-purple text-sm" data-toggle="modal" data-placement="top"
+                                   data-target="#myModal_extra_lg">
                                     <i class="fa fa-plus "></i> <?= lang('new') . ' ' . lang('attachment') ?></a>
                             </div>
                         </h3>
                     </div>
                     <script type="text/javascript">
-                        $(document).ready(function() {
-                            $(".toggle-media-view").click(function() {
+                        $(document).ready(function () {
+                            $(".toggle-media-view").click(function () {
                                 $(".media-view-container").toggleClass('hidden');
                                 $(".toggle-media-view").toggleClass('hidden');
                                 $(".media-list-container").toggleClass('hidden');
                                 var type = $(this).data('type');
                                 var module = 'projects';
-                                $.get('<?= base_url() ?>admin/global_controller/set_media_view/' + type + '/' + module, function(response) {});
+                                $.get('<?= base_url() ?>admin/global_controller/set_media_view/' + type + '/' + module, function (response) {
+                                });
                             });
                         });
                     </script>
@@ -1840,12 +1952,17 @@ $edited = can_action('57', 'edited');
                         <?php
                         if (!empty($project_files_info)) {
                             foreach ($project_files_info as $key => $v_files_info) {
-                        ?>
-                                <div class="panel-group" id="media_list_container-<?= $files_info[$key]->task_attachment_id ?>" style="margin:8px 0px;" role="tablist" aria-multiselectable="true">
+                                ?>
+                                <div class="panel-group"
+                                     id="media_list_container-<?= $files_info[$key]->task_attachment_id ?>"
+                                     style="margin:8px 0px;" role="tablist" aria-multiselectable="true">
                                     <div class="box box-info" style="border-radius: 0px ">
-                                        <div class="p pb-sm" role="tab" id="headingOne" style="border-bottom: 1px solid #dde6e9">
+                                        <div class="p pb-sm" role="tab" id="headingOne"
+                                             style="border-bottom: 1px solid #dde6e9">
                                             <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion" href="#<?php echo $key ?>" aria-expanded="true" aria-controls="collapseOne">
+                                                <a data-toggle="collapse" data-parent="#accordion"
+                                                   href="#<?php echo $key ?>" aria-expanded="true"
+                                                   aria-controls="collapseOne">
                                                     <strong class="text-alpha-inverse"><?php echo $files_info[$key]->title; ?> </strong>
                                                     <small style="color:#ffffff " class="pull-right">
                                                         <?php if ($files_info[$key]->user_id == $this->session->userdata('user_id')) { ?>
@@ -1855,66 +1972,78 @@ $edited = can_action('57', 'edited');
                                             </h4>
                                         </div>
                                         <div id="<?php echo $key ?>" class="panel-collapse collapse <?php
-                                                                                                    if (!empty($in) && $files_info[$key]->files_id == $in) {
-                                                                                                        echo 'in';
-                                                                                                    }
-                                                                                                    ?>" role="tabpanel" aria-labelledby="headingOne">
+                                        if (!empty($in) && $files_info[$key]->files_id == $in) {
+                                            echo 'in';
+                                        }
+                                        ?>" role="tabpanel" aria-labelledby="headingOne">
                                             <div class="content p">
                                                 <div class="table-responsive">
                                                     <table id="table-files" class="table table-striped ">
                                                         <thead>
-                                                            <tr>
-                                                                <th><?= lang('files') ?></th>
-                                                                <th class=""><?= lang('size') ?></th>
-                                                                <th><?= lang('date') ?></th>
-                                                                <th><?= lang('total') . ' ' . lang('comments') ?></th>
-                                                                <th><?= lang('uploaded_by') ?></th>
-                                                                <th><?= lang('action') ?></th>
-                                                            </tr>
+                                                        <tr>
+                                                            <th><?= lang('files') ?></th>
+                                                            <th class=""><?= lang('size') ?></th>
+                                                            <th><?= lang('date') ?></th>
+                                                            <th><?= lang('total') . ' ' . lang('comments') ?></th>
+                                                            <th><?= lang('uploaded_by') ?></th>
+                                                            <th><?= lang('action') ?></th>
+                                                        </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <?php
-                                                            $this->load->helper('file');
+                                                        <?php
+                                                        $this->load->helper('file');
 
-                                                            if (!empty($v_files_info)) {
-                                                                foreach ($v_files_info as $v_files) {
-                                                                    $user_info = $this->db->where(array('user_id' => $files_info[$key]->user_id))->get('tbl_users')->row();
-                                                                    $total_file_comment = count($this->db->where(array('uploaded_files_id' => $v_files->uploaded_files_id))->order_by('comment_datetime', 'DESC')->get('tbl_task_comment')->result());
-                                                            ?>
-                                                                    <tr class="file-item">
-                                                                        <td data-toggle="tooltip" data-placement="top" data-original-title="<?= $files_info[$key]->description ?>">
-                                                                            <?php if ($v_files->is_image == 1) : ?>
-                                                                                <div class="file-icon"><a data-toggle="modal" data-target="#myModal_extra_lg" href="<?= base_url() ?>admin/projects/attachment_details/r/<?= $files_info[$key]->task_attachment_id . '/' . $v_files->uploaded_files_id ?>">
-                                                                                        <img style="width: 50px;border-radius: 5px;" src="<?= base_url() . $v_files->files ?>" /></a>
-                                                                                </div>
-                                                                            <?php else : ?>
-                                                                                <div class="file-icon"><i class="fa fa-file-o"></i>
-                                                                                    <a data-toggle="modal" data-target="#myModal_extra_lg" href="<?= base_url() ?>admin/projects/attachment_details/r/<?= $files_info[$key]->task_attachment_id . '/' . $v_files->uploaded_files_id ?>"><?= $v_files->file_name ?></a>
-                                                                                </div>
-                                                                            <?php endif; ?>
-                                                                        </td>
-
-                                                                        <td class=""><?= $v_files->size ?>Kb</td>
-                                                                        <td class="col-date"><?= date('Y-m-d' . "<br/> h:m A", strtotime($files_info[$key]->upload_time)); ?></td>
-                                                                        <td class=""><?= $total_file_comment ?></td>
-                                                                        <td>
-                                                                            <?= $user_info->username ?>
-                                                                        </td>
-                                                                        <td>
-                                                                            <a class="btn btn-xs btn-dark" data-toggle="tooltip" data-placement="top" title="Download" href="<?= base_url() ?>admin/projects/download_files/<?= $v_files->uploaded_files_id ?>"><i class="fa fa-download"></i></a>
-                                                                        </td>
-
-                                                                    </tr>
-                                                                <?php
-                                                                }
-                                                            } else {
+                                                        if (!empty($v_files_info)) {
+                                                            foreach ($v_files_info as $v_files) {
+                                                                $user_info = $this->db->where(array('user_id' => $files_info[$key]->user_id))->get('tbl_users')->row();
+                                                                $total_file_comment = count($this->db->where(array('uploaded_files_id' => $v_files->uploaded_files_id))->order_by('comment_datetime', 'DESC')->get('tbl_task_comment')->result());
                                                                 ?>
-                                                                <tr>
-                                                                    <td colspan="5">
-                                                                        <?= lang('nothing_to_display') ?>
+                                                                <tr class="file-item">
+                                                                    <td data-toggle="tooltip" data-placement="top"
+                                                                        data-original-title="<?= $files_info[$key]->description ?>">
+                                                                        <?php if ($v_files->is_image == 1) : ?>
+                                                                            <div class="file-icon"><a
+                                                                                        data-toggle="modal"
+                                                                                        data-target="#myModal_extra_lg"
+                                                                                        href="<?= base_url() ?>admin/projects/attachment_details/r/<?= $files_info[$key]->task_attachment_id . '/' . $v_files->uploaded_files_id ?>">
+                                                                                    <img style="width: 50px;border-radius: 5px;"
+                                                                                         src="<?= base_url() . $v_files->files ?>"/></a>
+                                                                            </div>
+                                                                        <?php else : ?>
+                                                                            <div class="file-icon"><i
+                                                                                        class="fa fa-file-o"></i>
+                                                                                <a data-toggle="modal"
+                                                                                   data-target="#myModal_extra_lg"
+                                                                                   href="<?= base_url() ?>admin/projects/attachment_details/r/<?= $files_info[$key]->task_attachment_id . '/' . $v_files->uploaded_files_id ?>"><?= $v_files->file_name ?></a>
+                                                                            </div>
+                                                                        <?php endif; ?>
                                                                     </td>
+
+                                                                    <td class=""><?= $v_files->size ?>Kb</td>
+                                                                    <td class="col-date"><?= date('Y-m-d' . "<br/> h:m A", strtotime($files_info[$key]->upload_time)); ?></td>
+                                                                    <td class=""><?= $total_file_comment ?></td>
+                                                                    <td>
+                                                                        <?= $user_info->username ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a class="btn btn-xs btn-dark"
+                                                                           data-toggle="tooltip" data-placement="top"
+                                                                           title="Download"
+                                                                           href="<?= base_url() ?>admin/projects/download_files/<?= $v_files->uploaded_files_id ?>"><i
+                                                                                    class="fa fa-download"></i></a>
+                                                                    </td>
+
                                                                 </tr>
-                                                            <?php } ?>
+                                                                <?php
+                                                            }
+                                                        } else {
+                                                            ?>
+                                                            <tr>
+                                                                <td colspan="5">
+                                                                    <?= lang('nothing_to_display') ?>
+                                                                </td>
+                                                            </tr>
+                                                        <?php } ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -1922,7 +2051,7 @@ $edited = can_action('57', 'edited');
                                         </div>
                                     </div>
                                 </div>
-                        <?php
+                                <?php
                             }
                         }
                         ?>
@@ -1953,13 +2082,15 @@ $edited = can_action('57', 'edited');
                     ?>
                     <div class="mb-lg ">
                         <div class="pr-lg">
-                            <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/5/<?= $text ?>" class="btn btn-xs btn-<?= $btn ?> " data-toggle="tooltip" data-placement="top" title="<?= lang('switch_to_' . $text) ?>">
+                            <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/5/<?= $text ?>"
+                               class="btn btn-xs btn-<?= $btn ?> " data-toggle="tooltip" data-placement="top"
+                               title="<?= lang('switch_to_' . $text) ?>">
                                 <i class="fa fa-undo"> </i><?= ' ' . lang('switch_to_' . $text) ?>
                             </a>
                         </div>
                     </div>
                     <?php if ($k_milestone == 'kanban') { ?>
-                        <link rel="stylesheet" href="<?= base_url() ?>assets/plugins/kanban/kan-app.css" />
+                        <link rel="stylesheet" href="<?= base_url() ?>assets/plugins/kanban/kan-app.css"/>
                         <div class="app-wrapper">
                             <p class="total-card-counter" id="totalCards"></p>
                             <div class="board" id="board"></div>
@@ -1969,9 +2100,11 @@ $edited = can_action('57', 'edited');
                         <div class="nav-tabs-custom">
                             <!-- Tabs within a box -->
                             <ul class="nav nav-tabs">
-                                <li class="<?= $miles_active == 1 ? 'active' : ''; ?>"><a href="#manage_milestone" data-toggle="tab"><?= lang('milestones') ?></a>
+                                <li class="<?= $miles_active == 1 ? 'active' : ''; ?>"><a href="#manage_milestone"
+                                                                                          data-toggle="tab"><?= lang('milestones') ?></a>
                                 </li>
-                                <li class="<?= $miles_active == 2 ? 'active' : ''; ?>"><a href="#create_milestone" data-toggle="tab"><?= lang('add_milestone') ?></a>
+                                <li class="<?= $miles_active == 2 ? 'active' : ''; ?>"><a href="#create_milestone"
+                                                                                          data-toggle="tab"><?= lang('add_milestone') ?></a>
                                 </li>
                             </ul>
                             <div class="tab-content bg-white">
@@ -1980,101 +2113,118 @@ $edited = can_action('57', 'edited');
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             <thead>
-                                                <tr>
-                                                    <th><?= lang('milestone_name') ?></th>
-                                                    <th class="col-date"><?= lang('start_date') ?></th>
-                                                    <th class="col-date"><?= lang('due_date') ?></th>
-                                                    <th><?= lang('progress') ?></th>
-                                                    <th><?= lang('action') ?></th>
-                                                </tr>
+                                            <tr>
+                                                <th><?= lang('milestone_name') ?></th>
+                                                <th class="col-date"><?= lang('start_date') ?></th>
+                                                <th class="col-date"><?= lang('due_date') ?></th>
+                                                <th><?= lang('progress') ?></th>
+                                                <th><?= lang('action') ?></th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                <?php
-                                                if (!empty($all_milestones_info)) {
-                                                    foreach ($all_milestones_info as $key => $v_milestones) {
-                                                        $progress = $this->items_model->calculate_milestone_progress($v_milestones->milestones_id);
-                                                        $all_milestones_task = $this->db->where('milestones_id', $v_milestones->milestones_id)->get('tbl_task')->result();
-                                                ?>
-                                                        <tr id="table-milestones-<?= $v_milestones->milestones_id ?>">
-                                                            <td><a class="text-info" href="#" data-original-title="<?= $v_milestones->description ?>" data-toggle="tooltip" data-placement="top" title=""><?= $v_milestones->milestone_name ?></a></td>
-                                                            <td><?= strftime(config_item('date_format'), strtotime($v_milestones->start_date)) ?></td>
-                                                            <td><?php
-                                                                $due_date = $v_milestones->end_date;
-                                                                $due_time = strtotime($due_date);
-                                                                $current_time = strtotime(date('Y-m-d'));
-                                                                ?>
-                                                                <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
-                                                                <?php if ($current_time > $due_time && $progress < 100) { ?>
-                                                                    <span class="label label-danger"><?= lang('overdue') ?></span>
-                                                                <?php } ?>
-                                                            </td>
-                                                            <td>
-                                                                <div class="inline ">
-                                                                    <div class="easypiechart text-success" style="margin: 0px;" data-percent="<?= $progress ?>" data-line-width="5" data-track-Color="#f0f0f0" data-bar-color="#<?php
-                                                                                                                                                                                                                                if ($progress >= 100) {
-                                                                                                                                                                                                                                    echo '8ec165';
-                                                                                                                                                                                                                                } else {
-                                                                                                                                                                                                                                    echo 'fb6b5b';
-                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                ?>" data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
+                                            <?php
+                                            if (!empty($all_milestones_info)) {
+                                                foreach ($all_milestones_info as $key => $v_milestones) {
+                                                    $progress = $this->items_model->calculate_milestone_progress($v_milestones->milestones_id);
+                                                    $all_milestones_task = $this->db->where('milestones_id', $v_milestones->milestones_id)->get('tbl_task')->result();
+                                                    ?>
+                                                    <tr id="table-milestones-<?= $v_milestones->milestones_id ?>">
+                                                        <td><a class="text-info" href="#"
+                                                               data-original-title="<?= $v_milestones->description ?>"
+                                                               data-toggle="tooltip" data-placement="top"
+                                                               title=""><?= $v_milestones->milestone_name ?></a></td>
+                                                        <td><?= strftime(config_item('date_format'), strtotime($v_milestones->start_date)) ?></td>
+                                                        <td><?php
+                                                            $due_date = $v_milestones->end_date;
+                                                            $due_time = strtotime($due_date);
+                                                            $current_time = strtotime(date('Y-m-d'));
+                                                            ?>
+                                                            <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
+                                                            <?php if ($current_time > $due_time && $progress < 100) { ?>
+                                                                <span class="label label-danger"><?= lang('overdue') ?></span>
+                                                            <?php } ?>
+                                                        </td>
+                                                        <td>
+                                                            <div class="inline ">
+                                                                <div class="easypiechart text-success"
+                                                                     style="margin: 0px;"
+                                                                     data-percent="<?= $progress ?>" data-line-width="5"
+                                                                     data-track-Color="#f0f0f0" data-bar-color="#<?php
+                                                                if ($progress >= 100) {
+                                                                    echo '8ec165';
+                                                                } else {
+                                                                    echo 'fb6b5b';
+                                                                }
+                                                                ?>" data-rotate="270" data-scale-Color="false"
+                                                                     data-size="50" data-animate="2000">
                                                                         <span class="small text-muted"><?= $progress ?>
                                                                             %</span>
-                                                                    </div>
                                                                 </div>
+                                                            </div>
 
-                                                            </td>
-                                                            <td>
-                                                                <?php echo btn_edit('admin/projects/project_details/' . $v_milestones->project_id . '/milestone/' . $v_milestones->milestones_id) ?>
-                                                                <?php echo ajax_anchor(base_url("admin/projects/delete_milestones/" . $v_milestones->project_id . '/' . $v_milestones->milestones_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-milestones-" . $v_milestones->milestones_id)); ?>
-                                                            </td>
-                                                        </tr>
-                                                <?php
-                                                    }
+                                                        </td>
+                                                        <td>
+                                                            <?php echo btn_edit('admin/projects/project_details/' . $v_milestones->project_id . '/milestone/' . $v_milestones->milestones_id) ?>
+                                                            <?php echo ajax_anchor(base_url("admin/projects/delete_milestones/" . $v_milestones->project_id . '/' . $v_milestones->milestones_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-milestones-" . $v_milestones->milestones_id)); ?>
+                                                        </td>
+                                                    </tr>
+                                                    <?php
                                                 }
-                                                ?>
+                                            }
+                                            ?>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <div class="tab-pane <?= $miles_active == 2 ? 'active' : ''; ?>" id="create_milestone">
-                                    <form role="form" enctype="multipart/form-data" id="form" action="<?php echo base_url(); ?>admin/projects/save_milestones/<?php
-                                                                                                                                                                if (!empty($milestones_info)) {
-                                                                                                                                                                    echo $milestones_info->milestones_id;
-                                                                                                                                                                }
-                                                                                                                                                                ?>" method="post" class="form-horizontal  ">
+                                    <form role="form" enctype="multipart/form-data" id="form"
+                                          action="<?php echo base_url(); ?>admin/projects/save_milestones/<?php
+                                          if (!empty($milestones_info)) {
+                                              echo $milestones_info->milestones_id;
+                                          }
+                                          ?>" method="post" class="form-horizontal  ">
 
                                         <div class="form-group">
-                                            <label class="col-lg-3 control-label"><?= lang('milestone_name') ?> <span class="text-danger">*</span></label>
+                                            <label class="col-lg-3 control-label"><?= lang('milestone_name') ?> <span
+                                                        class="text-danger">*</span></label>
                                             <div class="col-lg-6">
-                                                <input type="hidden" class="form-control" value="<?= $project_details->project_id ?>" name="project_id">
+                                                <input type="hidden" class="form-control"
+                                                       value="<?= $project_details->project_id ?>" name="project_id">
                                                 <input type="text" class="form-control" value="<?php
-                                                                                                if (!empty($milestones_info)) {
-                                                                                                    echo $milestones_info->milestone_name;
-                                                                                                }
-                                                                                                ?>" placeholder="<?= lang('milestone_name') ?>" name="milestone_name" required>
+                                                if (!empty($milestones_info)) {
+                                                    echo $milestones_info->milestone_name;
+                                                }
+                                                ?>" placeholder="<?= lang('milestone_name') ?>" name="milestone_name"
+                                                       required>
                                             </div>
                                         </div>
 
                                         <div class="form-group">
-                                            <label class="col-lg-3 control-label"><?= lang('description') ?> <span class="text-danger">*</span></label>
+                                            <label class="col-lg-3 control-label"><?= lang('description') ?> <span
+                                                        class="text-danger">*</span></label>
                                             <div class="col-lg-6">
-                                                <textarea name="description" class="form-control" placeholder="<?= lang('description') ?>" required><?php
-                                                                                                                                                    if (!empty($milestones_info->description)) {
-                                                                                                                                                        echo $milestones_info->description;
-                                                                                                                                                    }
-                                                                                                                                                    ?></textarea>
+                                                <textarea name="description" class="form-control"
+                                                          placeholder="<?= lang('description') ?>" required><?php
+                                                    if (!empty($milestones_info->description)) {
+                                                        echo $milestones_info->description;
+                                                    }
+                                                    ?></textarea>
                                             </div>
                                         </div>
 
                                         <div class="form-group">
-                                            <label class="col-lg-3 control-label"><?= lang('start_date') ?> <span class="text-danger">*</span></label>
+                                            <label class="col-lg-3 control-label"><?= lang('start_date') ?> <span
+                                                        class="text-danger">*</span></label>
                                             <div class="col-lg-6">
                                                 <div class="input-group">
-                                                    <input type="text" name="start_date" class="form-control start_date" value="<?php
-                                                                                                                                if (!empty($milestones_info->start_date)) {
-                                                                                                                                    echo $milestones_info->start_date;
-                                                                                                                                }
-                                                                                                                                ?>" data-date-format="<?= config_item('date_picker_format'); ?>" required>
+                                                    <input type="text" name="start_date" class="form-control start_date"
+                                                           value="<?php
+                                                           if (!empty($milestones_info->start_date)) {
+                                                               echo $milestones_info->start_date;
+                                                           }
+                                                           ?>"
+                                                           data-date-format="<?= config_item('date_picker_format'); ?>"
+                                                           required>
                                                     <div class="input-group-addon">
                                                         <a href="#"><i class="fa fa-calendar"></i></a>
                                                     </div>
@@ -2082,14 +2232,18 @@ $edited = can_action('57', 'edited');
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="col-lg-3 control-label"><?= lang('end_date') ?> <span class="text-danger">*</span></label>
+                                            <label class="col-lg-3 control-label"><?= lang('end_date') ?> <span
+                                                        class="text-danger">*</span></label>
                                             <div class="col-lg-6">
                                                 <div class="input-group">
-                                                    <input type="text" name="end_date" class="form-control end_date" value="<?php
-                                                                                                                            if (!empty($milestones_info->end_date)) {
-                                                                                                                                echo $milestones_info->end_date;
-                                                                                                                            }
-                                                                                                                            ?>" data-date-format="<?= config_item('date_picker_format'); ?>" required="">
+                                                    <input type="text" name="end_date" class="form-control end_date"
+                                                           value="<?php
+                                                           if (!empty($milestones_info->end_date)) {
+                                                               echo $milestones_info->end_date;
+                                                           }
+                                                           ?>"
+                                                           data-date-format="<?= config_item('date_picker_format'); ?>"
+                                                           required="">
                                                     <div class="input-group-addon">
                                                         <a href="#"><i class="fa fa-calendar"></i></a>
                                                     </div>
@@ -2097,26 +2251,28 @@ $edited = can_action('57', 'edited');
                                             </div>
                                         </div>
                                         <input type="hidden" name="project_id" value="<?php
-                                                                                        if (!empty($project_details->project_id)) {
-                                                                                            echo $project_details->project_id;
-                                                                                        }
-                                                                                        ?>" class="form-control">
+                                        if (!empty($project_details->project_id)) {
+                                            echo $project_details->project_id;
+                                        }
+                                        ?>" class="form-control">
                                         <div class="form-group">
-                                            <label class="col-lg-3 control-label"><?= lang('responsible') ?> <span class="text-danger">*</span></label>
+                                            <label class="col-lg-3 control-label"><?= lang('responsible') ?> <span
+                                                        class="text-danger">*</span></label>
                                             <div class="col-lg-6">
-                                                <select name="user_id" style="width: 100%" class="select_box" required="">
+                                                <select name="user_id" style="width: 100%" class="select_box"
+                                                        required="">
                                                     <optgroup label="<?= lang('admin_staff') ?>">
                                                         <?php
                                                         $user_info = $this->items_model->allowed_user('57');
                                                         if (!empty($user_info)) {
                                                             foreach ($user_info as $key => $v_user) {
-                                                        ?>
+                                                                ?>
                                                                 <option value="<?= $v_user->user_id ?>" <?php
-                                                                                                        if (!empty($milestones_info->user_id)) {
-                                                                                                            echo $v_user->user_id == $milestones_info->user_id ? 'selected' : '';
-                                                                                                        }
-                                                                                                        ?>><?= ucfirst($v_user->username) ?></option>
-                                                        <?php
+                                                                if (!empty($milestones_info->user_id)) {
+                                                                    echo $v_user->user_id == $milestones_info->user_id ? 'selected' : '';
+                                                                }
+                                                                ?>><?= ucfirst($v_user->username) ?></option>
+                                                                <?php
                                                             }
                                                         }
                                                         ?>
@@ -2125,20 +2281,23 @@ $edited = can_action('57', 'edited');
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="field-1" class="col-sm-3 control-label"><?= lang('visible_to_client') ?>
+                                            <label for="field-1"
+                                                   class="col-sm-3 control-label"><?= lang('visible_to_client') ?>
                                                 <span class="required">*</span></label>
                                             <div class="col-sm-6">
                                                 <input data-toggle="toggle" name="client_visible" value="Yes" <?php
-                                                                                                                if (!empty($milestones_info) && $milestones_info->client_visible == 'Yes') {
-                                                                                                                    echo 'checked';
-                                                                                                                }
-                                                                                                                ?> data-on="<?= lang('yes') ?>" data-off="<?= lang('no') ?>" data-onstyle="success" data-offstyle="danger" type="checkbox">
+                                                if (!empty($milestones_info) && $milestones_info->client_visible == 'Yes') {
+                                                    echo 'checked';
+                                                }
+                                                ?> data-on="<?= lang('yes') ?>" data-off="<?= lang('no') ?>"
+                                                       data-onstyle="success" data-offstyle="danger" type="checkbox">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <div class="col-lg-3"></div>
                                             <div class="col-lg-6">
-                                                <button type="submit" class="btn btn-sm btn-primary"><?= lang('add_milestone') ?></button>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-primary"><?= lang('add_milestone') ?></button>
                                             </div>
                                         </div>
                                     </form>
@@ -2156,9 +2315,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $task_active == 1 ? 'active' : ''; ?>"><a href="#manage_task" data-toggle="tab"><?= lang('task') ?></a>
+                            <li class="<?= $task_active == 1 ? 'active' : ''; ?>"><a href="#manage_task"
+                                                                                     data-toggle="tab"><?= lang('task') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/tasks/all_task/project/<?= $project_details->project_id ?>"><?= lang('new_task') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/tasks/all_task/project/<?= $project_details->project_id ?>"><?= lang('new_task') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -2167,90 +2328,96 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="table-tasks" class="table table-striped">
                                         <thead>
-                                            <tr>
-                                                <th data-check-all>
+                                        <tr>
+                                            <th data-check-all>
 
-                                                </th>
-                                                <th><?= lang('task_name') ?></th>
-                                                <th><?= lang('due_date') ?></th>
-                                                <th class="col-sm-1"><?= lang('progress') ?></th>
-                                                <th class="col-sm-1"><?= lang('status') ?></th>
-                                                <th class="col-sm-2"><?= lang('changes/view') ?></th>
-                                            </tr>
+                                            </th>
+                                            <th><?= lang('task_name') ?></th>
+                                            <th><?= lang('due_date') ?></th>
+                                            <th class="col-sm-1"><?= lang('progress') ?></th>
+                                            <th class="col-sm-1"><?= lang('status') ?></th>
+                                            <th class="col-sm-2"><?= lang('changes/view') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            $t_edited = can_action('54', 'edited');
-                                            if (!empty($all_task_info)) : foreach ($all_task_info as $key => $v_task) :
+                                        <?php
+                                        $t_edited = can_action('54', 'edited');
+                                        if (!empty($all_task_info)) : foreach ($all_task_info as $key => $v_task) :
                                             ?>
-                                                    <tr>
-                                                        <td>
-                                                            <div class="complete checkbox c-checkbox">
-                                                                <label>
-                                                                    <input type="checkbox" data-id="<?= $v_task->task_id ?>" style="position: absolute;" <?php
-                                                                                                                                                            if ($v_task->task_progress >= 100) {
-                                                                                                                                                                echo 'checked';
-                                                                                                                                                            }
-                                                                                                                                                            ?>>
-                                                                    <span class="fa fa-check"></span>
-                                                                </label>
-                                                            </div>
-                                                        </td>
-                                                        <td><a class="text-info" style="<?php
-                                                                                        if ($v_task->task_status == 'completed') {
-                                                                                            echo 'text-decoration: line-through;';
-                                                                                        }
-                                                                                        ?>" href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_task->task_id ?>"><?php echo $v_task->task_name; ?></a>
-                                                        </td>
+                                            <tr>
+                                                <td>
+                                                    <div class="complete checkbox c-checkbox">
+                                                        <label>
+                                                            <input type="checkbox" data-id="<?= $v_task->task_id ?>"
+                                                                   style="position: absolute;" <?php
+                                                            if ($v_task->task_progress >= 100) {
+                                                                echo 'checked';
+                                                            }
+                                                            ?>>
+                                                            <span class="fa fa-check"></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td><a class="text-info" style="<?php
+                                                    if ($v_task->task_status == 'completed') {
+                                                        echo 'text-decoration: line-through;';
+                                                    }
+                                                    ?>"
+                                                       href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_task->task_id ?>"><?php echo $v_task->task_name; ?></a>
+                                                </td>
 
-                                                        <td><?php
-                                                            $due_date = $v_task->due_date;
-                                                            $due_time = strtotime($due_date);
-                                                            $current_time = strtotime(date('Y-m-d'));
-                                                            ?>
-                                                            <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
-                                                            <?php if ($current_time > $due_time && $v_task->task_progress < 100) { ?>
-                                                                <span class="label label-danger"><?= lang('overdue') ?></span>
-                                                            <?php } ?>
-                                                        </td>
-                                                        <td>
-                                                            <div class="inline ">
-                                                                <div class="easypiechart text-success" style="margin: 0px;" data-percent="<?= $v_task->task_progress ?>" data-line-width="5" data-track-Color="#f0f0f0" data-bar-color="#<?php
-                                                                                                                                                                                                                                            if ($v_task->task_progress == 100) {
-                                                                                                                                                                                                                                                echo '8ec165';
-                                                                                                                                                                                                                                            } else {
-                                                                                                                                                                                                                                                echo 'fb6b5b';
-                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                            ?>" data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
+                                                <td><?php
+                                                    $due_date = $v_task->due_date;
+                                                    $due_time = strtotime($due_date);
+                                                    $current_time = strtotime(date('Y-m-d'));
+                                                    ?>
+                                                    <?= strftime(config_item('date_format'), strtotime($due_date)) ?>
+                                                    <?php if ($current_time > $due_time && $v_task->task_progress < 100) { ?>
+                                                        <span class="label label-danger"><?= lang('overdue') ?></span>
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <div class="inline ">
+                                                        <div class="easypiechart text-success" style="margin: 0px;"
+                                                             data-percent="<?= $v_task->task_progress ?>"
+                                                             data-line-width="5" data-track-Color="#f0f0f0"
+                                                             data-bar-color="#<?php
+                                                             if ($v_task->task_progress == 100) {
+                                                                 echo '8ec165';
+                                                             } else {
+                                                                 echo 'fb6b5b';
+                                                             }
+                                                             ?>" data-rotate="270" data-scale-Color="false"
+                                                             data-size="50" data-animate="2000">
                                                                     <span class="small text-muted"><?= $v_task->task_progress ?>
                                                                         %</span>
-                                                                </div>
-                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                                                        </td>
-                                                        <td>
-                                                            <?php
-                                                            if ($v_task->task_status == 'completed') {
-                                                                $label = 'success';
-                                                            } elseif ($v_task->task_status == 'not_started') {
-                                                                $label = 'info';
-                                                            } elseif ($v_task->task_status == 'deferred') {
-                                                                $label = 'danger';
-                                                            } else {
-                                                                $label = 'warning';
-                                                            }
-                                                            ?>
-                                                            <span class="label label-<?= $label ?>"><?= lang($v_task->task_status) ?> </span>
-                                                        </td>
-                                                        <td>
-                                                            <?php echo btn_view('admin/tasks/view_task_details/' . $v_task->task_id) ?>
-                                                            <?php if (!empty($t_edited)) { ?>
-                                                                <?php echo btn_edit('admin/tasks/all_task/' . $v_task->task_id) ?>
-                                                            <?php } ?>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    if ($v_task->task_status == 'completed') {
+                                                        $label = 'success';
+                                                    } elseif ($v_task->task_status == 'not_started') {
+                                                        $label = 'info';
+                                                    } elseif ($v_task->task_status == 'deferred') {
+                                                        $label = 'danger';
+                                                    } else {
+                                                        $label = 'warning';
+                                                    }
+                                                    ?>
+                                                    <span class="label label-<?= $label ?>"><?= lang($v_task->task_status) ?> </span>
+                                                </td>
+                                                <td>
+                                                    <?php echo btn_view('admin/tasks/view_task_details/' . $v_task->task_id) ?>
+                                                    <?php if (!empty($t_edited)) { ?>
+                                                        <?php echo btn_edit('admin/tasks/all_task/' . $v_task->task_id) ?>
+                                                    <?php } ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -2266,9 +2433,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $bugs_active == 1 ? 'active' : ''; ?>"><a href="#manage_bugs" data-toggle="tab"><?= lang('all_bugs') ?></a>
+                            <li class="<?= $bugs_active == 1 ? 'active' : ''; ?>"><a href="#manage_bugs"
+                                                                                     data-toggle="tab"><?= lang('all_bugs') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/bugs/index/project/<?= $project_details->project_id ?>"><?= lang('new_bugs') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/bugs/index/project/<?= $project_details->project_id ?>"><?= lang('new_bugs') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -2277,64 +2446,65 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('bug_title') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                                <th><?= lang('priority') ?></th>
-                                                <th><?= lang('reporter') ?></th>
-                                                <th><?= lang('action') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('bug_title') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                            <th><?= lang('priority') ?></th>
+                                            <th><?= lang('reporter') ?></th>
+                                            <th><?= lang('action') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            $b_edited = can_action('58', 'edited');
-                                            $b_deleted = can_action('58', 'deleted');
-                                            if (!empty($all_bugs_info)) : foreach ($all_bugs_info as $key => $v_bugs) :
-                                                    $reporter = $this->db->where('user_id', $v_bugs->reporter)->get('tbl_users')->row();
-                                                    if (!empty($reporter->role_id) && $reporter->role_id == '1') {
-                                                        $badge = 'danger';
-                                                    } elseif (!empty($reporter->role_id) && $reporter->role_id == '2') {
-                                                        $badge = 'info';
-                                                    } else {
-                                                        $badge = 'primary';
-                                                    }
+                                        <?php
+                                        $b_edited = can_action('58', 'edited');
+                                        $b_deleted = can_action('58', 'deleted');
+                                        if (!empty($all_bugs_info)) : foreach ($all_bugs_info as $key => $v_bugs) :
+                                            $reporter = $this->db->where('user_id', $v_bugs->reporter)->get('tbl_users')->row();
+                                            if (!empty($reporter->role_id) && $reporter->role_id == '1') {
+                                                $badge = 'danger';
+                                            } elseif (!empty($reporter->role_id) && $reporter->role_id == '2') {
+                                                $badge = 'info';
+                                            } else {
+                                                $badge = 'primary';
+                                            }
                                             ?>
-                                                    <tr id="table-bugs-<?= $v_bugs->bug_id ?>">
-                                                        <td><a class="text-info" style="<?php
-                                                                                        if ($v_bugs->bug_status == 'resolve') {
-                                                                                            echo 'text-decoration: line-through;';
-                                                                                        }
-                                                                                        ?>" href="<?= base_url() ?>admin/bugs/view_bug_details/<?= $v_bugs->bug_id ?>"><?php echo $v_bugs->bug_title; ?></a>
-                                                        </td>
-                                                        </td>
-                                                        <td><?php
-                                                            if ($v_bugs->bug_status == 'unconfirmed') {
-                                                                $label = 'warning';
-                                                            } elseif ($v_bugs->bug_status == 'confirmed') {
-                                                                $label = 'info';
-                                                            } elseif ($v_bugs->bug_status == 'in_progress') {
-                                                                $label = 'primary';
-                                                            } else {
-                                                                $label = 'success';
-                                                            }
-                                                            ?>
-                                                            <span class="label label-<?= $label ?>"><?= lang("$v_bugs->bug_status") ?></span>
-                                                        </td>
-                                                        <td><?= ucfirst($v_bugs->priority) ?></td>
-                                                        <td>
-                                                            <span class="badge btn-<?= $badge ?> "><?= fullname($v_bugs->reporter) ?></span>
-                                                        </td>
-                                                        <td>
-                                                            <?php if (!empty($b_edited)) { ?>
-                                                                <?php echo btn_edit('admin/bugs/index/' . $v_bugs->bug_id) ?>
-                                                            <?php }
-                                                            if (!empty($b_deleted)) { ?>
-                                                                <?php echo ajax_anchor(base_url("admin/bugs/delete_bug/" . $v_bugs->bug_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-bugs-" . $v_bugs->bug_id)); ?>
-                                                            <?php } ?>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                            <tr id="table-bugs-<?= $v_bugs->bug_id ?>">
+                                                <td><a class="text-info" style="<?php
+                                                    if ($v_bugs->bug_status == 'resolve') {
+                                                        echo 'text-decoration: line-through;';
+                                                    }
+                                                    ?>"
+                                                       href="<?= base_url() ?>admin/bugs/view_bug_details/<?= $v_bugs->bug_id ?>"><?php echo $v_bugs->bug_title; ?></a>
+                                                </td>
+                                                </td>
+                                                <td><?php
+                                                    if ($v_bugs->bug_status == 'unconfirmed') {
+                                                        $label = 'warning';
+                                                    } elseif ($v_bugs->bug_status == 'confirmed') {
+                                                        $label = 'info';
+                                                    } elseif ($v_bugs->bug_status == 'in_progress') {
+                                                        $label = 'primary';
+                                                    } else {
+                                                        $label = 'success';
+                                                    }
+                                                    ?>
+                                                    <span class="label label-<?= $label ?>"><?= lang("$v_bugs->bug_status") ?></span>
+                                                </td>
+                                                <td><?= ucfirst($v_bugs->priority) ?></td>
+                                                <td>
+                                                    <span class="badge btn-<?= $badge ?> "><?= fullname($v_bugs->reporter) ?></span>
+                                                </td>
+                                                <td>
+                                                    <?php if (!empty($b_edited)) { ?>
+                                                        <?php echo btn_edit('admin/bugs/index/' . $v_bugs->bug_id) ?>
+                                                    <?php }
+                                                    if (!empty($b_deleted)) { ?>
+                                                        <?php echo ajax_anchor(base_url("admin/bugs/delete_bug/" . $v_bugs->bug_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-bugs-" . $v_bugs->bug_id)); ?>
+                                                    <?php } ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -2351,7 +2521,9 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $bugs_active == 1 ? 'active' : ''; ?>"><a href="#contactor_manage" data-toggle="tab"><?= lang('Contactors') ?></a></li>
+                            <li class="<?= $bugs_active == 1 ? 'active' : ''; ?>"><a href="#contactor_manage"
+                                                                                     data-toggle="tab"><?= lang('Contactors') ?></a>
+                            </li>
                         </ul>
                         <div class="tab-content bg-white">
                             <!-- ************** general *************-->
@@ -2359,87 +2531,91 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table class="table table-striped">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('name') ?></th>
-                                                <th><?= lang('task') ?> Name</th>
-                                                <th><?= lang('progress') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                                <th><?= lang('budget') ?></th>
-                                                <th><?= lang('Paid') ?></th>
-                                                <th><?= lang('Due') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('name') ?></th>
+                                            <th><?= lang('task') ?> Name</th>
+                                            <th><?= lang('progress') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                            <th><?= lang('budget') ?></th>
+                                            <th><?= lang('Paid') ?></th>
+                                            <th><?= lang('Due') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
+                                        <?php
 
-                                            $sub_task_ids = get_all_tasks($project_details->project_id);
-                                            $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
-                                                ->select('tbl_task.*,tbl_customer_group.customer_group')
-                                                ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
-                                                ->get('tbl_task')
-                                                ->result();
-                                            if (!empty($tasks)) :
-                                                foreach ($tasks as $key => $task) :
-                                                    $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
-                                                        ->where('task_id',$task->task_id)
-                                                        ->get('tbl_transactions')
-                                                        ->row();
-                                           ?>
-                                                    <tr id="table-bugs-<?= $task->task_id ?>">
-                                                        <td>
-                                                            <a class="text-info"
-                                                               href="#"><?php echo $task->customer_group; ?></a>
-                                                        </td>
-                                                        <td>
-                                                            <a class="text-info"
-                                                               href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
-                                                        </td>
+                                        $sub_task_ids = get_all_tasks($project_details->project_id);
+                                        $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
+                                            ->select('tbl_task.*,tbl_customer_group.customer_group')
+                                            ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
+                                            ->get('tbl_task')
+                                            ->result();
+                                        if (!empty($tasks)) :
+                                            foreach ($tasks as $key => $task) :
+                                                $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
+                                                    ->where('task_id', $task->task_id)
+                                                    ->get('tbl_transactions')
+                                                    ->row();
+                                                ?>
+                                                <tr id="table-bugs-<?= $task->task_id ?>">
+                                                    <td>
+                                                        <a class="text-info"
+                                                           href="#"><?php echo $task->customer_group; ?></a>
+                                                    </td>
+                                                    <td>
+                                                        <a class="text-info"
+                                                           href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
+                                                    </td>
 
-                                                        <td>
-                                                            <div class="inline ">
-                                                                <div class="easypiechart text-success" style="margin: 0px;" data-percent="<?= $task->task_progress ?>" data-line-width="5" data-track-Color="#f0f0f0" data-bar-color="#<?php
-                                                                if ($task->task_progress == 100) {
-                                                                    echo '8ec165';
-                                                                } else {
-                                                                    echo 'fb6b5b';
-                                                                }
-                                                                ?>" data-rotate="270" data-scale-Color="false" data-size="50" data-animate="2000">
+                                                    <td>
+                                                        <div class="inline ">
+                                                            <div class="easypiechart text-success" style="margin: 0px;"
+                                                                 data-percent="<?= $task->task_progress ?>"
+                                                                 data-line-width="5" data-track-Color="#f0f0f0"
+                                                                 data-bar-color="#<?php
+                                                                 if ($task->task_progress == 100) {
+                                                                     echo '8ec165';
+                                                                 } else {
+                                                                     echo 'fb6b5b';
+                                                                 }
+                                                                 ?>" data-rotate="270" data-scale-Color="false"
+                                                                 data-size="50" data-animate="2000">
                                                                     <span class="small text-muted"><?= $task->task_progress ?>
                                                                         %</span>
-                                                                </div>
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <?php
-                                                            $disabled = null;
-                                                            if (!empty($task->task_status)) {
-                                                                if ($task->task_status == 'completed') {
-                                                                    $status = "<div class='label label-success'>" . lang($task->task_status) . "</div>";
-                                                                    $disabled = 'disabled';
-                                                                } elseif ($task->task_status == 'in_progress') {
-                                                                    $status = "<div class='label label-primary'>" . lang($task->task_status) . "</div>";
-                                                                } elseif ($task->task_status == 'cancel') {
-                                                                    $status = "<div class='label label-danger'>" . lang($task->task_status) . "</div>";
-                                                                } else {
-                                                                    $status = "<div class='label label-warning'>" . lang($task->task_status) . "</div>";
-                                                                } ?>
-                                                                <?= $status; ?>
-                                                            <?php }
-                                                            ?>
-                                                        </td>
-                                                        <td>
-                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget) ?></span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="label label-<?= $label ?>"><?=  display_money($expense->amount) ?></span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="label label-<?= $label ?>"><?=  display_money($task->budget-$expense->amount) ?></span>
-                                                        </td>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <?php
+                                                        $disabled = null;
+                                                        if (!empty($task->task_status)) {
+                                                            if ($task->task_status == 'completed') {
+                                                                $status = "<div class='label label-success'>" . lang($task->task_status) . "</div>";
+                                                                $disabled = 'disabled';
+                                                            } elseif ($task->task_status == 'in_progress') {
+                                                                $status = "<div class='label label-primary'>" . lang($task->task_status) . "</div>";
+                                                            } elseif ($task->task_status == 'cancel') {
+                                                                $status = "<div class='label label-danger'>" . lang($task->task_status) . "</div>";
+                                                            } else {
+                                                                $status = "<div class='label label-warning'>" . lang($task->task_status) . "</div>";
+                                                            } ?>
+                                                            <?= $status; ?>
+                                                        <?php }
+                                                        ?>
+                                                    </td>
+                                                    <td>
+                                                        <span class="label label-<?= $label ?>"><?= display_money($task->budget) ?></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="label label-<?= $label ?>"><?= display_money($expense->amount) ?></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="label label-<?= $label ?>"><?= display_money($task->budget - $expense->amount) ?></span>
+                                                    </td>
 
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -2460,12 +2636,14 @@ $edited = can_action('57', 'edited');
                 $RTL = config_item('RTL');
             }
             if (!empty($RTL)) {
-            ?>
-                <link href="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttViewRTL.css?ver=3.0.0" rel="stylesheet">
+                ?>
+            <link href="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttViewRTL.css?ver=3.0.0"
+                  rel="stylesheet">
                 <script src="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttViewRTL.js"></script>
             <?php } else {
             ?>
-                <link href="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttView.css?ver=3.0.0" rel="stylesheet">
+            <link href="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttView.css?ver=3.0.0"
+                  rel="stylesheet">
                 <script src="<?php echo base_url() ?>assets/plugins/ganttView/jquery.ganttView.js"></script>
             <?php } ?>
             <div class="tab-pane <?= $active == 13 ? 'active' : '' ?>" id="gantt" style="position: relative;">
@@ -2474,7 +2652,8 @@ $edited = can_action('57', 'edited');
                         <h3 class="panel-title"><?= lang('gantt') ?>
                             <span class="pull-right">
                                 <div class="btn-group pull-right-responsive margin-right-3">
-                                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle"
+                                            data-toggle="dropdown" aria-expanded="false">
                                         <?= lang('show_gantt_by'); ?> <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu animated zoomIn pull-right" role="menu">
@@ -2745,7 +2924,7 @@ $edited = can_action('57', 'edited');
 
                             <script type="text/javascript">
                                 function ganttChart(ganttData) {
-                                    $(function() {
+                                    $(function () {
                                         "use strict";
                                         $(".gantt").gantt({
                                             source: ganttData,
@@ -2753,11 +2932,12 @@ $edited = can_action('57', 'edited');
                                             maxScale: "years",
                                             navigate: "scroll",
                                             itemsPerPage: 30,
-                                            onItemClick: function(data) {
+                                            onItemClick: function (data) {
                                                 console.log(data.id);
                                             },
-                                            onAddClick: function(dt, rowId) {},
-                                            onRender: function() {
+                                            onAddClick: function (dt, rowId) {
+                                            },
+                                            onRender: function () {
                                                 console.log("chart rendered");
                                             }
                                         });
@@ -2768,26 +2948,27 @@ $edited = can_action('57', 'edited');
                                 ganttData = [<?= $gantt_data; ?>];
                                 ganttChart(ganttData);
 
-                                $(document).on("click", '.resize-gantt', function(e) {
+                                $(document).on("click", '.resize-gantt', function (e) {
                                     ganttData = [<?= $gantt_data; ?>];
                                     ganttChart(ganttData);
                                 });
-                                $(document).on("click", '.status-gantt', function(e) {
+                                $(document).on("click", '.status-gantt', function (e) {
                                     ganttData = [<?= $gantt_data2; ?>];
                                     ganttChart(ganttData);
                                 });
                                 <?php if (!empty($gantt_data3)) { ?>
-                                    $(document).on("click", '.user-gantt', function(e) {
-                                        ganttData = [<?= $gantt_data3; ?>];
-                                        ganttChart(ganttData);
-                                    });
+                                $(document).on("click", '.user-gantt', function (e) {
+                                    ganttData = [<?= $gantt_data3; ?>];
+                                    ganttChart(ganttData);
+                                });
                                 <?php } ?>
                             </script>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="tab-pane <?= $active == 17 ? 'active' : '' ?>" id="project_settings" style="position: relative;">
+            <div class="tab-pane <?= $active == 17 ? 'active' : '' ?>" id="project_settings"
+                 style="position: relative;">
                 <div class="panel panel-custom">
                     <div class="panel-heading">
                         <h3 class="panel-title"><?= lang('project_settings') ?></h3>
@@ -2795,10 +2976,10 @@ $edited = can_action('57', 'edited');
                     <div class="panel-body">
 
                         <form action="<?= base_url() ?>admin/projects/update_settings/<?php
-                                                                                        if (!empty($project_details)) {
-                                                                                            echo $project_details->project_id;
-                                                                                        }
-                                                                                        ?>" enctype="multipart/form-data" method="post" id="form" class="form-horizontal">
+                        if (!empty($project_details)) {
+                            echo $project_details->project_id;
+                        }
+                        ?>" enctype="multipart/form-data" method="post" id="form" class="form-horizontal">
                             <?php
                             $project_permissions = $this->db->get('tbl_project_settings')->result();
                             if (!empty($project_details->project_settings)) {
@@ -2810,28 +2991,30 @@ $edited = can_action('57', 'edited');
                             }
 
                             foreach ($project_permissions as $v_permissions) {
-                            ?>
+                                ?>
                                 <div class="checkbox c-checkbox">
                                     <label class="needsclick">
-                                        <input name="<?= $v_permissions->settings_id ?>" value="<?= $v_permissions->settings ?>" <?php
-                                                                                                                                    if (!empty($project_details->project_settings)) {
-                                                                                                                                        if (in_array($v_permissions->settings, $get_permissions)) {
-                                                                                                                                            echo "checked=\"checked\"";
-                                                                                                                                        }
-                                                                                                                                    } else {
-                                                                                                                                        echo "checked=\"checked\"";
-                                                                                                                                    }
-                                                                                                                                    ?> type="checkbox">
+                                        <input name="<?= $v_permissions->settings_id ?>"
+                                               value="<?= $v_permissions->settings ?>" <?php
+                                        if (!empty($project_details->project_settings)) {
+                                            if (in_array($v_permissions->settings, $get_permissions)) {
+                                                echo "checked=\"checked\"";
+                                            }
+                                        } else {
+                                            echo "checked=\"checked\"";
+                                        }
+                                        ?> type="checkbox">
                                         <span class="fa fa-check"></span>
                                         <?= lang($v_permissions->settings) ?>
                                     </label>
                                 </div>
-                                <hr class="mt-sm mb-sm" />
+                                <hr class="mt-sm mb-sm"/>
                             <?php } ?>
 
                             <div class="form-group">
                                 <div class="col-sm-2">
-                                    <button type="submit" id="sbtn" class="btn btn-primary"><?= lang('updates') ?></button>
+                                    <button type="submit" id="sbtn"
+                                            class="btn btn-primary"><?= lang('updates') ?></button>
                                 </div>
                             </div>
                         </form>
@@ -2846,18 +3029,20 @@ $edited = can_action('57', 'edited');
                     <div class="panel-body">
 
                         <form action="<?= base_url() ?>admin/projects/save_project_notes/<?php
-                                                                                            if (!empty($project_details)) {
-                                                                                                echo $project_details->project_id;
-                                                                                            }
-                                                                                            ?>" enctype="multipart/form-data" method="post" id="form" class="form-horizontal">
+                        if (!empty($project_details)) {
+                            echo $project_details->project_id;
+                        }
+                        ?>" enctype="multipart/form-data" method="post" id="form" class="form-horizontal">
                             <div class="form-group">
                                 <div class="col-lg-12">
-                                    <textarea class="form-control textarea" name="notes"><?= $project_details->notes ?></textarea>
+                                    <textarea class="form-control textarea"
+                                              name="notes"><?= $project_details->notes ?></textarea>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-2">
-                                    <button type="submit" id="sbtn" class="btn btn-primary"><?= lang('updates') ?></button>
+                                    <button type="submit" id="sbtn"
+                                            class="btn btn-primary"><?= lang('updates') ?></button>
                                 </div>
                             </div>
                         </form>
@@ -2870,9 +3055,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $task_active == 1 ? 'active' : ''; ?>"><a href="#manage_tickets" data-toggle="tab"><?= lang('tickets') ?></a>
+                            <li class="<?= $task_active == 1 ? 'active' : ''; ?>"><a href="#manage_tickets"
+                                                                                     data-toggle="tab"><?= lang('tickets') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/tickets/index/project_tickets/0/<?= $project_details->project_id ?>"><?= lang('new_ticket') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/tickets/index/project_tickets/0/<?= $project_details->project_id ?>"><?= lang('new_ticket') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -2881,82 +3068,87 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="table-tickets" class="table table-striped ">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('ticket_code') ?></th>
-                                                <th><?= lang('subject') ?></th>
-                                                <th class="col-date"><?= lang('date') ?></th>
-                                                <?php if ($this->session->userdata('user_type') == '1') { ?>
-                                                    <th><?= lang('reporter') ?></th>
-                                                <?php } ?>
-                                                <th><?= lang('department') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('ticket_code') ?></th>
+                                            <th><?= lang('subject') ?></th>
+                                            <th class="col-date"><?= lang('date') ?></th>
+                                            <?php if ($this->session->userdata('user_type') == '1') { ?>
+                                                <th><?= lang('reporter') ?></th>
+                                            <?php } ?>
+                                            <th><?= lang('department') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            if (!empty($all_tickets_info)) {
-                                                foreach ($all_tickets_info as $v_tickets_info) {
-                                                    $can_edit = $this->items_model->can_action('tbl_tickets', 'edit', array('tickets_id' => $v_tickets_info->tickets_id));
-                                                    $can_delete = $this->items_model->can_action('tbl_tickets', 'delete', array('tickets_id' => $v_tickets_info->tickets_id));
-                                                    if ($v_tickets_info->status == 'open') {
-                                                        $s_label = 'danger';
-                                                    } elseif ($v_tickets_info->status == 'closed') {
-                                                        $s_label = 'success';
-                                                    } else {
-                                                        $s_label = 'default';
-                                                    }
-                                                    $profile_info = $this->db->where(array('user_id' => $v_tickets_info->reporter))->get('tbl_account_details')->row();
-                                                    $dept_info = $this->db->where(array('departments_id' => $v_tickets_info->departments_id))->get('tbl_departments')->row();
-                                                    if (!empty($dept_info)) {
-                                                        $dept_name = $dept_info->deptname;
-                                                    } else {
-                                                        $dept_name = '-';
-                                                    } ?>
-
-                                                    <tr>
-
-                                                        <td><span class="label label-success"><?= $v_tickets_info->ticket_code ?></span>
-                                                        </td>
-                                                        <td><a class="text-info" href="<?= base_url() ?>admin/tickets/index/tickets_details/<?= $v_tickets_info->tickets_id ?>"><?= $v_tickets_info->subject ?></a>
-                                                        </td>
-                                                        <td><?= strftime(config_item('date_format'), strtotime($v_tickets_info->created)); ?></td>
-                                                        <?php if ($this->session->userdata('user_type') == '1') { ?>
-
-                                                            <td>
-                                                                <a class="pull-left recect_task  ">
-                                                                    <?php if (!empty($profile_info)) {
-                                                                    ?>
-                                                                        <img style="width: 30px;margin-left: 18px;
-                                                         height: 29px;
-                                                         border: 1px solid #aaa;" src="<?= base_url() . $profile_info->avatar ?>" class="img-circle">
-
-
-                                                                        <?=
-                                                                        ($profile_info->fullname)
-                                                                        ?>
-                                                                    <?php } else {
-                                                                        echo '-';
-                                                                    } ?>
-                                                                </a>
-                                                            </td>
-
-                                                        <?php } ?>
-                                                        <td><?= $dept_name ?></td>
-                                                        <?php
-                                                        if ($v_tickets_info->status == 'in_progress') {
-                                                            $status = 'In Progress';
-                                                        } else {
-                                                            $status = $v_tickets_info->status;
-                                                        }
-                                                        ?>
-                                                        <td><span class="label label-<?= $s_label ?>"><?= ucfirst($status) ?></span>
-                                                        </td>
-
-                                                    </tr>
-                                            <?php
+                                        <?php
+                                        if (!empty($all_tickets_info)) {
+                                            foreach ($all_tickets_info as $v_tickets_info) {
+                                                $can_edit = $this->items_model->can_action('tbl_tickets', 'edit', array('tickets_id' => $v_tickets_info->tickets_id));
+                                                $can_delete = $this->items_model->can_action('tbl_tickets', 'delete', array('tickets_id' => $v_tickets_info->tickets_id));
+                                                if ($v_tickets_info->status == 'open') {
+                                                    $s_label = 'danger';
+                                                } elseif ($v_tickets_info->status == 'closed') {
+                                                    $s_label = 'success';
+                                                } else {
+                                                    $s_label = 'default';
                                                 }
+                                                $profile_info = $this->db->where(array('user_id' => $v_tickets_info->reporter))->get('tbl_account_details')->row();
+                                                $dept_info = $this->db->where(array('departments_id' => $v_tickets_info->departments_id))->get('tbl_departments')->row();
+                                                if (!empty($dept_info)) {
+                                                    $dept_name = $dept_info->deptname;
+                                                } else {
+                                                    $dept_name = '-';
+                                                } ?>
+
+                                                <tr>
+
+                                                    <td>
+                                                        <span class="label label-success"><?= $v_tickets_info->ticket_code ?></span>
+                                                    </td>
+                                                    <td><a class="text-info"
+                                                           href="<?= base_url() ?>admin/tickets/index/tickets_details/<?= $v_tickets_info->tickets_id ?>"><?= $v_tickets_info->subject ?></a>
+                                                    </td>
+                                                    <td><?= strftime(config_item('date_format'), strtotime($v_tickets_info->created)); ?></td>
+                                                    <?php if ($this->session->userdata('user_type') == '1') { ?>
+
+                                                        <td>
+                                                            <a class="pull-left recect_task  ">
+                                                                <?php if (!empty($profile_info)) {
+                                                                    ?>
+                                                                    <img style="width: 30px;margin-left: 18px;
+                                                         height: 29px;
+                                                         border: 1px solid #aaa;"
+                                                                         src="<?= base_url() . $profile_info->avatar ?>"
+                                                                         class="img-circle">
+
+
+                                                                    <?=
+                                                                    ($profile_info->fullname)
+                                                                    ?>
+                                                                <?php } else {
+                                                                    echo '-';
+                                                                } ?>
+                                                            </a>
+                                                        </td>
+
+                                                    <?php } ?>
+                                                    <td><?= $dept_name ?></td>
+                                                    <?php
+                                                    if ($v_tickets_info->status == 'in_progress') {
+                                                        $status = 'In Progress';
+                                                    } else {
+                                                        $status = $v_tickets_info->status;
+                                                    }
+                                                    ?>
+                                                    <td>
+                                                        <span class="label label-<?= $s_label ?>"><?= ucfirst($status) ?></span>
+                                                    </td>
+
+                                                </tr>
+                                                <?php
                                             }
-                                            ?>
+                                        }
+                                        ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -2970,61 +3162,73 @@ $edited = can_action('57', 'edited');
             <?php if (!empty($all_invoice_info)) { ?>
                 <div class="tab-pane <?= $active == 11 ? 'active' : '' ?>" id="invoice" style="position: relative;">
                     <div class="panel panel-custom">
-                        <div class="panel-heading">
-                            <h3 class="panel-title"><?= lang('bill_received') ?></h3>
+                        <div class="nav-tabs-custom">
+                            <ul class="nav nav-tabs">
+                                <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_credit_note"
+                                                                                      data-toggle="tab"><?= lang('bill_received') ?></a>
+                                </li>
+                                <li class=""><a
+                                            href="<?= base_url() ?>admin/invoice/manage_invoice/project/<?= $project_details->project_id ?>"><?= lang('new') . ' ' . lang('bill_received') ?></a>
+                                </li>
+                            </ul>
                         </div>
+
                         <div class="panel-body">
 
                             <div class="table-responsive">
                                 <table id="table-invoice" class="table table-striped ">
                                     <thead>
-                                        <tr>
-                                            <th><?= lang('bill_received') ?></th>
-                                            <th class="col-date"><?= lang('due_date') ?></th>
-                                            <th class="col-currency"><?= lang('amount') ?></th>
-                                            <th class="col-currency"><?= lang('due_amount') ?></th>
-                                            <th><?= lang('status') ?></th>
-                                        </tr>
+                                    <tr>
+                                        <th><?= lang('bill_received') ?></th>
+                                        <th class="col-date"><?= lang('due_date') ?></th>
+                                        <th class="col-currency"><?= lang('amount') ?></th>
+                                        <th class="col-currency"><?= lang('due_amount') ?></th>
+                                        <th><?= lang('status') ?></th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        <?php
-                                        foreach ($all_invoice_info as $v_invoices) {
-                                            if ($this->invoice_model->get_payment_status($v_invoices->invoices_id) == lang('fully_paid')) {
-                                                $invoice_status = lang('fully_paid');
-                                                $label = "success";
-                                            } elseif ($v_invoices->emailed == 'Yes') {
-                                                $invoice_status = lang('sent');
-                                                $label = "info";
-                                            } else {
-                                                $invoice_status = lang('draft');
-                                                $label = "default";
-                                            }
-                                        ?>
-                                            <tr>
-                                                <td><a class="text-info" href="<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoices->invoices_id ?>"><?= $v_invoices->reference_no ?></a>
-                                                </td>
-                                                <td><?= strftime(config_item('date_format'), strtotime($v_invoices->due_date)) ?>
-                                                    <?php
-                                                    $payment_status = $this->invoice_model->get_payment_status($v_invoices->invoices_id);
-                                                    if (strtotime($v_invoices->due_date) < strtotime(date('Y-m-d')) && $payment_status != lang('fully_paid')) { ?>
-                                                        <span class="label label-danger "><?= lang('overdue') ?></span>
-                                                    <?php
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td><?= display_money($this->invoice_model->calculate_to('invoice_cost', $v_invoices->invoices_id), $currency->symbol) ?></td>
-                                                <td><?= display_money($this->invoice_model->calculate_to('invoice_due', $v_invoices->invoices_id), $currency->symbol) ?></td>
-                                                <td><span class="label label-<?= $label ?>"><?= $invoice_status ?></span>
-                                                    <?php if ($v_invoices->recurring == 'Yes') { ?>
-                                                        <span data-toggle="tooltip" data-placement="top" title="<?= lang('recurring') ?>" class="label label-primary"><i class="fa fa-retweet"></i></span>
-                                                    <?php } ?>
-
-                                                </td>
-
-                                            </tr>
-                                        <?php
+                                    <?php
+                                    foreach ($all_invoice_info as $v_invoices) {
+                                        if ($this->invoice_model->get_payment_status($v_invoices->invoices_id) == lang('fully_paid')) {
+                                            $invoice_status = lang('fully_paid');
+                                            $label = "success";
+                                        } elseif ($v_invoices->emailed == 'Yes') {
+                                            $invoice_status = lang('sent');
+                                            $label = "info";
+                                        } else {
+                                            $invoice_status = lang('draft');
+                                            $label = "default";
                                         }
                                         ?>
+                                        <tr>
+                                            <td><a class="text-info"
+                                                   href="<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoices->invoices_id ?>"><?= $v_invoices->reference_no ?></a>
+                                            </td>
+                                            <td><?= strftime(config_item('date_format'), strtotime($v_invoices->due_date)) ?>
+                                                <?php
+                                                $payment_status = $this->invoice_model->get_payment_status($v_invoices->invoices_id);
+                                                if (strtotime($v_invoices->due_date) < strtotime(date('Y-m-d')) && $payment_status != lang('fully_paid')) { ?>
+                                                    <span class="label label-danger "><?= lang('overdue') ?></span>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </td>
+                                            <td><?= display_money($this->invoice_model->calculate_to('invoice_cost', $v_invoices->invoices_id), $currency->symbol) ?></td>
+                                            <td><?= display_money($this->invoice_model->calculate_to('invoice_due', $v_invoices->invoices_id), $currency->symbol) ?></td>
+                                            <td><span class="label label-<?= $label ?>"><?= $invoice_status ?></span>
+                                                <?php if ($v_invoices->recurring == 'Yes') { ?>
+                                                    <span data-toggle="tooltip" data-placement="top"
+                                                          title="<?= lang('recurring') ?>"
+                                                          class="label label-primary"><i
+                                                                class="fa fa-retweet"></i></span>
+                                                <?php } ?>
+
+                                            </td>
+
+                                        </tr>
+                                        <?php
+                                    }
+                                    ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -3037,9 +3241,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_credit_note" data-toggle="tab"><?= lang('credit_note') ?></a>
+                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_credit_note"
+                                                                                  data-toggle="tab"><?= lang('credit_note') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/credit_note/index/project/<?= $project_details->project_id ?>"><?= lang('new') . ' ' . lang('credit_note') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/credit_note/index/project/<?= $project_details->project_id ?>"><?= lang('new') . ' ' . lang('credit_note') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -3048,39 +3254,41 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="table-credit_note" class="table table-striped ">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('credit_note') ?> #</th>
-                                                <th><?= lang('credit_note') . ' ' . lang('date') ?></th>
-                                                <th><?= lang('client_name') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                                <th><?= lang('amount') ?></th>
-                                                <th><?= lang('remaining') . ' ' . lang('amount') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('credit_note') ?> #</th>
+                                            <th><?= lang('credit_note') . ' ' . lang('date') ?></th>
+                                            <th><?= lang('client_name') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                            <th><?= lang('amount') ?></th>
+                                            <th><?= lang('remaining') . ' ' . lang('amount') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            foreach ($all_credit_note_info as $v_credit_note) {
-                                                if ($v_credit_note->status == 'refund') {
-                                                    $label = "info";
-                                                } elseif ($v_credit_note->status == 'open') {
-                                                    $label = "success";
-                                                } else {
-                                                    $label = "danger";
-                                                }
-                                            ?>
-                                                <tr>
-                                                    <td>
-                                                        <a class="text-info" href="<?= base_url() ?>admin/credit_note/index/credit_note_details/<?= $v_credit_note->credit_note_id ?>"><?= $v_credit_note->reference_no ?></a>
-                                                    </td>
-                                                    <td><?= display_date($v_credit_note->credit_note_date) ?></td>
-                                                    <td><?= client_name($v_credit_note->client_id) ?></td>
-                                                    <td><span class="label label-<?= $label ?>"><?= lang($v_credit_note->status) ?></span>
-                                                    </td>
-                                                    <td><?= display_money($this->credit_note_model->credit_note_calculation('total', $v_credit_note->credit_note_id), client_currency($v_credit_note->client_id)) ?></td>
-                                                </tr>
-                                            <?php
+                                        <?php
+                                        foreach ($all_credit_note_info as $v_credit_note) {
+                                            if ($v_credit_note->status == 'refund') {
+                                                $label = "info";
+                                            } elseif ($v_credit_note->status == 'open') {
+                                                $label = "success";
+                                            } else {
+                                                $label = "danger";
                                             }
                                             ?>
+                                            <tr>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/credit_note/index/credit_note_details/<?= $v_credit_note->credit_note_id ?>"><?= $v_credit_note->reference_no ?></a>
+                                                </td>
+                                                <td><?= display_date($v_credit_note->credit_note_date) ?></td>
+                                                <td><?= client_name($v_credit_note->client_id) ?></td>
+                                                <td>
+                                                    <span class="label label-<?= $label ?>"><?= lang($v_credit_note->status) ?></span>
+                                                </td>
+                                                <td><?= display_money($this->credit_note_model->credit_note_calculation('total', $v_credit_note->credit_note_id), client_currency($v_credit_note->client_id)) ?></td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -3094,9 +3302,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates" data-toggle="tab"><?= lang('estimates') ?></a>
+                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates"
+                                                                                  data-toggle="tab"><?= lang('estimates') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/estimates/index/project/<?= $project_details->project_id ?>"><?= lang('new_estimate') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/estimates/index/project/<?= $project_details->project_id ?>"><?= lang('new_estimate') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -3105,44 +3315,46 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="table-estimates" class="table table-striped ">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('estimate') ?></th>
-                                                <th><?= lang('due_date') ?></th>
-                                                <th><?= lang('amount') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('estimate') ?></th>
+                                            <th><?= lang('due_date') ?></th>
+                                            <th><?= lang('amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            foreach ($all_estimates_info as $v_estimates) {
-                                                if ($v_estimates->status == 'Pending') {
-                                                    $label = "info";
-                                                } elseif ($v_estimates->status == 'Accepted') {
-                                                    $label = "success";
-                                                } else {
-                                                    $label = "danger";
-                                                }
-                                            ?>
-                                                <tr>
-                                                    <td>
-                                                        <a class="text-info" href="<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_estimates->estimates_id ?>"><?= $v_estimates->reference_no ?></a>
-                                                    </td>
-                                                    <td><?= strftime(config_item('date_format'), strtotime($v_estimates->due_date)) ?>
-                                                        <?php
-                                                        if (strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == 'Pending') { ?>
-                                                            <span class="label label-danger "><?= lang('expired') ?></span>
-                                                        <?php }
-                                                        ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= display_money($this->estimates_model->estimate_calculation('estimate_amount', $v_estimates->estimates_id), $currency->symbol); ?>
-                                                    </td>
-                                                    <td><span class="label label-<?= $label ?>"><?= lang(strtolower($v_estimates->status)) ?></span>
-                                                    </td>
-                                                </tr>
-                                            <?php
+                                        <?php
+                                        foreach ($all_estimates_info as $v_estimates) {
+                                            if ($v_estimates->status == 'Pending') {
+                                                $label = "info";
+                                            } elseif ($v_estimates->status == 'Accepted') {
+                                                $label = "success";
+                                            } else {
+                                                $label = "danger";
                                             }
                                             ?>
+                                            <tr>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_estimates->estimates_id ?>"><?= $v_estimates->reference_no ?></a>
+                                                </td>
+                                                <td><?= strftime(config_item('date_format'), strtotime($v_estimates->due_date)) ?>
+                                                    <?php
+                                                    if (strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == 'Pending') { ?>
+                                                        <span class="label label-danger "><?= lang('expired') ?></span>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?= display_money($this->estimates_model->estimate_calculation('estimate_amount', $v_estimates->estimates_id), $currency->symbol); ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-<?= $label ?>"><?= lang(strtolower($v_estimates->status)) ?></span>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -3156,9 +3368,11 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates" data-toggle="tab"><?= lang('requisition') ?></a>
+                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_estimates"
+                                                                                  data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
-                            <li class=""><a href="<?= base_url() ?>admin/requisition/index/project/<?= $project_details->project_id ?>"><?= lang('new_requisition') ?></a>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/requisition/index/project/<?= $project_details->project_id ?>"><?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -3167,44 +3381,46 @@ $edited = can_action('57', 'edited');
                                 <div class="table-responsive">
                                     <table id="table-estimates" class="table table-striped ">
                                         <thead>
-                                            <tr>
-                                                <th><?= lang('requisition') ?></th>
-                                                <th><?= lang('due_date') ?></th>
-                                                <th><?= lang('amount') ?></th>
-                                                <th><?= lang('status') ?></th>
-                                            </tr>
+                                        <tr>
+                                            <th><?= lang('requisition') ?></th>
+                                            <th><?= lang('due_date') ?></th>
+                                            <th><?= lang('amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            foreach ($all_requisition_info as $v_requisition) {
-                                                if ($v_requisition->status == 'Pending') {
-                                                    $label = "info";
-                                                } elseif ($v_requisition->status == 'Accepted') {
-                                                    $label = "success";
-                                                } else {
-                                                    $label = "danger";
-                                                }
-                                            ?>
-                                                <tr>
-                                                    <td>
-                                                        <a class="text-info" href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
-                                                    </td>
-                                                    <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
-                                                        <?php
-                                                        if (strtotime($v_requisition->due_date) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
-                                                            <span class="label label-danger "><?= lang('expired') ?></span>
-                                                        <?php }
-                                                        ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= display_money($this->requisition_model->requisition_calculation('requisition_amount', $v_requisition->requisition_id), $currency->symbol); ?>
-                                                    </td>
-                                                    <td><span class="label label-<?= $label ?>"><?= lang(strtolower($v_requisition->status)) ?></span>
-                                                    </td>
-                                                </tr>
-                                            <?php
+                                        <?php
+                                        foreach ($all_requisition_info as $v_requisition) {
+                                            if ($v_requisition->status == 'Pending') {
+                                                $label = "info";
+                                            } elseif ($v_requisition->status == 'Accepted') {
+                                                $label = "success";
+                                            } else {
+                                                $label = "danger";
                                             }
                                             ?>
+                                            <tr>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
+                                                </td>
+                                                <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
+                                                    <?php
+                                                    if (strtotime($v_requisition->due_date) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
+                                                        <span class="label label-danger "><?= lang('expired') ?></span>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?= display_money($this->requisition_model->requisition_calculation('requisition_amount', $v_requisition->requisition_id), $currency->symbol); ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-<?= $label ?>"><?= lang(strtolower($v_requisition->status)) ?></span>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -3222,9 +3438,11 @@ $edited = can_action('57', 'edited');
                 <div class="nav-tabs-custom">
                     <!-- Tabs within a box -->
                     <ul class="nav nav-tabs">
-                        <li class="<?= $time_active == 1 ? 'active' : ''; ?>"><a href="#general" data-toggle="tab"><?= lang('timesheet') ?></a>
+                        <li class="<?= $time_active == 1 ? 'active' : ''; ?>"><a href="#general"
+                                                                                 data-toggle="tab"><?= lang('timesheet') ?></a>
                         </li>
-                        <li class="<?= $time_active == 2 ? 'active' : ''; ?>"><a href="#contact" data-toggle="tab"><?= lang('manual_entry') ?></a>
+                        <li class="<?= $time_active == 2 ? 'active' : ''; ?>"><a href="#contact"
+                                                                                 data-toggle="tab"><?= lang('manual_entry') ?></a>
                         </li>
                     </ul>
                     <div class="tab-content bg-white">
@@ -3233,84 +3451,90 @@ $edited = can_action('57', 'edited');
                             <div class="table-responsive">
                                 <table id="table-tasks-timelog" class="table table-striped">
                                     <thead>
-                                        <tr>
-                                            <th><?= lang('user') ?></th>
-                                            <th><?= lang('start_time') ?></th>
-                                            <th><?= lang('stop_time') ?></th>
+                                    <tr>
+                                        <th><?= lang('user') ?></th>
+                                        <th><?= lang('start_time') ?></th>
+                                        <th><?= lang('stop_time') ?></th>
 
-                                            <th><?= lang('project_name') ?></th>
-                                            <th class="col-time"><?= lang('time_spend') ?></th>
-                                            <th><?= lang('action') ?></th>
-                                        </tr>
+                                        <th><?= lang('project_name') ?></th>
+                                        <th class="col-time"><?= lang('time_spend') ?></th>
+                                        <th><?= lang('action') ?></th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        <?php
-                                        if (!empty($total_timer)) {
-                                            foreach ($total_timer as $v_timer) {
-                                                $aproject_info = $this->db->where(array('project_id' => $v_timer->project_id))->get('tbl_project')->row();
-                                                if (!empty($aproject_info)) {
-                                                    if ($v_timer->start_time != 0 && $v_timer->end_time != 0) {
-                                        ?>
-                                                        <tr id="table-timesheet-<?= $v_timer->tasks_timer_id ?>">
-                                                            <td class="small">
+                                    <?php
+                                    if (!empty($total_timer)) {
+                                        foreach ($total_timer as $v_timer) {
+                                            $aproject_info = $this->db->where(array('project_id' => $v_timer->project_id))->get('tbl_project')->row();
+                                            if (!empty($aproject_info)) {
+                                                if ($v_timer->start_time != 0 && $v_timer->end_time != 0) {
+                                                    ?>
+                                                    <tr id="table-timesheet-<?= $v_timer->tasks_timer_id ?>">
+                                                        <td class="small">
 
-                                                                <a class="pull-left recect_task  ">
-                                                                    <?php
-                                                                    $profile_info = $this->db->where(array('user_id' => $v_timer->user_id))->get('tbl_account_details')->row();
-                                                                    $user_info = $this->db->where(array('user_id' => $v_timer->user_id))->get('tbl_users')->row();
-                                                                    if (!empty($user_info)) {
+                                                            <a class="pull-left recect_task  ">
+                                                                <?php
+                                                                $profile_info = $this->db->where(array('user_id' => $v_timer->user_id))->get('tbl_account_details')->row();
+                                                                $user_info = $this->db->where(array('user_id' => $v_timer->user_id))->get('tbl_users')->row();
+                                                                if (!empty($user_info)) {
                                                                     ?>
-                                                                        <img style="width: 30px;margin-left: 18px;
+                                                                    <img style="width: 30px;margin-left: 18px;
                                                                              height: 29px;
-                                                                             border: 1px solid #aaa;" src="<?= base_url() . $profile_info->avatar ?>" class="img-circle">
-                                                                    <?php } else {
-                                                                        echo '-';
-                                                                    } ?>
-                                                                </a>
+                                                                             border: 1px solid #aaa;"
+                                                                         src="<?= base_url() . $profile_info->avatar ?>"
+                                                                         class="img-circle">
+                                                                <?php } else {
+                                                                    echo '-';
+                                                                } ?>
+                                                            </a>
 
 
-                                                            </td>
+                                                        </td>
 
-                                                            <td><span class="label label-success"><?= display_datetime($v_timer->start_time, true) ?></span>
-                                                            </td>
-                                                            <td><span class="label label-danger"><?= display_datetime($v_timer->end_time, true); ?></span>
-                                                            </td>
+                                                        <td>
+                                                            <span class="label label-success"><?= display_datetime($v_timer->start_time, true) ?></span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="label label-danger"><?= display_datetime($v_timer->end_time, true); ?></span>
+                                                        </td>
 
-                                                            <td>
-                                                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $v_timer->project_id ?>" class="text-info small"><?= $project_details->project_name ?>
-                                                                    <?php
-                                                                    if (!empty($v_timer->reason)) {
-                                                                        $edit_user_info = $this->db->where(array('user_id' => $v_timer->edited_by))->get('tbl_users')->row();
-                                                                        echo '<i class="text-danger" data-html="true" data-toggle="tooltip" data-placement="top" title="Reason : ' . $v_timer->reason . '<br>' . ' Edited By : ' . $edit_user_info->username . '">Edited</i>';
-                                                                    }
-                                                                    ?>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                <small class="small text-muted"><?= $this->items_model->get_time_spent_result($v_timer->end_time - $v_timer->start_time) ?></small>
-                                                            </td>
-                                                            <td>
-                                                                <?= btn_edit('admin/projects/project_details/' . $v_timer->project_id . '/7/' . $v_timer->tasks_timer_id) ?>
-                                                                <?php echo ajax_anchor(base_url("admin/projects/update_project_timer/" . $v_timer->tasks_timer_id . '/delete_task_timmer'), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-timesheet-" . $v_timer->tasks_timer_id)); ?>
-                                                            </td>
+                                                        <td>
+                                                            <a href="<?= base_url() ?>admin/projects/project_details/<?= $v_timer->project_id ?>"
+                                                               class="text-info small"><?= $project_details->project_name ?>
+                                                                <?php
+                                                                if (!empty($v_timer->reason)) {
+                                                                    $edit_user_info = $this->db->where(array('user_id' => $v_timer->edited_by))->get('tbl_users')->row();
+                                                                    echo '<i class="text-danger" data-html="true" data-toggle="tooltip" data-placement="top" title="Reason : ' . $v_timer->reason . '<br>' . ' Edited By : ' . $edit_user_info->username . '">Edited</i>';
+                                                                }
+                                                                ?>
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <small class="small text-muted"><?= $this->items_model->get_time_spent_result($v_timer->end_time - $v_timer->start_time) ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <?= btn_edit('admin/projects/project_details/' . $v_timer->project_id . '/7/' . $v_timer->tasks_timer_id) ?>
+                                                            <?php echo ajax_anchor(base_url("admin/projects/update_project_timer/" . $v_timer->tasks_timer_id . '/delete_task_timmer'), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-timesheet-" . $v_timer->tasks_timer_id)); ?>
+                                                        </td>
 
-                                                        </tr>
-                                        <?php
-                                                    }
+                                                    </tr>
+                                                    <?php
                                                 }
                                             }
                                         }
-                                        ?>
+                                    }
+                                    ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         <div class="tab-pane <?= $time_active == 2 ? 'active' : ''; ?>" id="contact">
-                            <form role="form" enctype="multipart/form-data" id="form" action="<?php echo base_url(); ?>admin/projects/update_project_timer/<?php
-                                                                                                                                                            if (!empty($project_timer_info)) {
-                                                                                                                                                                echo $project_timer_info->tasks_timer_id;
-                                                                                                                                                            }
-                                                                                                                                                            ?>" method="post" class="form-horizontal">
+                            <form role="form" enctype="multipart/form-data" id="form"
+                                  action="<?php echo base_url(); ?>admin/projects/update_project_timer/<?php
+                                  if (!empty($project_timer_info)) {
+                                      echo $project_timer_info->tasks_timer_id;
+                                  }
+                                  ?>" method="post" class="form-horizontal">
                                 <?php
                                 if (!empty($project_timer_info)) {
                                     $start_date = date('Y-m-d', $project_timer_info->start_time);
@@ -3329,13 +3553,14 @@ $edited = can_action('57', 'edited');
                                         <div class="col-sm-8 center-block">
                                             <label class="control-label"><?= lang('select') . ' ' . lang('project') ?>
                                                 <span class="required">*</span></label>
-                                            <select class="form-control select_box" name="project_id" required="" style="width: 100%">
+                                            <select class="form-control select_box" name="project_id" required=""
+                                                    style="width: 100%">
                                                 <?php
                                                 $all_tasks_info = $this->db->get('tbl_project')->result();
                                                 if (!empty($all_tasks_info)) : foreach ($all_tasks_info as $v_task_info) :
-                                                ?>
-                                                        <option value="<?= $v_task_info->project_id ?>" <?= $v_task_info->project_id == $project_details->project_id ? 'selected' : null ?>><?= $v_task_info->project_name ?></option>
-                                                    <?php endforeach; ?>
+                                                    ?>
+                                                    <option value="<?= $v_task_info->project_id ?>" <?= $v_task_info->project_id == $project_details->project_id ? 'selected' : null ?>><?= $v_task_info->project_name ?></option>
+                                                <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
                                         </div>
@@ -3347,7 +3572,9 @@ $edited = can_action('57', 'edited');
                                     <div class="col-sm-4">
                                         <label class="control-label"><?= lang('start_date') ?> </label>
                                         <div class="input-group">
-                                            <input type="text" name="start_date" class="form-control start_date" value="<?= $start_date ?>" data-date-format="<?= config_item('date_picker_format'); ?>">
+                                            <input type="text" name="start_date" class="form-control start_date"
+                                                   value="<?= $start_date ?>"
+                                                   data-date-format="<?= config_item('date_picker_format'); ?>">
                                             <div class="input-group-addon">
                                                 <a href="#"><i class="fa fa-calendar"></i></a>
                                             </div>
@@ -3356,7 +3583,8 @@ $edited = can_action('57', 'edited');
                                     <div class="col-sm-4">
                                         <label class="control-label"><?= lang('start_time') ?></label>
                                         <div class="input-group">
-                                            <input type="text" name="start_time" class="form-control timepicker2" value="<?= $start_time ?>">
+                                            <input type="text" name="start_time" class="form-control timepicker2"
+                                                   value="<?= $start_time ?>">
                                             <div class="input-group-addon">
                                                 <a href="#"><i class="fa fa-clock-o"></i></a>
                                             </div>
@@ -3367,7 +3595,9 @@ $edited = can_action('57', 'edited');
                                     <div class="col-sm-4">
                                         <label class="control-label"><?= lang('end_date') ?></label>
                                         <div class="input-group">
-                                            <input type="text" name="end_date" class="form-control end_date" value="<?= $end_date ?>" data-date-format="<?= config_item('date_picker_format'); ?>">
+                                            <input type="text" name="end_date" class="form-control end_date"
+                                                   value="<?= $end_date ?>"
+                                                   data-date-format="<?= config_item('date_picker_format'); ?>">
                                             <div class="input-group-addon">
                                                 <a href="#"><i class="fa fa-calendar"></i></a>
                                             </div>
@@ -3376,7 +3606,8 @@ $edited = can_action('57', 'edited');
                                     <div class="col-sm-4">
                                         <label class="control-label"><?= lang('end_time') ?></label>
                                         <div class="input-group">
-                                            <input type="text" name="end_time" class="form-control timepicker2" value="<?= $end_time ?>">
+                                            <input type="text" name="end_time" class="form-control timepicker2"
+                                                   value="<?= $end_time ?>">
                                             <div class="input-group-addon">
                                                 <a href="#"><i class="fa fa-clock-o"></i></a>
                                             </div>
@@ -3385,19 +3616,21 @@ $edited = can_action('57', 'edited');
                                 </div>
                                 <div class="form-group margin">
                                     <div class="col-sm-8 center-block">
-                                        <label class="control-label"><?= lang('edit_reason') ?> <span class="required">*</span></label>
+                                        <label class="control-label"><?= lang('edit_reason') ?> <span
+                                                    class="required">*</span></label>
                                         <div>
                                             <textarea class="form-control" name="reason" required="" rows="6"><?php
-                                                                                                                if (!empty($project_timer_info)) {
-                                                                                                                    echo $project_timer_info->reason;
-                                                                                                                }
-                                                                                                                ?></textarea>
+                                                if (!empty($project_timer_info)) {
+                                                    echo $project_timer_info->reason;
+                                                }
+                                                ?></textarea>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group" style="margin-top: 20px;">
                                     <div class="col-lg-6">
-                                        <button type="submit" class="btn btn-sm btn-primary"><?= lang('updates') ?></button>
+                                        <button type="submit"
+                                                class="btn btn-sm btn-primary"><?= lang('updates') ?></button>
                                     </div>
                                 </div>
                             </form>

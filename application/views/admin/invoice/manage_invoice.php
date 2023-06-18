@@ -504,7 +504,7 @@ if (!empty($invoice_info)) {
                                                                             echo $client_id == $v_client->client_id ? 'selected' : null;
                                                                         }
                                                                         ?>
-                                                                    ><?= ucfirst($v_client->name) ?></option>
+                                                                    ><?= ucfirst($v_client->name) ?><?= $client_id ?></option>
                                                                     <?php
                                                                 }
                                                             }

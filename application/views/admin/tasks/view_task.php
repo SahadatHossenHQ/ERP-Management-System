@@ -91,8 +91,8 @@ $sub_tasks = config_item('allow_sub_tasks');
         $progress = 'progress-bar-success';
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
-
-    $total_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->row();
+    $task_ids = get_all_sub_tasks($task_details->task_id);
+    $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id',$task_ids)->get('tbl_transactions')->row();
     $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
     $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
     $paid_expense = 0;
