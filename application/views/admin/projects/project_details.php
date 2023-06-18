@@ -36,7 +36,7 @@ $total_requisition = $this->db->select_sum('tbl_requisition_items.total_cost')->
     ->join('tbl_requisition_items', 'tbl_requisitions.requisition_id = tbl_requisition_items.requisition_id')
     ->get('tbl_requisitions')->row();
 
-$billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+$billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Income'))->get('tbl_transactions')->row();
 $not_billable_expense = $this->db->select_sum('amount')->where(array('project_id' => $project_details->project_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
 
 $activities_info = $this->db->where(array('module' => 'projects', 'module_field_id' => $project_details->project_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
@@ -1110,7 +1110,7 @@ $edited = can_action('57', 'edited');
 <!--                                                    <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
 <!--                                                </p>-->
                                                 <p class="p0 m0">
-                                                    <strong><?= lang('total') . ' ' . lang('Bill Received') ?></strong>: <?= display_money($paid_expense, $currency->symbol) ?>
+                                                    <strong><?= lang('total') . ' ' . lang('Bill Received') ?></strong>: <?= display_money($billable_expense->amount, $currency->symbol) ?>
                                                 </p>
 
                                                 <p class="p0 m0">
