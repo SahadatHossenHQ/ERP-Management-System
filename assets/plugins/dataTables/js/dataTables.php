@@ -148,8 +148,10 @@
                 },
             },
             'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                console.log(aData),
                 $(nRow).attr('id', 'table_' + iDataIndex); // or whatever you choose to set as the id
             },
+
             // Text translation options
             // Note the required keywords between underscores (e.g _MENU_)
             oLanguage: {

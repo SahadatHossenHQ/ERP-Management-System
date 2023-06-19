@@ -65,6 +65,13 @@ class Purchase extends Admin_Controller
 
                     $sub_array[] = '<a href="' . base_url() . 'admin/purchase/purchase_details/' . $v_purchase->purchase_id . '">' . ($v_purchase->reference_no) . '</a>';
                     $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $v_purchase->name . '</span>' : '-';
+                    if (!empty($v_purchase->project_id)){
+                        $project = $this->db->select('project_name')->where('project_id', $v_purchase->project_id)->get('tbl_project')->row();
+                        $sub_array[] = $project->project_name;
+                    } else {
+                        $sub_array[] = '-';
+                    }
+
                     $sub_array[] = display_date($v_purchase->purchase_date);
                     $sub_array[] = display_money($this->purchase_model->calculate_to('purchase_due', $v_purchase->purchase_id), $currency->symbol);
                     $status = $this->purchase_model->get_payment_status($v_purchase->purchase_id);
@@ -113,7 +120,7 @@ class Purchase extends Admin_Controller
 
     public function save_purchase($id = NULL)
     {
-        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags', 'discount_percent', 'user_id','project_id', 'adjustment', 'discount_total', 'show_quantity_as'));
         $data['update_stock'] = ($this->input->post('update_stock') == 'Yes') ? 'Yes' : 'No';
         $data['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date', TRUE)));
         if (empty($data['purchase_date'])) {

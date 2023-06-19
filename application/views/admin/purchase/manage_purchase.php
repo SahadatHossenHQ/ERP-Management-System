@@ -35,6 +35,7 @@ if (!empty($created) || !empty($edited)){
                         <tr>
                             <th><?= lang('reference_no') ?></th>
                             <th><?= lang('supplier') ?></th>
+                            <th><?= lang('project') ?></th>
                             <th><?= lang('purchase_date') ?></th>
                             <th><?= lang('due_amount') ?></th>
                             <th><?= lang('status') ?></th>
@@ -204,6 +205,33 @@ if (!empty($created) || !empty($edited)){
                             <div class="col-sm-6 col-xs-12 br pv">
 
                                 <div class="row">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label"><?= lang('Projects') ?></label>
+                                        <div class="col-sm-7">
+                                            <?php
+
+                                            $projects = $this->db->order_by('project_name', 'ASC')
+                                                ->select('project_name,project_id')
+                                                ->get('tbl_project')->result();
+                                            $select = '<select class="selectpicker" data-width="100%" name="project_id" data-none-selected-text="' . lang('Projects') . '">';
+                                            $select .= '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
+                                            if (!empty($projects)) {
+                                                foreach ($projects as $project) {
+                                                    $select .= '<option value="' . $project->project_id . '"';
+                                                    if (!empty($items_info) && $items_info->project_id == $project->project_id) {
+                                                        $select .= ' selected';
+                                                    }
+                                                    if (!empty($project_id) && $project_id == $project->project_id) {
+                                                        $select .= ' selected';
+                                                    }
+                                                    $select .= '>' . $project->project_name . '</option>';
+                                                }
+                                            }
+                                            $select .= '</select>';
+                                            echo $select;
+                                            ?>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label for="field-1"
                                                class="col-sm-4 control-label"><?= lang('sales') . ' ' . lang('agent') ?></label>
