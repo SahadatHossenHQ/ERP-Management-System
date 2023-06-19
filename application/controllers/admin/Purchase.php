@@ -13,16 +13,18 @@ class Purchase extends Admin_Controller
         $this->load->library('gst');
     }
 
-    public function index($id = NULL)
+    public function index($id = NULL,$type = Null)
     {
         $data['title'] = lang('all') . ' ' . lang('purchase');
-        if (!empty($id)) {
+        if (!empty($id) && $type == NULL) {
             $data['active'] = 2;
             $edited = can_action('152', 'edited');
             if (!empty($edited) && is_numeric($id)) {
                 $data['purchase_info'] = $this->purchase_model->check_by(array('purchase_id' => $id), 'tbl_purchases');
             }
         } else {
+            $data['project_id'] = $id;
+            $data['type'] = $type;
             $data['active'] = 1;
         }
         $data['dropzone'] = true;
@@ -33,7 +35,7 @@ class Purchase extends Admin_Controller
         $this->load->view('admin/_layout_main', $data); //page load
     }
 
-    public function purchaseList()
+    public function purchaseList($project_id = NULL)
     {
         if ($this->input->is_ajax_request()) {
             $this->load->model('datatables');
@@ -41,6 +43,9 @@ class Purchase extends Admin_Controller
             $this->datatables->join_table = array('tbl_suppliers');
             $this->datatables->join_where = array('tbl_suppliers.supplier_id=tbl_purchases.supplier_id');
             $custom_field = custom_form_table_search(20);
+            if (!empty($project_id)){
+                $this->datatables->where = array('project_id' => $project_id);
+            }
             $action_array = array('purchase_id');
             $main_column = array('reference_no', 'tbl_suppliers.name', 'purchase_date', 'due_date', 'status', 'tags');
             $result = array_merge($main_column, $custom_field, $action_array);
@@ -48,14 +53,15 @@ class Purchase extends Admin_Controller
             $this->datatables->column_search = $result;
 
             $this->datatables->order = array('purchase_id' => 'desc');
-            $fetch_data = make_datatables();
+            $fetch_data = make_datatables($this->datatables->where);
 
             $data = array();
 
             $edited = can_action('152', 'edited');
             $deleted = can_action('152', 'deleted');
             foreach ($fetch_data as $_key => $v_purchase) {
-                if (!empty($v_purchase)) {
+//                && (!empty($project_id) ? $v_purchase->project_id == $project_id : true)
+                if (!empty($v_purchase) ) {
                     $action = null;
                     $sub_array = array();
                     $can_edit = $this->purchase_model->can_action('tbl_purchases', 'edit', array('purchase_id' => $v_purchase->purchase_id));
@@ -65,6 +71,12 @@ class Purchase extends Admin_Controller
 
                     $sub_array[] = '<a href="' . base_url() . 'admin/purchase/purchase_details/' . $v_purchase->purchase_id . '">' . ($v_purchase->reference_no) . '</a>';
                     $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $v_purchase->name . '</span>' : '-';
+                    if (!empty($v_purchase->project_id)){
+                        $project = $this->db->select('project_name')->where('project_id', $v_purchase->project_id)->get('tbl_project')->row();
+                        $sub_array[] = $project->project_name;
+                    } else {
+                        $sub_array[] = '-';
+                    }
                     $sub_array[] = display_date($v_purchase->purchase_date);
                     $sub_array[] = display_money($this->purchase_model->calculate_to('purchase_due', $v_purchase->purchase_id), $currency->symbol);
                     $status = $this->purchase_model->get_payment_status($v_purchase->purchase_id);
@@ -113,7 +125,7 @@ class Purchase extends Admin_Controller
 
     public function save_purchase($id = NULL)
     {
-        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags', 'discount_percent', 'user_id','project_id', 'adjustment', 'discount_total', 'show_quantity_as'));
         $data['update_stock'] = ($this->input->post('update_stock') == 'Yes') ? 'Yes' : 'No';
         $data['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date', TRUE)));
         if (empty($data['purchase_date'])) {
@@ -480,6 +492,26 @@ class Purchase extends Admin_Controller
                     $this->purchase_model->_primary_key = 'activities_id';
                     $this->purchase_model->save($activity);
 
+//                    update stock
+                    $purchase = $this->db->where('tbl_purchases.purchase_id', $purchase_id)
+                        ->join('tbl_purchase_items','tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
+                        ->get('tbl_purchases')->row();
+
+                    if ($purchase->saved_items_id !== 0){
+                        $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $purchase->saved_items_id)
+                            ->get('tbl_saved_items')->row();
+                        $array = json_decode(json_encode($saved_item), true);
+
+                        $array['unit_cost'] = $purchase->unit_cost;
+                        $array['project_id'] = $purchase->project_id;
+                        $array['total_cost'] = $purchase->total_cost;
+                        $array['quantity'] = $purchase->quantity;
+                        $array['unit_type'] = $purchase->unit_type;
+
+                        unset($array['saved_items_id']);
+                        $this->db->insert('tbl_saved_items',$array);
+                    }
+
                     if ($this->input->post('deduct_from_account') == 'on') {
                         $account_id = $this->input->post('account_id', true);
                         if (empty($account_id)) {
@@ -497,6 +529,7 @@ class Purchase extends Admin_Controller
                                 'credit' => 0,
                                 'date' => date('Y-m-d', strtotime($this->input->post('payment_date', TRUE))),
                                 'paid_by' => $purchase_info->supplier_id,
+                                'project_id' => $purchase_info->project_id,
                                 'payment_methods_id' => $this->input->post('payment_methods_id', TRUE),
                                 'reference' => $trans_id,
                                 'notes' => lang('this_expense_from_purchase_payment', $reference),
