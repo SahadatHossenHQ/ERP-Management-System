@@ -492,6 +492,26 @@ class Purchase extends Admin_Controller
                     $this->purchase_model->_primary_key = 'activities_id';
                     $this->purchase_model->save($activity);
 
+//                    update stock
+                    $purchase = $this->db->where('tbl_purchases.purchase_id', $purchase_id)
+                        ->join('tbl_purchase_items','tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
+                        ->get('tbl_purchases')->row();
+
+                    if ($purchase->saved_items_id !== 0){
+                        $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $purchase->saved_items_id)
+                            ->get('tbl_saved_items')->row();
+                        $array = json_decode(json_encode($saved_item), true);
+
+                        $array['unit_cost'] = $purchase->unit_cost;
+                        $array['project_id'] = $purchase->project_id;
+                        $array['total_cost'] = $purchase->total_cost;
+                        $array['quantity'] = $purchase->quantity;
+                        $array['unit_type'] = $purchase->unit_type;
+
+                        unset($array['saved_items_id']);
+                        $this->db->insert('tbl_saved_items',$array);
+                    }
+
                     if ($this->input->post('deduct_from_account') == 'on') {
                         $account_id = $this->input->post('account_id', true);
                         if (empty($account_id)) {

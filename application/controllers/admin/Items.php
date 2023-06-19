@@ -156,7 +156,6 @@ class Items extends Admin_Controller
             $data['tax_rates_id'] = '-';
         }
 
-
         // update root category
         $where = array('item_name' => $data['item_name']);
         // duplicate value check in DB
@@ -167,7 +166,9 @@ class Items extends Admin_Controller
         }
         // check whether this input data already exist or not
         $check_items = $this->items_model->check_update('tbl_saved_items', $where, $saved_items_id);
-        if (!empty($check_items)) { // if input data already exist show error alert
+//        var_dump($where, $saved_items_id);die();
+        $check_items = false;
+        if ($check_items) { // if input data already exist show error alert
             // massage for user
             $type = 'error';
             $msg = "<strong style='color:#000'>" . $data['item_name'] . '</strong>  ' . lang('already_exist');
