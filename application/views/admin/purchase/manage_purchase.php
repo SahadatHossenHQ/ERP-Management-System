@@ -57,7 +57,7 @@ if (!empty($created) || !empty($edited)){
                         </thead>
                         <tbody>
                         <script type="text/javascript">
-                            list = base_url + "admin/purchase/purchaseList";
+                            list = base_url + "admin/purchase/purchaseList/<?php if ($type == 'project') { echo '/'.$project_id; } ?>";
                         </script>
                         </tbody>
                     </table>
