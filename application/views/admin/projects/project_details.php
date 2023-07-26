@@ -3385,6 +3385,7 @@ $edited = can_action('57', 'edited');
                                     <table id="table-estimates" class="table table-striped ">
                                         <thead>
                                         <tr>
+                                            <th>#</th>
                                             <th><?= lang('requisition') ?></th>
                                             <th><?= lang('due_date') ?></th>
                                             <th><?= lang('amount') ?></th>
@@ -3393,19 +3394,22 @@ $edited = can_action('57', 'edited');
                                         </thead>
                                         <tbody>
                                         <?php
-                                        foreach ($all_requisition_info as $v_requisition) {
+                                        foreach ($all_requisition_info as $key => $v_requisition) {
+                                            $name = str_replace("[INV]", "[REQ]", $v_requisition->reference_no);
+                                            $name = str_replace("[EXP]", "[REQ]", $name);
                                             if ($v_requisition->status == 'Pending') {
                                                 $label = "info";
-                                            } elseif ($v_requisition->status == 'Accepted') {
+                                            } elseif ($v_requisition->status == 'accepted') {
                                                 $label = "success";
                                             } else {
                                                 $label = "danger";
                                             }
                                             ?>
                                             <tr>
+                                                <td><?= $key+1 ?></td>
                                                 <td>
                                                     <a class="text-info"
-                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $v_requisition->reference_no ?></a>
+                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $name ?></a>
                                                 </td>
                                                 <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date)) ?>
                                                     <?php
