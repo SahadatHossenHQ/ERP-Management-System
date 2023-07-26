@@ -217,10 +217,10 @@
                                        width="100%">
                                     <thead>
                                     <tr>
+                                        <th><?= lang('Project Name') ?></th>
                                         <th><?= lang('requisition') ?> #</th>
                                         <th><?= lang('requisition') . ' ' . lang('date') ?></th>
                                         <th><?= lang('expire') . ' ' . lang('date') ?></th>
-                                        <th><?= lang('client_name') ?></th>
                                         <th><?= lang('amount') ?></th>
                                         <th><?= lang('status') ?></th>
                                         <th><?= lang('tags') ?></th>
@@ -527,7 +527,7 @@
                                         <div class="form-group">
                                             <label class="col-lg-3 control-label"><?= lang('task') ?> / Sub <?= lang('task') ?></label>
                                             <div class="col-lg-7">
-                                                <select class="form-control select_box" style="width: 100%" required
+                                                <select class="form-control select_box" style="width: 100%"
                                                         name="task_id">
                                                     <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                                     <?php

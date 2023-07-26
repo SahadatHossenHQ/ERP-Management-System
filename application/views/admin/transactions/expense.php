@@ -246,7 +246,7 @@ if (!empty($created) || !empty($edited)){
                                         </div>
                                         <label class="col-lg-2 control-label"><?= lang('task') ?> / Sub <?= lang('task') ?></label>
                                         <div class="col-lg-4">
-                                            <select class="form-control select_box" style="width: 100%" required
+                                            <select class="form-control select_box" style="width: 100%"
                                                     name="task_id">
                                                 <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                                 <?php

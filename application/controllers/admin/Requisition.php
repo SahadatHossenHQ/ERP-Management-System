@@ -175,6 +175,9 @@ class Requisition extends Admin_Controller
                             $name .= '<p class="text-sm m0 p0"><a class="text-success" href="' . base_url() . 'admin/invoice/manage_invoice/invoice_details/' . $invoice_info->invoices_id . '">' . lang('invoiced') . '</a></p>';
                         }
                     }
+                    $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
+                    $name = str_replace("[INV]", "[REQ]", $name);
+                    $name = str_replace("[EXP]", "[REQ]", $name);
                     $sub_array[] = $name;
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->requisition_date));
                     $overdue = null;
@@ -183,7 +186,7 @@ class Requisition extends Admin_Controller
                     }
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->due_date)) . ' ' . $overdue;
 
-                    $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
+
 
                     $sub_array[] = display_money($this->requisition_model->requisition_calculation('total', $v_estimates->requisition_id), client_currency($v_estimates->client_id));
                     $sub_array[] = "<span class='tags label label-" . $label . "'>" . lang($v_estimates->status) . "</span>";
