@@ -842,4 +842,29 @@ class Global_Controller extends MY_Controller
             die();
         }
     }
+
+    function get_tasks ($project_id)
+    {
+        $tasks = $this->db->where('project_id', $project_id)->get('tbl_task')->result();
+        $HTML = null;
+        $HTML .= "<option value='" . 0 . "'>" . lang('none') . "</option>";
+        foreach ($tasks as $key => $task) {
+            if ($task->sub_task_id) {
+                $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
+                if ($s_task->sub_task_id) {
+                    $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
+                    $task_title = $s1_task->task_name . " => " . $s_task->task_name . " => " . $task->task_name;
+                } else {
+                    $task_title = $s_task->task_name . " => " . $task->task_name;
+                }
+            } else {
+                $task_title = $task->task_name;
+            }
+
+            $HTML .= "<option value='" . $task->task_id . "'>" . $task_title . "</option>";
+        }
+
+        echo $HTML;
+        die();
+    }
 }
