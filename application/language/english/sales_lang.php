@@ -47,6 +47,7 @@ $lang['edit_payment'] = 'Edit Payment';
 $lang['delete_payment'] = 'Delete Payment';
 $lang['delete_payment_warning'] = 'Are you sure to delete the transaction?';
 $lang['discount'] = 'Discount';
+$lang['branches'] = 'Branches';
 $lang['show_to_client'] = 'Show to Client';
 $lang['hide_to_client'] = 'Hide to Client';
 $lang['invoice_not_visible'] = 'Bill Received not visible to client!';
