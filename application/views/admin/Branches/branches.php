@@ -172,8 +172,8 @@ if (!empty($created) || !empty($edited)){
                         <div class="tab-pane <?= $active == 2 ? 'active' : ''; ?>" id="create">
                             <form role="form" data-parsley-validate="" novalidate="" enctype="multipart/form-data"
                                   action="<?php echo base_url(); ?>admin/branches/save_branche/<?php
-                                  if (!empty($expense_info)) {
-                                      echo $expense_info->id;
+                                  if (!empty($branch_info)) {
+                                      echo $branch_info->id;
                                   }
                                   ?>" method="post" class="form-horizontal  ">
 
@@ -183,8 +183,8 @@ if (!empty($created) || !empty($edited)){
                                         <input type="text" required
                                                placeholder="<?= lang('enter') . ' ' . lang('name') . '/' . lang('title') . ' ' . lang('for_personal') ?>"
                                                name="name" class="form-control" value="<?php
-                                        if (!empty($expense_info->name)) {
-                                            echo $expense_info->name;
+                                        if (!empty($branch_info->name)) {
+                                            echo $branch_info->name;
                                         } ?>">
                                     </div>
                                 </div>
@@ -193,8 +193,8 @@ if (!empty($created) || !empty($edited)){
                                     <label class="col-lg-2 control-label"><?= lang('address ') ?> </label>
                                     <div class="col-lg-4">
                                         <textarea name="address" class="form-control"><?php
-                                            if (!empty($expense_info)) {
-                                                echo $expense_info->notes;
+                                            if (!empty($branch_info)) {
+                                                echo $branch_info->address;
                                             }
                                             ?></textarea>
                                     </div>

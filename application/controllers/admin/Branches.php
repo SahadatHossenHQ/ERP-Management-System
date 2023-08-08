@@ -12,7 +12,7 @@ class Branches extends Admin_Controller
 
     }
 
-    public function index()
+    public function index($id = null)
     {
         $data['title'] = lang('all_contractors');
         // get permission user by menu id
@@ -21,7 +21,8 @@ class Branches extends Admin_Controller
         $data['dropzone'] = true;
 
         $data['all_expense_info'] = array();
-        $data['active'] = 1;
+        $data['active'] = $id ? 2 : 1;
+        $data['branch_info'] = $this->db->where('id', $id)->get('tbl_branches')->row();
 
         $data['subview'] = $this->load->view('admin/branches/branches', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
@@ -41,10 +42,10 @@ class Branches extends Admin_Controller
                 $sub_array[] =$_key+1;
                 $sub_array[] = $branch->name;
                 $sub_array[] = $branch->address;
-                $sub_array[] = $branch->address;
+                $sub_array[] = '';
 //                $action .= '<a class="btn btn-info btn-xs"  href="' . base_url() . 'admin/branches/delete_branch/' . $branch->id . '"><span class="fa fa-trash-o"></span></a>' . ' ';
                 $action .= ajax_anchor(base_url("admin/branches/delete_branch/$branch->id"), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_" . $_key)) . ' ';
-                $action .= '<a class="btn btn-info btn-xs"  href="' . base_url() . 'admin/branches/edit_branch/' . $branch->id . '"><span class="fa fa-edit"></span></a>' . ' ';
+                $action .= '<a class="btn btn-info btn-xs"  href="' . base_url() . 'admin/branches/index/' . $branch->id . '"><span class="fa fa-edit"></span></a>' . ' ';
                 $sub_array[] = $action;
                 $data[] = $sub_array;
 
@@ -71,7 +72,11 @@ class Branches extends Admin_Controller
         $data['name'] = $this->input->post('name', TRUE);
         $data['address'] = $this->input->post('address', TRUE);
 
-        $rr = $this->db->insert('tbl_branches',$data);
+        if ($id) {
+            $this->db->where('id', $id)->update('tbl_branches', $data);
+        } else {
+            $this->db->insert('tbl_branches', $data);
+        }
 
         return redirect('admin/branches');
     }
