@@ -113,6 +113,7 @@ if (!empty($created) || !empty($edited)){
                                     <?php } ?>
                                     <th><?= lang('expense') . ' ' . lang('prefix') ?></th>
                                     <th><?= lang('name') . '/' . lang('title') ?></th>
+                                    <th><?= lang('Branch')?></th>
                                     <th><?= lang('date') ?></th>
                                     <th><?= lang('account_name') ?></th>
                                     <th class="col-currency"><?= lang('amount') ?></th>
@@ -311,10 +312,29 @@ if (!empty($created) || !empty($edited)){
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="col-lg-2 control-label"><?= lang('Branch') ?>
+                                    </label>
+                                    <div class="col-lg-4">
+                                        <div class="input-group" style="width: 100%;!important;">
+                                            <select class="form-control select_box" style="width: 100%"
+                                                    name="branch_id">
+                                                <option value=""><?= lang('select') . ' ' . lang('Branch') ?></option>
+                                                <?php
+                                                $branches = $this->db->get('tbl_branches')->result();
+                                                foreach ($branches as $key => $branche) { ?>
+                                                    <option value="<?php echo $branche->id; ?>"><?= $branche->name ?></option>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label
                                             class="col-lg-2 control-label"><?= lang('deposit_category') ?> </label>
                                     <div class="col-lg-4">
-                                        <div class="input-group">
+                                        <div class="input-group" style="width: 100%;!important;">
                                             <select <?php
                                             if (!empty($project)) {
                                                 echo 'required=""';

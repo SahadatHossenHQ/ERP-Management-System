@@ -175,10 +175,19 @@ class Requisition extends Admin_Controller
                             $name .= '<p class="text-sm m0 p0"><a class="text-success" href="' . base_url() . 'admin/invoice/manage_invoice/invoice_details/' . $invoice_info->invoices_id . '">' . lang('invoiced') . '</a></p>';
                         }
                     }
+                    $sub_array[] = $name;
                     $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
                     $name = str_replace("[INV]", "[REQ]", $name);
                     $name = str_replace("[EXP]", "[REQ]", $name);
-                    $sub_array[] = $name;
+
+                    if ($v_estimates->branch_id) {
+                        $branch_info = $this->db->where('id' , $v_estimates->branch_id)->get('tbl_branches')->row();
+                        $branch_name = $branch_info->name ?? '-';
+                    } else {
+                        $branch_name = '-';
+                    }
+                    $sub_array[] = $branch_name;
+
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->requisition_date));
                     $overdue = null;
                     if (strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == 'pending' || strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == ('draft')) {
@@ -293,7 +302,7 @@ class Requisition extends Admin_Controller
             $edited = can_action('14', 'edited');
             if (!empty($created) || !empty($edited) && !empty($id)) {
                 $data = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags',
-                    'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as', 'task_id'));
+                    'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as', 'task_id', 'branch_id'));
                 $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
                 $data['requisition_date'] = date('Y-m-d', strtotime($this->input->post('requisition_date', TRUE)));
                 if (empty($data['requisition_date'])) {
@@ -1161,7 +1170,7 @@ class Requisition extends Admin_Controller
         try {
             $data1 = $this->requisition_model->array_from_post(array('reference_no', 'client_id', 'project_id','task_id',
                 'discount_type','amount','account_id','name','due_date','notes','category_id','paid_by','payment_methods_id',
-                'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+                'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as', 'branch_id'));
             if (!empty($requisition_id)) {
                 $data['transaction_prefix'] = $data1['reference_no'];
                 $data['name'] = $data1['name'];
@@ -1182,6 +1191,7 @@ class Requisition extends Admin_Controller
                 $data['repeat_every'] = $data1['repeat_every'] ?? null;
                 $data['done_cycles'] = $data1['done_cycles'] ?? null;
                 $data['account_id'] = $data1['account_id'];
+                $data['branch_id'] = $data1['branch_id'];
                 $data['status'] = 'paid';
 
                 $repeat_every_custom = $this->input->post('repeat_every_custom', true);
@@ -1335,7 +1345,6 @@ class Requisition extends Admin_Controller
 
                     $this->transactions_model->_table_name = "tbl_transactions"; //table name
                     $this->transactions_model->_primary_key = "transactions_id";
-
 
                     if (!empty($requisition_id)) {
                         $expense_id = $this->transactions_model->save($data);

@@ -704,7 +704,14 @@ class Transactions extends Admin_Controller
                 $name = null;
                 $name .= '<a class="text-info" href="' . base_url() . 'admin/transactions/view_details/' . $v_expense->transactions_id . '">' . (!empty($v_expense->name) ? $v_expense->name : '-') . '</a>';
                 $sub_array[] = $name;
-                
+                if ($v_expense->branch_id) {
+                    $branch_info = $this->db->where('id' , $v_expense->branch_id)->get('tbl_branches')->row();
+                    $branch_name = $branch_info->name ?? '-';
+                } else {
+                    $branch_name = '-';
+                }
+                $sub_array[] = $branch_name;
+
                 $date = null;
                 $date .= '<a class="text-info" href="' . base_url() . 'admin/transactions/view_details/' . $v_expense->transactions_id . '">' . strftime(config_item('date_format'), strtotime($v_expense->date)) . '</a>';
                 $sub_array[] = $date;
@@ -815,7 +822,7 @@ class Transactions extends Admin_Controller
         $edited = can_action('31', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
             $data = $this->transactions_model->array_from_post(array('transaction_prefix', 'name', 'date', 'notes', 'category_id', 'paid_by', 'tags', 'payment_methods_id', 'reference', 'project_id', 'billable', 'client_visible',
-                'repeat_every', 'total_cycles', 'done_cycles', 'task_id'));
+                'repeat_every', 'total_cycles', 'done_cycles', 'task_id', 'branch_id'));
             
             $repeat_every_custom = $this->input->post('repeat_every_custom', true);
             $repeat_type_custom = $this->input->post('repeat_type_custom', true);
@@ -1380,7 +1387,7 @@ class Transactions extends Admin_Controller
             $this->datatables->join_where = array('tbl_accounts.account_id=tbl_transfer.from_account_id');
             $this->datatables->column_order = array('tbl_accounts.account_name', 'date', 'amount', 'payment_methods_id');
             $this->datatables->column_search = array('tbl_accounts.account_name', 'tbl_accounts.account_name', 'amount', 'date', 'payment_methods_id');
-            $this->datatables->order = array('transfer_id' => 'desc');
+            $this->datatables->order = array('create_date' => 'desc');
             
             $where = null;
             if ($type == 'to_account') {
