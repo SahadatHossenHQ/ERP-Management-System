@@ -1,7 +1,7 @@
 <div class="panel panel-custom">
     <div class="panel-heading">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                class="sr-only">Close</span></button>
+                    class="sr-only">Close</span></button>
         <h4 class="modal-title" id="myModalLabel"><?= lang('convert_to_expense') ?></h4>
     </div>
     <div class="modal-body wrap-modal wrap">
@@ -23,7 +23,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label class="col-lg-3 control-label"><?= lang('reference_no') ?> <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                             <div class="col-lg-7">
                                 <input type="text" class="form-control" value="<?php
                                 if (empty(config_item('invoice_number_format'))) {
@@ -46,37 +46,37 @@
                                         class="text-danger">*</span>
                             </label>
                             <div class="col-lg-7">
-                                <input type="text" class="form-control" name="name" value="" >
+                                <input type="text" class="form-control" name="name" value="" required>
                             </div>
                         </div>
                         <div id="recurring" class="hide">
                             <div class="form-group">
                                 <label
-                                    class="col-lg-3 control-label"><?= lang('recur_frequency') ?> </label>
+                                        class="col-lg-3 control-label"><?= lang('recur_frequency') ?> </label>
                                 <div class="col-lg-4">
                                     <select name="recuring_frequency" id="recuring_frequency"
                                             class="form-control">
                                         <option value="none"><?= lang('none') ?></option>
                                         <option
-                                            value="7D"><?= lang('week') ?></option>
+                                                value="7D"><?= lang('week') ?></option>
                                         <option
-                                            value="1M"><?= lang('month') ?></option>
+                                                value="1M"><?= lang('month') ?></option>
                                         <option
-                                            value="3M"><?= lang('quarter') ?></option>
+                                                value="3M"><?= lang('quarter') ?></option>
                                         <option
-                                            value="6M"><?= lang('six_months') ?></option>
+                                                value="6M"><?= lang('six_months') ?></option>
                                         <option
-                                            value="1Y"><?= lang('1year') ?></option>
+                                                value="1Y"><?= lang('1year') ?></option>
                                         <option
-                                            value="2Y"><?= lang('2year') ?></option>
+                                                value="2Y"><?= lang('2year') ?></option>
                                         <option
-                                            value="3Y"><?= lang('3year') ?></option>
+                                                value="3Y"><?= lang('3year') ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label
-                                    class="col-lg-3 control-label"><?= lang('start_date') ?></label>
+                                        class="col-lg-3 control-label"><?= lang('start_date') ?></label>
                                 <div class="col-lg-7">
                                     <?php
                                     $recur_start_date = date('Y-m-d');
@@ -95,7 +95,7 @@
                             </div>
                             <div class="form-group">
                                 <label
-                                    class="col-lg-3 control-label"><?= lang('end_date') ?></label>
+                                        class="col-lg-3 control-label"><?= lang('end_date') ?></label>
                                 <div class="col-lg-7">
                                     <div class="input-group">
                                         <input class="form-control datepicker" type="text"
@@ -112,7 +112,7 @@
                         <div class="f_client_id">
                             <div class="form-group">
                                 <label class="col-lg-3 control-label"><?= lang('client') ?> <span
-                                        class="text-danger">*</span>
+                                            class="text-danger">*</span>
                                 </label>
                                 <div class="col-lg-7">
                                     <select class="form-control select_box  ajax-search" required
@@ -120,7 +120,7 @@
                                             name="client_id"
                                             onchange="get_project_by_id(this.value)">
                                         <option
-                                            value=""><?= lang('select') . ' ' . lang('client') ?></option>
+                                                value=""><?= lang('select') . ' ' . lang('client') ?></option>
                                         <?php
                                         if (!empty($all_client)) {
                                             foreach ($all_client as $v_client) {
@@ -144,6 +144,21 @@
                                     </select>
                                 </div>
                             </div>
+                            <?php if ($estimates_info->branch_id) { ?>
+                                <div class="form-group">
+                                    <label class="col-lg-3 control-label"><?= lang('Branch') ?>
+                                    </label>
+                                    <div class="col-lg-7">
+                                        <div class="input-group" style="width: 100%;!important;">
+                                            <?php
+                                                $branch = $this->db->where('id', $estimates_info->branch_id)->get('tbl_branches')->row();
+                                            ?>
+                                            <input type="text"  class="form-control" name="branch_name" value="<?= $branch->name ?>" readonly>
+                                            <input type="hidden"  class="form-control" name="branch_id" value="<?= $branch->id ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
 
                         <div class="form-group">
@@ -182,18 +197,18 @@
                         <div class="form-group">
                             <label class="col-lg-3 control-label"><?= lang('task') ?> / Sub <?= lang('task') ?></label>
                             <div class="col-lg-7">
-                                <select class="form-control select_box" style="width: 100%" required
+                                <select class="form-control select_box" style="width: 100%"
                                         name="task_id">
                                     <?php
                                     $tasks = $this->db->where('task_id', $estimates_info->task_id)->get('tbl_task')->result();
                                     foreach ($tasks as $key => $task) {
-                                        if ($task->sub_task_id){
+                                        if ($task->sub_task_id) {
                                             $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
-                                            if ($s_task->sub_task_id){
+                                            if ($s_task->sub_task_id) {
                                                 $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
-                                                $task_title = $s1_task->task_name." => ".$s_task->task_name." => ".$task->task_name;
+                                                $task_title = $s1_task->task_name . " => " . $s_task->task_name . " => " . $task->task_name;
                                             } else {
-                                                $task_title = $s_task->task_name." => ".$task->task_name;
+                                                $task_title = $s_task->task_name . " => " . $task->task_name;
                                             }
                                         } else {
                                             $task_title = $task->task_name;
@@ -267,7 +282,7 @@
                                 <select class="form-control select_box" required style="width: 100%"
                                         name="user_id">
                                     <option
-                                        value=""><?= lang('select') . ' ' . lang('sales') . ' ' . lang('agent') ?></option>
+                                            value=""><?= lang('select') . ' ' . lang('sales') . ' ' . lang('agent') ?></option>
                                     <?php
                                     $all_user = $this->db->where('role_id != ', 2)->get('tbl_users')->result();
                                     if (!empty($all_user)) {
@@ -300,7 +315,7 @@
                         <div class="col-lg-8 " style=" margin-bottom: 4px">
                             <div class="input-group  ">
                                 <input class="form-control total" data-parsley-type="number" type="number"
-                                        name="amount" readonly>
+                                       name="amount" readonly>
                             </div>
                         </div>
 
@@ -365,15 +380,17 @@
                                     $acreated = can_action('36', 'created');
                                     ?>
                                 </select>
-<!--                                --><?php //if (!empty($acreated)) { ?>
-<!--                                    <div class="input-group-addon"-->
-<!--                                         title="--><?php //= lang('new') . ' ' . lang('account') ?><!--"-->
-<!--                                         data-toggle="tooltip" data-placement="top">-->
-<!--                                        <a data-toggle="modal" data-target="#myModal"-->
-<!--                                           href="--><?php //= base_url() ?><!--admin/account/new_account"><i-->
-<!--                                                    class="fa fa-plus"></i></a>-->
-<!--                                    </div>-->
-<!--                                --><?php //} ?>
+                                <!--                                --><?php //if (!empty($acreated)) { ?>
+                                <!--                                    <div class="input-group-addon"-->
+                                <!--                                         title="-->
+                                <?php //= lang('new') . ' ' . lang('account') ?><!--"-->
+                                <!--                                         data-toggle="tooltip" data-placement="top">-->
+                                <!--                                        <a data-toggle="modal" data-target="#myModal"-->
+                                <!--                                           href="-->
+                                <?php //= base_url() ?><!--admin/account/new_account"><i-->
+                                <!--                                                    class="fa fa-plus"></i></a>-->
+                                <!--                                    </div>-->
+                                <!--                                --><?php //} ?>
                             </div>
                         </div>
 
@@ -437,29 +454,29 @@
 
                         <?php
                         $all_payment = get_result('tbl_online_payment');
-                                        foreach ($all_payment as $key => $payment) {
-                                            $allow_gateway = 'allow_' . slug_it(strtolower($payment->gateway_name));
-                                            $gateway_status = slug_it(strtolower($payment->gateway_name)).'_status' ;
-                                            if (config_item($gateway_status) == 'active') {?>
-                                            <div class="form-group">
-                                                <label for="field-1"
-                                                       class="col-sm-4 control-label"><?= lang($allow_gateway) ?></label>
-                                                <div class="col-sm-8">
-                                                    <div class="checkbox c-checkbox">
-                                                        <label class="needsclick">
-                                                            <input type="checkbox" value="Yes"
-                                                                <?php if (!empty($invoice_info) && $invoice_info->$allow_gateway == 'Yes') {
-                                                                    echo 'checked';
-                                                                } ?> name="<?= $allow_gateway?>">
-                                                            <span class="fa fa-check"></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php }
-                                    }?>
+                        foreach ($all_payment as $key => $payment) {
+                            $allow_gateway = 'allow_' . slug_it(strtolower($payment->gateway_name));
+                            $gateway_status = slug_it(strtolower($payment->gateway_name)) . '_status';
+                            if (config_item($gateway_status) == 'active') { ?>
+                                <div class="form-group">
+                                    <label for="field-1"
+                                           class="col-sm-4 control-label"><?= lang($allow_gateway) ?></label>
+                                    <div class="col-sm-8">
+                                        <div class="checkbox c-checkbox">
+                                            <label class="needsclick">
+                                                <input type="checkbox" value="Yes"
+                                                    <?php if (!empty($invoice_info) && $invoice_info->$allow_gateway == 'Yes') {
+                                                        echo 'checked';
+                                                    } ?> name="<?= $allow_gateway ?>">
+                                                <span class="fa fa-check"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php }
+                        } ?>
 
-                
+
 
                         <?php if (!empty($project_id)): ?>
                             <div class="form-group">
@@ -565,8 +582,8 @@
                                         if (!empty($v_saved_items)) {
                                             foreach ($v_saved_items as $v_item) { ?>
                                                 <option
-                                                    value="<?php echo $v_item->saved_items_id; ?>"
-                                                    data-subtext="<?php echo strip_html_tags(mb_substr($v_item->item_desc, 0, 200)) . '...'; ?>">
+                                                        value="<?php echo $v_item->saved_items_id; ?>"
+                                                        data-subtext="<?php echo strip_html_tags(mb_substr($v_item->item_desc, 0, 200)) . '...'; ?>">
                                                     (<?= display_money($v_item->unit_cost, $currency->symbol); ?>
                                                     ) <?php echo $v_item->item_name; ?></option>
                                             <?php }
@@ -584,7 +601,7 @@
                 <div class="col-md-5 pull-right">
                     <div class="form-group">
                         <label
-                            class="col-sm-4 control-label"><?php echo lang('show_quantity_as'); ?></label>
+                                class="col-sm-4 control-label"><?php echo lang('show_quantity_as'); ?></label>
                         <div class="col-sm-8">
                             <label class="radio-inline c-radio">
                                 <input type="radio" value="qty" id="<?php echo lang('qty'); ?>"
@@ -610,8 +627,8 @@
                                     <?php if (isset($estimates_info) && $estimates_info->show_quantity_as == 'qty_hours' || isset($qty_hrs_quantity)) {
                                         echo 'checked';
                                     } ?>>
-                                                <span
-                                                    class="fa fa-circle"></span><?php echo lang('qty') . '/' . lang('hours'); ?>
+                                <span
+                                        class="fa fa-circle"></span><?php echo lang('qty') . '/' . lang('hours'); ?>
                             </label>
                         </div>
                     </div>
@@ -678,7 +695,8 @@
                                        class="form-control input-transparent">
                             </td>
                             <td>
-                                <input type="text" data-parsley-type="number" min="0" name="unit_cost" class="form-control"
+                                <input type="text" data-parsley-type="number" min="0" name="unit_cost"
+                                       class="form-control"
                                        placeholder="<?php echo lang('price'); ?>">
                             </td>
                             <td>
@@ -813,7 +831,7 @@
                                     <div class="row">
                                         <div class="col-md-7">
                                                                 <span
-                                                                    class="bold"><?php echo lang('adjustment'); ?></span>
+                                                                        class="bold"><?php echo lang('adjustment'); ?></span>
                                         </div>
                                         <div class="col-md-5">
                                             <input type="text" data-parsley-type="number"
@@ -853,7 +871,7 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        $('#start_recurring').on("click", function(){
+        $('#start_recurring').on("click", function () {
             $('#recurring').slideToggle("fast");
             $('#recurring').removeClass("hide");
             $('#recuring_frequency').prop('disabled', false);

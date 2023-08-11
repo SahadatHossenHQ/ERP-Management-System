@@ -312,8 +312,7 @@ if (!empty($created) || !empty($edited)){
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-lg-2 control-label"><?= lang('Branch') ?> <span
-                                                class="text-danger">*</span>
+                                    <label class="col-lg-2 control-label"><?= lang('Branch') ?>
                                     </label>
                                     <div class="col-lg-4">
                                         <div class="input-group" style="width: 100%;!important;">

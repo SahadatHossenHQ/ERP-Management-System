@@ -216,8 +216,9 @@
                                        width="100%">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('Project Name') ?></th>
                                         <th><?= lang('requisition') ?> #</th>
+                                        <th><?= lang('Client Name') ?></th>
+                                        <th><?= lang('Branch') ?></th>
                                         <th><?= lang('requisition') . ' ' . lang('date') ?></th>
                                         <th><?= lang('expire') . ' ' . lang('date') ?></th>
                                         <th><?= lang('amount') ?></th>
@@ -554,6 +555,25 @@
                                                     ?>
 
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-3 control-label"><?= lang('Branch') ?>
+                                            </label>
+                                            <div class="col-lg-7">
+                                                <div class="input-group" style="width: 100%;!important;">
+                                                    <select class="form-control select_box" style="width: 100%"
+                                                            name="branch_id">
+                                                        <option value=""><?= lang('select') . ' ' . lang('Branch') ?></option>
+                                                        <?php
+                                                        $branches = $this->db->get('tbl_branches')->result();
+                                                        foreach ($branches as $key => $branche) { ?>
+                                                            <option value="<?php echo $branche->id; ?>"><?= $branche->name ?></option>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-group">
