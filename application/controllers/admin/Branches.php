@@ -23,7 +23,6 @@ class Branches extends Admin_Controller
         $data['all_expense_info'] = array();
         $data['active'] = $id ? 2 : 1;
         $data['branch_info'] = $this->db->where('id', $id)->get('tbl_branches')->row();
-
         $data['subview'] = $this->load->view('admin/Branches/branches', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
