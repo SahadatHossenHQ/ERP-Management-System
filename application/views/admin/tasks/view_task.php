@@ -1329,7 +1329,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$task_details->task_id])->get('tbl_task')->row();
                                             if($task_details->budget > 0) {
                                                 $percentage = ($total_subtask_budget->budget??0 / ($task_details->budget)) * 100;
-                                                if ($total_subtask_budget->budget > $task_details->budget) {
+                                                if ($total_subtask_budget->budget >= $task_details->budget) {
                                                     $ddd = $total_subtask_budget->budget - $task_details->budget;
                                                     echo "<strong>Over Budget Of Sub Tasks ($ddd)</strong>";
                                                 } else if ($percentage >= 90) {
