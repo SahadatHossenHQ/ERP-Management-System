@@ -19,6 +19,9 @@ $comment_details = $this->db->where(array('task_id' => $task_details->task_id, '
 $total_timer = $this->db->where(array('task_id' => $task_details->task_id, 'start_time !=' => 0, 'end_time !=' => 0,))->get('tbl_tasks_timer')->result();
 $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id))->get('tbl_task')->result();
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
+$all_requisition_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_requisitions')->result();
+$all_expense_info = $this->db->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->result();
+$all_estimates_info = $this->db->where(array('project_id' => $task_details->project_id))->get('tbl_estimates')->result();
 
 $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $task_details->task_id, 'module_name' => 'tasks');
 $check_existing = $this->tasks_model->check_by($where, 'tbl_pinaction');
@@ -45,6 +48,57 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                                data-toggle="tab"><?= lang('comments') ?> <strong
                             class="pull-right"><?= (!empty($comment_details) ? count($comment_details) : null) ?></strong></a>
             </li>
+
+            <li class="">
+                <a href="#timesheet"
+                   data-toggle="tab"><?= lang('Contactor') ?>
+                    <!--                    <strong class="pull-right">-->
+                    <?php //= (!empty($total_timer) ? count($total_timer) : null) ?><!--</strong>-->
+                </a>
+            </li>
+            <li class="">
+                <a href="#requisition"
+                   data-toggle="tab"><?= lang('Requisition') ?>
+                    <strong class="pull-right"><?= (!empty($all_requisition_info) ? count($all_requisition_info) : null) ?></strong>
+                </a>
+            </li>
+            <li class="">
+                <a href="#expense"
+                   data-toggle="tab"><?= lang('Expense') ?>
+
+                    <strong class="pull-right"><?= (!empty($all_expense_info) ? count($all_expense_info) : null) ?></strong>
+                </a>
+            </li>
+            <li class="">
+                <a href="#estimates"
+                   data-toggle="tab"><?= lang('Estimates') ?><strong class="pull-right">
+                    <?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong>
+                </a>
+            </li>
+            <li class="<?= $active == 2 ? 'active' : '' ?> sub-var" style="margin-right: 0px; ">
+                <a data-toggle="collapse" href="#project_reports" class="collapsed" aria-expanded="false">
+                    <span><?= lang('report') ?></span>
+                </a>
+                <ul id="project_reports" class="nav s-menu collapse" aria-expanded="false" style="height: 0px;">
+                    <li class="">
+                        <a title="Expense Report"
+                           href="<?= base_url() ?>admin/report/expense_report/project/<?= $task_details->project_id ?>">
+                            <span>Expense Report</span></a>
+                    </li>
+                    <li class="">
+                        <a title="Income Reports"
+                           href="<?= base_url() ?>admin/report/income_report/project/<?= $task_details->project_id ?>">
+                            <span>Income Reports</span></a>
+                    </li>
+                    <li class="">
+                        <a title="Income Vs Expense"
+                           href="<?= base_url() ?>admin/report/income_expense/project/<?= $task_details->project_id ?>">
+                            <span>Income Vs Expense</span></a>
+                    </li>
+                </ul>
+
+            </li>
+
             <li class="<?= $active == 3 ? 'active' : '' ?>"><a href="#task_attachments"
                                                                data-toggle="tab"><?= lang('attachment') ?>
                     <strong
@@ -52,9 +106,11 @@ $sub_tasks = config_item('allow_sub_tasks');
             </li>
             <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_notes"
                                                                data-toggle="tab"><?= lang('notes') ?></a></li>
-            <li class="<?= $active == 5 ? 'active' : '' ?>"><a href="#timesheet"
-                                                               data-toggle="tab"><?= lang('timesheet') ?><strong
-                            class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong></a>
+            <li class="<?= $active == 5 ? 'active' : '' ?>">
+                <a href="#timesheet"
+                   data-toggle="tab"><?= lang('timesheet') ?><strong
+                            class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong>
+                </a>
             </li>
             <?php if (!empty($sub_tasks)) {
                 ?>
@@ -86,21 +142,198 @@ $sub_tasks = config_item('allow_sub_tasks');
     foreach ($completeds as $completed) {
         $billable_amount += $completed->task_hour * $completed->hourly_rate;
     }
-
     if ($task_details->task_status === 'completed') {
         $progress = 'progress-bar-success';
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
     $task_ids = get_all_sub_tasks($task_details->task_id);
     $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id',$task_ids)->get('tbl_transactions')->row();
-    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
-    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
+//    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+//    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
     $paid_expense = 0;
     $comment_type = 'tasks';
+
     ?>
     <div class="col-sm-10">
         <div class="tab-content" style="border: 0;padding:0;">
+            <!-- Task Comments Panel Starts --->
+            <div class="tab-pane <?= $active == 2 ? 'active' : '' ?>" id="task_comments"
+                 style="position: relative;">
+                <div class="panel panel-custom">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><?= lang('comments') ?></h3>
+                    </div>
+                    <div class="panel-body chat" id="chat-box">
+                        <?php echo form_open(base_url("admin/tasks/save_comments"), array("id" => $comment_type . "-comment-form", "class" => "form-horizontal general-form", "enctype" => "multipart/form-data", "role" => "form")); ?>
+
+                        <input type="hidden" name="task_id" value="<?php
+                        if (!empty($task_details->task_id)) {
+                            echo $task_details->task_id;
+                        }
+                        ?>" class="form-control">
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <?php
+                                echo form_textarea(array(
+                                    "id" => "comment_description",
+                                    "name" => "comment",
+                                    "class" => "form-control comment_description",
+                                    "placeholder" => $task_details->task_name . ' ' . lang('comments'),
+                                    "data-rule-required" => true,
+                                    "rows" => 4,
+                                    "data-msg-required" => lang("field_required"),
+                                ));
+                                ?>
+                            </div>
+                        </div>
+                        <div id="new_comments_attachement">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div id="comments_file-dropzone" class="dropzone mb15">
+
+                                    </div>
+                                    <div id="comments_file-dropzone-scrollbar">
+                                        <div id="comments_file-previews">
+                                            <div id="file-upload-row" class="mt pull-left">
+                                                <div class="preview box-content pr-lg" style="width:100px;">
+                                                    <span data-dz-remove class="pull-right" style="cursor: pointer">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                                                    <img data-dz-thumbnail class="upload-thumbnail-sm"/>
+                                                    <input class="file-count-field" type="hidden" name="files[]"
+                                                           value=""/>
+                                                    <div
+                                                            class="mb progress progress-striped upload-progress-sm active mt-sm"
+                                                            role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                                            aria-valuenow="0">
+                                                        <div class="progress-bar progress-bar-success" style="width:0%;"
+                                                             data-dz-uploadprogress></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="pull-right">
+                                    <button type="submit" id="file-save-button"
+                                            class="btn btn-primary"><?= lang('post_comment') ?></button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <?php echo form_close();
+                        $comment_reply_type = 'tasks-reply';
+                        ?>
+                        <?php $this->load->view('admin/tasks/comments_list', array('comment_details' => $comment_details)) ?>
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $('#file-save-button').on('click', function (e) {
+                                    var ubtn = $(this);
+                                    ubtn.html('Please wait...');
+                                    ubtn.addClass('disabled');
+                                });
+                                $("#<?php echo $comment_type; ?>-comment-form").appForm({
+                                    isModal: false,
+                                    onSuccess: function (result) {
+                                        $(".comment_description").val("");
+                                        $(".dz-complete").remove();
+                                        $('#file-save-button').removeClass("disabled").html('<?= lang('post_comment')?>');
+                                        $(result.data).insertAfter("#<?php echo $comment_type; ?>-comment-form");
+                                        toastr[result.status](result.message);
+                                    }
+                                });
+                                var fileSerial = 0;
+                                // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+                                var previewNode = document.querySelector("#file-upload-row");
+                                previewNode.id = "";
+                                var previewTemplate = previewNode.parentNode.innerHTML;
+                                previewNode.parentNode.removeChild(previewNode);
+                                Dropzone.autoDiscover = false;
+                                var projectFilesDropzone = new Dropzone("#comments_file-dropzone", {
+                                    url: "<?= base_url()?>admin/global_controller/upload_file",
+                                    thumbnailWidth: 80,
+                                    thumbnailHeight: 80,
+                                    parallelUploads: 20,
+                                    previewTemplate: previewTemplate,
+                                    dictDefaultMessage: '<?php echo lang("file_upload_instruction"); ?>',
+                                    autoQueue: true,
+                                    previewsContainer: "#comments_file-previews",
+                                    clickable: true,
+                                    accept: function (file, done) {
+                                        if (file.name.length > 200) {
+                                            done("Filename is too long.");
+                                            $(file.previewTemplate).find(".description-field").remove();
+                                        }
+                                        //validate the file
+                                        $.ajax({
+                                            url: "<?= base_url()?>admin/global_controller/validate_project_file",
+                                            data: {file_name: file.name, file_size: file.size},
+                                            cache: false,
+                                            type: 'POST',
+                                            dataType: "json",
+                                            success: function (response) {
+                                                if (response.success) {
+                                                    fileSerial++;
+                                                    $(file.previewTemplate).find(".description-field").attr("name", "comment_" + fileSerial);
+                                                    $(file.previewTemplate).append("<input type='hidden' name='file_name_" + fileSerial + "' value='" + file.name + "' />\n\
+                                     <input type='hidden' name='file_size_" + fileSerial + "' value='" + file.size + "' />");
+                                                    $(file.previewTemplate).find(".file-count-field").val(fileSerial);
+                                                    done();
+                                                } else {
+                                                    $(file.previewTemplate).find("input").remove();
+                                                    done(response.message);
+                                                }
+                                            }
+                                        });
+                                    },
+                                    processing: function () {
+                                        $("#file-save-button").prop("disabled", true);
+                                    },
+                                    queuecomplete: function () {
+                                        $("#file-save-button").prop("disabled", false);
+                                    },
+                                    fallback: function () {
+                                        //add custom fallback;
+                                        $("body").addClass("dropzone-disabled");
+                                        $('.modal-dialog').find('[type="submit"]').removeAttr('disabled');
+
+                                        $("#comments_file-dropzone").hide();
+
+                                        $("#file-modal-footer").prepend("<button id='add-more-file-button' type='button' class='btn  btn-default pull-left'><i class='fa fa-plus-circle'></i> " + "<?php echo lang("add_more"); ?>" + "</button>");
+
+                                        $("#file-modal-footer").on("click", "#add-more-file-button", function () {
+                                            var newFileRow = "<div class='file-row pb pt10 b-b mb10'>"
+                                                + "<div class='pb clearfix '><button type='button' class='btn btn-xs btn-danger pull-left mr remove-file'><i class='fa fa-times'></i></button> <input class='pull-left' type='file' name='manualFiles[]' /></div>"
+                                                + "<div class='mb5 pb5'><input class='form-control description-field'  name='comment[]'  type='text' style='cursor: auto;' placeholder='<?php echo lang("comment") ?>' /></div>"
+                                                + "</div>";
+                                            $("#comments_file-previews").prepend(newFileRow);
+                                        });
+                                        $("#add-more-file-button").trigger("click");
+                                        $("#comments_file-previews").on("click", ".remove-file", function () {
+                                            $(this).closest(".file-row").remove();
+                                        });
+                                    },
+                                    success: function (file) {
+                                        setTimeout(function () {
+                                            $(file.previewElement).find(".progress-striped").removeClass("progress-striped").addClass("progress-bar-success");
+                                        }, 1000);
+                                    }
+                                });
+
+                            })
+                        </script>
+                    </div>
+                </div>
+            </div>
             <!-- Task Details tab Starts -->
+
+            <!-- Task Details tab Ends -->
             <div class="tab-pane <?= $active == 1 ? 'active' : '' ?>" id="task_details"
                  style="position: relative;">
                 <div class="panel panel-custom">
@@ -1093,13 +1326,15 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <p class="p0 m0 text-warning" style="background: #ffd9d9;">
                                             <?php
                                             $sub_task_ids = get_all_sub_tasks($task_details->task_id);
-                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id',$task_ids)->where_not_in('task_id',[$task_details->task_id])->get('tbl_task')->row();
-                                            $percentage = ($total_subtask_budget->budget / $task_details->budget) * 100;
-                                            if ($total_subtask_budget->budget > $task_details->budget) {
-                                                $ddd = $total_subtask_budget->budget - $task_details->budget;
-                                                echo "<strong>Over Budget Of Sub Tasks ($ddd)</strong>";
-                                            } else if ($percentage >= 90) {
-                                                echo "<strong>You have $percentage % Of Budget Used for sub-task</strong>";
+                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$task_details->task_id])->get('tbl_task')->row();
+                                            if($task_details->budget > 0) {
+                                                $percentage = ($total_subtask_budget->budget ?? 0 / ($task_details->budget ?? 1)) * 100;
+                                                if ($total_subtask_budget->budget > $task_details->budget) {
+                                                    $ddd = $total_subtask_budget->budget - $task_details->budget;
+                                                    echo "<strong>Over Budget Of Sub Tasks ($ddd)</strong>";
+                                                } else if ($percentage >= 90) {
+                                                    echo "<strong>You have $percentage % Of Budget Used for sub-task</strong>";
+                                                }
                                             }
                                             ?>
                                         </p>
@@ -1107,23 +1342,26 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' Sub Task ' . lang('budget') ?></strong>: <?= display_money($total_subtask_budget->budget??0, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Sub Task ' . lang('budget') ?></strong>: <?= display_money($total_subtask_budget->budget ?? 0, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
-                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget-$total_expense->amount, $currency->symbol) ?>
+                                            <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget - $total_expense->amount, $currency->symbol) ?>
                                         </p>
-<!--                                        <p class="p0 m0">-->
-<!--                                            <strong>--><?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
-<!--                                        </p>-->
-<!--                                        <p class="p0 m0">-->
-<!--                                            <strong>--><?php //= lang('billed') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($paid_expense, $currency->symbol) ?>
-<!--                                        </p>-->
-<!--                                        <p class="p0 m0">-->
-<!--                                            <strong>--><?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($task_details->task_hour * $task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
-<!--                                        </p>-->
+                                        <!--                                        <p class="p0 m0">-->
+                                        <!--                                            <strong>-->
+                                        <?php //= lang('not_billable') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($not_billable_expense->amount, $currency->symbol) ?>
+                                        <!--                                        </p>-->
+                                        <!--                                        <p class="p0 m0">-->
+                                        <!--                                            <strong>-->
+                                        <?php //= lang('billed') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($paid_expense, $currency->symbol) ?>
+                                        <!--                                        </p>-->
+                                        <!--                                        <p class="p0 m0">-->
+                                        <!--                                            <strong>-->
+                                        <?php //= lang('unbilled') . ' ' . lang('expense') ?><!--</strong>: --><?php //= display_money($task_details->task_hour * $task_details->hourly_rate - $paid_expense, $currency->symbol) ?>
+                                        <!--                                        </p>-->
                                     </div>
                                     <h2 class="text-center"><?= lang('total_bill') ?>
                                         : <?= display_money(($task_details->task_hour * $task_details->hourly_rate), $currency->symbol) ?></h2>
@@ -1214,182 +1452,6 @@ $sub_tasks = config_item('allow_sub_tasks');
                             </div>
                         <?php } ?>
 
-                    </div>
-                </div>
-            </div>
-            <!-- Task Details tab Ends -->
-            <!-- Task Comments Panel Starts --->
-            <div class="tab-pane <?= $active == 2 ? 'active' : '' ?>" id="task_comments"
-                 style="position: relative;">
-                <div class="panel panel-custom">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><?= lang('comments') ?></h3>
-                    </div>
-                    <div class="panel-body chat" id="chat-box">
-                        <?php echo form_open(base_url("admin/tasks/save_comments"), array("id" => $comment_type . "-comment-form", "class" => "form-horizontal general-form", "enctype" => "multipart/form-data", "role" => "form")); ?>
-
-                        <input type="hidden" name="task_id" value="<?php
-                        if (!empty($task_details->task_id)) {
-                            echo $task_details->task_id;
-                        }
-                        ?>" class="form-control">
-
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <?php
-                                echo form_textarea(array(
-                                    "id" => "comment_description",
-                                    "name" => "comment",
-                                    "class" => "form-control comment_description",
-                                    "placeholder" => $task_details->task_name . ' ' . lang('comments'),
-                                    "data-rule-required" => true,
-                                    "rows" => 4,
-                                    "data-msg-required" => lang("field_required"),
-                                ));
-                                ?>
-                            </div>
-                        </div>
-                        <div id="new_comments_attachement">
-                            <div class="form-group">
-                                <div class="col-sm-12">
-                                    <div id="comments_file-dropzone" class="dropzone mb15">
-
-                                    </div>
-                                    <div id="comments_file-dropzone-scrollbar">
-                                        <div id="comments_file-previews">
-                                            <div id="file-upload-row" class="mt pull-left">
-                                                <div class="preview box-content pr-lg" style="width:100px;">
-                                                    <span data-dz-remove class="pull-right" style="cursor: pointer">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                                                    <img data-dz-thumbnail class="upload-thumbnail-sm"/>
-                                                    <input class="file-count-field" type="hidden" name="files[]"
-                                                           value=""/>
-                                                    <div
-                                                            class="mb progress progress-striped upload-progress-sm active mt-sm"
-                                                            role="progressbar" aria-valuemin="0" aria-valuemax="100"
-                                                            aria-valuenow="0">
-                                                        <div class="progress-bar progress-bar-success" style="width:0%;"
-                                                             data-dz-uploadprogress></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <div class="pull-right">
-                                    <button type="submit" id="file-save-button"
-                                            class="btn btn-primary"><?= lang('post_comment') ?></button>
-                                </div>
-                            </div>
-                        </div>
-                        <hr/>
-                        <?php echo form_close();
-                        $comment_reply_type = 'tasks-reply';
-                        ?>
-                        <?php $this->load->view('admin/tasks/comments_list', array('comment_details' => $comment_details)) ?>
-                        <script type="text/javascript">
-                            $(document).ready(function () {
-                                $('#file-save-button').on('click', function (e) {
-                                    var ubtn = $(this);
-                                    ubtn.html('Please wait...');
-                                    ubtn.addClass('disabled');
-                                });
-                                $("#<?php echo $comment_type; ?>-comment-form").appForm({
-                                    isModal: false,
-                                    onSuccess: function (result) {
-                                        $(".comment_description").val("");
-                                        $(".dz-complete").remove();
-                                        $('#file-save-button').removeClass("disabled").html('<?= lang('post_comment')?>');
-                                        $(result.data).insertAfter("#<?php echo $comment_type; ?>-comment-form");
-                                        toastr[result.status](result.message);
-                                    }
-                                });
-                                var fileSerial = 0;
-                                // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
-                                var previewNode = document.querySelector("#file-upload-row");
-                                previewNode.id = "";
-                                var previewTemplate = previewNode.parentNode.innerHTML;
-                                previewNode.parentNode.removeChild(previewNode);
-                                Dropzone.autoDiscover = false;
-                                var projectFilesDropzone = new Dropzone("#comments_file-dropzone", {
-                                    url: "<?= base_url()?>admin/global_controller/upload_file",
-                                    thumbnailWidth: 80,
-                                    thumbnailHeight: 80,
-                                    parallelUploads: 20,
-                                    previewTemplate: previewTemplate,
-                                    dictDefaultMessage: '<?php echo lang("file_upload_instruction"); ?>',
-                                    autoQueue: true,
-                                    previewsContainer: "#comments_file-previews",
-                                    clickable: true,
-                                    accept: function (file, done) {
-                                        if (file.name.length > 200) {
-                                            done("Filename is too long.");
-                                            $(file.previewTemplate).find(".description-field").remove();
-                                        }
-                                        //validate the file
-                                        $.ajax({
-                                            url: "<?= base_url()?>admin/global_controller/validate_project_file",
-                                            data: {file_name: file.name, file_size: file.size},
-                                            cache: false,
-                                            type: 'POST',
-                                            dataType: "json",
-                                            success: function (response) {
-                                                if (response.success) {
-                                                    fileSerial++;
-                                                    $(file.previewTemplate).find(".description-field").attr("name", "comment_" + fileSerial);
-                                                    $(file.previewTemplate).append("<input type='hidden' name='file_name_" + fileSerial + "' value='" + file.name + "' />\n\
-                                     <input type='hidden' name='file_size_" + fileSerial + "' value='" + file.size + "' />");
-                                                    $(file.previewTemplate).find(".file-count-field").val(fileSerial);
-                                                    done();
-                                                } else {
-                                                    $(file.previewTemplate).find("input").remove();
-                                                    done(response.message);
-                                                }
-                                            }
-                                        });
-                                    },
-                                    processing: function () {
-                                        $("#file-save-button").prop("disabled", true);
-                                    },
-                                    queuecomplete: function () {
-                                        $("#file-save-button").prop("disabled", false);
-                                    },
-                                    fallback: function () {
-                                        //add custom fallback;
-                                        $("body").addClass("dropzone-disabled");
-                                        $('.modal-dialog').find('[type="submit"]').removeAttr('disabled');
-
-                                        $("#comments_file-dropzone").hide();
-
-                                        $("#file-modal-footer").prepend("<button id='add-more-file-button' type='button' class='btn  btn-default pull-left'><i class='fa fa-plus-circle'></i> " + "<?php echo lang("add_more"); ?>" + "</button>");
-
-                                        $("#file-modal-footer").on("click", "#add-more-file-button", function () {
-                                            var newFileRow = "<div class='file-row pb pt10 b-b mb10'>"
-                                                + "<div class='pb clearfix '><button type='button' class='btn btn-xs btn-danger pull-left mr remove-file'><i class='fa fa-times'></i></button> <input class='pull-left' type='file' name='manualFiles[]' /></div>"
-                                                + "<div class='mb5 pb5'><input class='form-control description-field'  name='comment[]'  type='text' style='cursor: auto;' placeholder='<?php echo lang("comment") ?>' /></div>"
-                                                + "</div>";
-                                            $("#comments_file-previews").prepend(newFileRow);
-                                        });
-                                        $("#add-more-file-button").trigger("click");
-                                        $("#comments_file-previews").on("click", ".remove-file", function () {
-                                            $(this).closest(".file-row").remove();
-                                        });
-                                    },
-                                    success: function (file) {
-                                        setTimeout(function () {
-                                            $(file.previewElement).find(".progress-striped").removeClass("progress-striped").addClass("progress-bar-success");
-                                        }, 1000);
-                                    }
-                                });
-
-                            })
-                        </script>
                     </div>
                 </div>
             </div>
@@ -1817,6 +1879,251 @@ $sub_tasks = config_item('allow_sub_tasks');
                         </div>
 
 
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane <?= $active == 20 ? 'active' : '' ?>" id="requisition" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class=""><a href="#manage_estimates"
+                                            data-toggle="tab"><?= lang('requisition') ?></a>
+                            </li>
+                            <li class="">
+                                <a href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>">
+                                    <?= lang('new_requisition') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_estimates">
+                                <div class="table-responsive">
+                                    <table id="table-estimates" class="table table-striped ">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th><?= lang('requisition') ?></th>
+                                            <th><?= lang('due_date') ?></th>
+                                            <th><?= lang('amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        foreach ($all_requisition_info as $key => $v_requisition) {
+                                            $name = str_replace("[INV]", "[REQ]", $v_requisition->reference_no);
+                                            $name = str_replace("[EXP]", "[REQ]", $name);
+                                            if ($v_requisition->status == 'Pending') {
+                                                $label = "info";
+                                            } elseif ($v_requisition->status == 'accepted') {
+                                                $label = "success";
+                                            } else {
+                                                $label = "danger";
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td><?= $key + 1 ?></td>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id??0 ?>"><?= $name ?></a>
+                                                </td>
+                                                <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date??0)) ?>
+                                                    <?php
+                                                    if (strtotime($v_requisition->due_date??0) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
+                                                        <span class="label label-danger "><?= lang('expired') ?></span>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?= display_money($this->requisition_model->requisition_calculation('requisition_amount', $v_requisition->requisition_id), $currency->symbol); ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-<?= $label ?>"><?= lang(strtolower($v_requisition->status)) ?></span>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane " id="expense" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_expense" data-toggle="tab"><?= lang('expense') ?></a>
+                            </li>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/transactions/expense/project_expense/<?= $task_details->project_id ?>"><?= lang('new_expense') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_expense">
+                                <div class="table-responsive">
+                                    <table id="manage_expense" class="table table-striped ">
+                                        <thead>
+                                        <tr>
+                                            <th class="col-date"><?= lang('name') . '/' . lang('title') ?></th>
+                                            <th><?= lang('date') ?></th>
+                                            <th><?= lang('categories') ?></th>
+                                            <th class="col-currency"><?= lang('amount') ?></th>
+                                            <th><?= lang('attachment') ?></th>
+                                            <th class="col-options no-sort"><?= lang('action') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        if (!empty($type) && $type == 'category') {
+                                            $cate_expense_info = array();
+                                            $expense_id = $this->uri->segment(7);
+                                            if (!empty($all_expense_info)) {
+                                                foreach ($all_expense_info as $v_expense) {
+                                                    if ($v_expense->type == 'Expense' && $v_expense->category_id == $expense_id) {
+                                                        array_push($cate_expense_info, $v_expense);
+                                                    }
+                                                }
+                                            }
+                                            $all_expense_info = $cate_expense_info;
+                                        }
+                                        $all_expense_info = array_reverse($all_expense_info);
+                                        if (!empty($all_expense_info)) :
+                                            foreach ($all_expense_info as $v_expense) :
+                                                if ($v_expense->type == 'Expense') :
+                                                    $category_info = $this->db->where('expense_category_id', $v_expense->category_id)->get('tbl_expense_category')->row();
+                                                    if (!empty($category_info)) {
+                                                        $category = $category_info->expense_category;
+                                                    } else {
+                                                        $category = lang('undefined_category');
+                                                    }
+
+                                                    $can_edit = $this->items_model->can_action('tbl_transactions', 'edit', array('transactions_id' => $v_expense->transactions_id));
+                                                    $can_delete = $this->items_model->can_action('tbl_transactions', 'delete', array('transactions_id' => $v_expense->transactions_id));
+                                                    $e_edited = can_action('31', 'edited');
+                                                    $e_deleted = can_action('31', 'deleted');
+
+                                                    $account_info = $this->items_model->check_by(array('account_id' => $v_expense->account_id), 'tbl_accounts');
+                                                    ?>
+                                                    <tr id="table-expense-<?= $v_expense->transactions_id ?>">
+                                                        <td>
+                                                            <a href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                                <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
+                                                            </a>
+                                                        </td>
+                                                        <td><?= strftime(config_item('date_format'), strtotime($v_expense->date)); ?></td>
+                                                        <td><?= $category ?></td>
+                                                        <td><?= display_money($v_expense->amount, $currency->symbol) ?></td>
+
+                                                        <td>
+                                                            <?php
+                                                            $attachement_info = json_decode($v_expense->attachement);
+                                                            if (!empty($attachement_info)) { ?>
+                                                                <a href="<?= base_url() ?>admin/transactions/download/<?= $v_expense->transactions_id ?>"><?= lang('download') ?></a>
+                                                            <?php } ?>
+                                                        </td>
+
+                                                        <td class="">
+                                                            <a class="btn btn-info btn-xs"
+                                                               href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                                <span class="fa fa-list-alt"></span>
+                                                            </a>
+                                                            <?php if (!empty($can_edit) && !empty($e_edited)) { ?>
+                                                                <?= btn_edit('admin/transactions/expense/' . $v_expense->transactions_id) ?>
+                                                            <?php }
+                                                            if (!empty($can_delete) && !empty($e_deleted)) {
+                                                                ?>
+                                                                <?php echo ajax_anchor(base_url("admin/transactions/delete_expense/" . $v_expense->transactions_id), "<i class='btn btn-danger btn-xs fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table-expense-" . $v_expense->transactions_id)); ?>
+                                                            <?php } ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php
+                                                endif;
+                                            endforeach;
+                                        endif;
+                                        ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="tab-pane" id="estimates" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_estimates"
+                                                                                  data-toggle="tab"><?= lang('estimates') ?></a>
+                            </li>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/estimates/index/project/<?= $task_details->project_id ?>"><?= lang('new_estimate') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_estimates">
+                                <div class="table-responsive">
+                                    <table id="table-estimates" class="table table-striped ">
+                                        <thead>
+                                        <tr>
+                                            <th><?= lang('estimate') ?></th>
+                                            <th><?= lang('due_date') ?></th>
+                                            <th><?= lang('amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        foreach ($all_estimates_info as $v_estimates) {
+                                            if ($v_estimates->status == 'Pending') {
+                                                $label = "info";
+                                            } elseif ($v_estimates->status == 'Accepted') {
+                                                $label = "success";
+                                            } else {
+                                                $label = "danger";
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/estimates/index/estimates_details/<?= $v_estimates->estimates_id ?>"><?= $v_estimates->reference_no ?></a>
+                                                </td>
+                                                <td><?= strftime(config_item('date_format'), strtotime($v_estimates->due_date)) ?>
+                                                    <?php
+                                                    if (strtotime($v_estimates->due_date) < strtotime(date('Y-m-d')) && $v_estimates->status == 'Pending') { ?>
+                                                        <span class="label label-danger "><?= lang('expired') ?></span>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?= display_money($this->estimates_model->estimate_calculation('estimate_amount', $v_estimates->estimates_id), $currency->symbol); ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-<?= $label ?>"><?= lang(strtolower($v_estimates->status)) ?></span>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

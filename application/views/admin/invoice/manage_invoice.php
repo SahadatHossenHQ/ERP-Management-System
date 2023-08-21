@@ -178,7 +178,7 @@ if (!empty($invoice_info)) {
                         <div class="clearfix"></div>
                         <li class="dropdown-submenu pull-left  " id="from_reporter">
                             <a href="#"
-                               tabindex="-1"><?php echo lang('by') . ' ' . lang('sales') . ' ' . lang('agent'); ?></a>
+                               tabindex="-1"><?php echo lang('by') . ' ' . lang('Sell') . ' ' . lang('by'); ?></a>
                             <ul class="dropdown-menu dropdown-menu-left from_reporter"
                                 style="">
                                 <?php
@@ -657,7 +657,7 @@ if (!empty($invoice_info)) {
                                         </div>
                                         <div class="form-group">
                                             <label for="field-1"
-                                                   class="col-sm-4 control-label"><?= lang('sales') . ' ' . lang('agent') ?></label>
+                                                   class="col-sm-4 control-label"><?= lang('Sell') . ' ' . lang('by') ?></label>
                                             <div class="col-sm-7">
                                                 <select class="form-control select_box" required style="width: 100%"
                                                         name="user_id">

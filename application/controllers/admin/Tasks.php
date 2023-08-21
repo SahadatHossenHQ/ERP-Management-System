@@ -12,6 +12,8 @@ class Tasks extends Admin_Controller
         parent::__construct();
         $this->load->model('tasks_model');
         $this->load->model('items_model');
+        $this->load->model('requisition_model');
+        $this->load->model('estimates_model');
     }
 
     public function all_task($id = NULL, $opt_id = NULL)

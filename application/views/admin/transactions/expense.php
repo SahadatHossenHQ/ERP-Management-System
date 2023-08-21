@@ -446,47 +446,48 @@ if (!empty($created) || !empty($edited)){
                                         </div>
                                     </div>
 
-                                    <label class="col-lg-2 control-label"><?= lang('paid_by') ?> </label>
-                                    <div class="col-lg-4">
-                                        <div class="input-group">
-                                            <select class="form-control select_box" style="width: 100%"
-                                                    name="paid_by">
-                                                <?php $all_client = $this->db->get('tbl_client')->result();
-                                                if (!empty($project)) {
-                                                    $client_name = $this->db->where('client_id', $project->client_id)->get('tbl_client')->row();
-                                                    ?>
-                                                    <option
-                                                            value="<?= $project->client_id ?>"><?= $client_name->name ?></option>
-                                                <?php } else { ?>
-                                                    <option value="0"><?= lang('select_payer') ?></option>
-                                                    <?php if (!empty($all_client)) {
-                                                        foreach ($all_client as $v_client) {
-                                                            ?>
-                                                            <option value="<?= $v_client->client_id ?>"
-                                                                <?php
-                                                                if (!empty($expense_info)) {
-                                                                    echo $expense_info->paid_by == $v_client->client_id ? 'selected' : '';
-                                                                }
-                                                                ?>
-                                                            ><?= ucfirst($v_client->name); ?></option>
-                                                            <?php
-                                                        }
-                                                    }
-                                                }
-                                                $acreated = can_action('4', 'created');
-                                                ?>
-                                            </select>
-                                            <?php if (!empty($acreated)) { ?>
-                                                <div class="input-group-addon"
-                                                     title="<?= lang('new') . ' ' . lang('paid_by') ?>"
-                                                     data-toggle="tooltip" data-placement="top">
-                                                    <a data-toggle="modal" data-target="#myModal"
-                                                       href="<?= base_url() ?>admin/client/new_client"><i
-                                                                class="fa fa-plus"></i></a>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
+                                    <input type="hidden" name="paid_by" value="1">
+<!--                                    <label class="col-lg-2 control-label">--><?php //= lang('paid_by') ?><!-- </label>-->
+<!--                                    <div class="col-lg-4">-->
+<!--                                        <div class="input-group">-->
+<!--                                            <select class="form-control select_box" style="width: 100%"-->
+<!--                                                    name="paid_by">-->
+<!--                                                --><?php //$all_client = $this->db->get('tbl_client')->result();
+//                                                if (!empty($project)) {
+//                                                    $client_name = $this->db->where('client_id', $project->client_id)->get('tbl_client')->row();
+//                                                    ?>
+<!--                                                    <option-->
+<!--                                                            value="--><?php //= $project->client_id ?><!--">--><?php //= $client_name->name ?><!--</option>-->
+<!--                                                --><?php //} else { ?>
+<!--                                                    <option value="0">--><?php //= lang('select_payer') ?><!--</option>-->
+<!--                                                    --><?php //if (!empty($all_client)) {
+//                                                        foreach ($all_client as $v_client) {
+//                                                            ?>
+<!--                                                            <option value="--><?php //= $v_client->client_id ?><!--"-->
+<!--                                                                --><?php
+//                                                                if (!empty($expense_info)) {
+//                                                                    echo $expense_info->paid_by == $v_client->client_id ? 'selected' : '';
+//                                                                }
+//                                                                ?>
+<!--                                                            >--><?php //= ucfirst($v_client->name); ?><!--</option>-->
+<!--                                                            --><?php
+//                                                        }
+//                                                    }
+//                                                }
+//                                                $acreated = can_action('4', 'created');
+//                                                ?>
+<!--                                            </select>-->
+<!--                                            --><?php //if (!empty($acreated)) { ?>
+<!--                                                <div class="input-group-addon"-->
+<!--                                                     title="--><?php //= lang('new') . ' ' . lang('paid_by') ?><!--"-->
+<!--                                                     data-toggle="tooltip" data-placement="top">-->
+<!--                                                    <a data-toggle="modal" data-target="#myModal"-->
+<!--                                                       href="--><?php //= base_url() ?><!--admin/client/new_client"><i-->
+<!--                                                                class="fa fa-plus"></i></a>-->
+<!--                                                </div>-->
+<!--                                            --><?php //} ?>
+<!--                                        </div>-->
+<!--                                    </div>-->
 
                                 </div>
                                 <div class="form-group">
