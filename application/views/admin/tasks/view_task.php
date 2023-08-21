@@ -1090,8 +1090,24 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                                     ?>
                                     <div class="col-sm-12 text-center">
+                                        <p class="p0 m0 text-warning" style="background: #ffd9d9;">
+                                            <?php
+                                            $sub_task_ids = get_all_sub_tasks($task_details->task_id);
+                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id',$task_ids)->where_not_in('task_id',[$task_details->task_id])->get('tbl_task')->row();
+                                            $percentage = ($total_subtask_budget->budget / $task_details->budget) * 100;
+                                            if ($total_subtask_budget->budget > $task_details->budget) {
+                                                $ddd = $total_subtask_budget->budget - $task_details->budget;
+                                                echo "<strong>Over Budget Of Sub Tasks ($ddd)</strong>";
+                                            } else if ($percentage >= 90) {
+                                                echo "<strong>You have $percentage % Of Budget Used for sub-task</strong>";
+                                            }
+                                            ?>
+                                        </p>
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
+                                        </p>
+                                        <p class="p0 m0">
+                                            <strong><?= lang('total') . ' Sub Task ' . lang('budget') ?></strong>: <?= display_money($total_subtask_budget->budget??0, $currency->symbol) ?>
                                         </p>
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
