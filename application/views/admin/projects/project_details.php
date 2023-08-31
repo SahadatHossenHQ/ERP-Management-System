@@ -232,8 +232,7 @@ $edited = can_action('57', 'edited');
                 </a>
             </li>
             <li class="">
-                <a title="Expense Report"
-                   href="<?= base_url() ?>admin/purchase/index/<?= $project_details->project_id ?>/project">
+                <a title="Expense Report" href="#purchase" data-toggle="tab">
                     <span><?= lang('Purchase') ?></span>
                 </a>
             </li>
@@ -1639,6 +1638,96 @@ $edited = can_action('57', 'edited');
                                             endforeach;
                                         endif;
                                         ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane " id="purchase" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-left"
+                            style="width:300px;<?php if (!empty($type) && $type == 'category') {
+                                echo 'display:block';
+                            } ?>">
+                            <li class="<?php
+                            if (empty($type)) {
+                                echo 'active';
+                            } ?>">
+                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                            </li>
+                            <li class="divider"></li>
+                            <?php if (count($expense_category) > 0) { ?>
+                                <?php foreach ($expense_category as $v_category) {
+                                    ?>
+                                    <li class="<?php if (!empty($category_id)) {
+                                        if ($type == 'category') {
+                                            if ($category_id == $v_category->expense_category_id) {
+                                                echo 'active';
+                                            }
+                                        }
+                                    } ?>">
+                                        <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
+                                    </li>
+                                <?php }
+                                ?>
+                                <div class="clearfix"></div>
+                                <li class="divider"></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_expense" data-toggle="tab"><?= lang('Purchase') ?></a>
+                            </li>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/purchase/index/<?= $project_details->project_id ?>/project"><?= lang('New Purchase') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_expense">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables " id="DataTables" width="100%" >
+                                        <thead>
+                                        <tr>
+                                            <th><?= lang('reference_no') ?></th>
+                                            <th><?= lang('supplier') ?></th>
+                                            <th><?= lang('project') ?></th>
+                                            <th><?= lang('purchase_date') ?></th>
+                                            <th><?= lang('due_amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                            <th><?= lang('tags') ?></th>
+                                            <?php $show_custom_fields = custom_form_table(20, null);
+                                            if (!empty($show_custom_fields)) {
+                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                                    if (!empty($c_label)) {
+                                                        ?>
+                                                        <th><?= $c_label ?> </th>
+                                                    <?php }
+                                                }
+                                            }
+                                            ?>
+                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
+                                                <th class="col-options no-sort"><?= lang('action') ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <script type="text/javascript">
+                                            list = base_url + "admin/purchase/purchaseList/<?php echo '/'.$project_details->project_id;  ?>";
+                                        </script>
                                         </tbody>
                                     </table>
                                 </div>

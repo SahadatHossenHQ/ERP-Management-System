@@ -25,7 +25,7 @@ class Purchase extends Admin_Controller
         } else {
             $data['project_id'] = $id;
             $data['type'] = $type;
-            $data['active'] = 1;
+            $data['active'] = $id ? 2 : 1;
         }
         $data['dropzone'] = true;
         $data['all_purchases'] = $this->purchase_model->get_permission('tbl_purchases');
