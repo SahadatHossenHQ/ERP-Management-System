@@ -66,7 +66,9 @@ class Purchase extends Admin_Controller
                     $sub_array = array();
                     $can_edit = $this->purchase_model->can_action('tbl_purchases', 'edit', array('purchase_id' => $v_purchase->purchase_id));
                     $can_delete = $this->purchase_model->can_action('tbl_purchases', 'delete', array('purchase_id' => $v_purchase->purchase_id));
-
+                    $task = $this->db->where('task_id', $v_purchase->task_id??0)
+                        ->get('tbl_task')
+                        ->row();
                     $currency = $this->purchase_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
 
                     $sub_array[] = '<a href="' . base_url() . 'admin/purchase/purchase_details/' . $v_purchase->purchase_id . '">' . ($v_purchase->reference_no) . '</a>';
@@ -77,6 +79,7 @@ class Purchase extends Admin_Controller
                     } else {
                         $sub_array[] = '-';
                     }
+                    $sub_array[] = $task->task_name;
                     $sub_array[] = display_date($v_purchase->purchase_date);
                     $sub_array[] = display_money($this->purchase_model->calculate_to('purchase_due', $v_purchase->purchase_id), $currency->symbol);
                     $status = $this->purchase_model->get_payment_status($v_purchase->purchase_id);
@@ -125,7 +128,9 @@ class Purchase extends Admin_Controller
 
     public function save_purchase($id = NULL)
     {
-        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags', 'discount_percent', 'user_id','project_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+        $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags',
+            'discount_percent', 'user_id','project_id','task_id',
+            'adjustment', 'discount_total', 'show_quantity_as',));
         $data['update_stock'] = ($this->input->post('update_stock') == 'Yes') ? 'Yes' : 'No';
         $data['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date', TRUE)));
         if (empty($data['purchase_date'])) {

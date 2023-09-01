@@ -103,6 +103,7 @@ if (!empty($created) || !empty($edited)) {
                                 <th class="col-sm-1"><?= lang('unit_price') ?></th>
                                 <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                                 <th class="col-sm-2"><?= lang('project') ?></th>
+                                <th class="col-sm-2"><?= lang('task') ?></th>
                                 <th class="col-sm-2"><?= lang('tax') ?></th>
                                 <th class="col-sm-1"><?= lang('group') ?></th>
                                 <?php $show_custom_fields = custom_form_table(18, null);

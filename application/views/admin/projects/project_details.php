@@ -226,13 +226,12 @@ $edited = can_action('57', 'edited');
             </li>
 
             <li class="">
-                <a title="Expense Report"
-                   href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project">
+                <a title="Stock Report" href="#stock_data" data-toggle="tab">
                     <span><?= lang('Stock') ?></span>
                 </a>
             </li>
             <li class="">
-                <a title="Expense Report" href="#purchase" data-toggle="tab">
+                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
                     <span><?= lang('Purchase') ?></span>
                 </a>
             </li>
@@ -1648,6 +1647,126 @@ $edited = can_action('57', 'edited');
                     </div>
                 </div>
             </div>
+            <div class="tab-pane " id="stock_data" style="position: relative;">
+
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-left"
+                            style="width:300px;<?php if (!empty($type) && $type == 'category') {
+                                echo 'display:block';
+                            } ?>">
+                            <li class="<?php
+                            if (empty($type)) {
+                                echo 'active';
+                            } ?>">
+                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                            </li>
+                            <li class="divider"></li>
+
+                        </ul>
+                    </div>
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
+                            </li>
+                            <li class="">
+                                <a href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project"><?= lang('New Stock') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_stock">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                                           cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr>
+
+                                            <th data-orderable="false">
+                                                <div class="checkbox c-checkbox">
+                                                    <label class="needsclick">
+                                                        <input id="select_all" type="checkbox">
+                                                        <span class="fa fa-check"></span></label>
+                                                </div>
+                                            </th>
+
+                                            <th><?= lang('item') ?></th>
+                                            <?php
+                                            $invoice_view = config_item('invoice_view');
+                                            if (!empty($invoice_view) && $invoice_view == '2') {
+                                                ?>
+                                                <th><?= lang('hsn_code') ?></th>
+                                            <?php } ?>
+                                            <?php if (admin()) { ?>
+                                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
+                                            <?php } ?>
+                                            <th class="col-sm-1"><?= lang('unit_price') ?></th>
+                                            <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-2"><?= lang('project') ?></th>
+                                            <th class="col-sm-2"><?= lang('tax') ?></th>
+                                            <th class="col-sm-1"><?= lang('group') ?></th>
+                                            <?php $show_custom_fields = custom_form_table(18, null);
+                                            if (!empty($show_custom_fields)) {
+                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                                    if (!empty($c_label)) {
+                                                        ?>
+                                                        <th><?= $c_label ?> </th>
+                                                    <?php }
+                                                }
+                                            }
+                                            ?>
+                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
+                                                <th class="col-sm-1"><?= lang('action') ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <script type="text/javascript">
+                                            $(document).ready(function () {
+                                                list = base_url + "admin/items/itemsList" + "<?php echo(($type === 'project') ? '/' . $project_id . '/' . $type : ''); ?>";
+                                                bulk_url = base_url + "admin/items/bulk_delete";
+                                                $('.filtered > .dropdown-toggle').on('click', function () {
+                                                    if ($('.group').css('display') == 'block') {
+                                                        $('.group').css('display', 'none');
+                                                    } else {
+                                                        $('.group').css('display', 'block')
+                                                    }
+                                                });
+                                                $('.filter_by').on('click', function () {
+                                                    $('.filter_by').removeClass('active');
+                                                    $('.group').css('display', 'block');
+                                                    $(this).addClass('active');
+                                                    var filter_by = $(this).attr('id');
+                                                    if (filter_by) {
+                                                        filter_by = filter_by;
+                                                    } else {
+                                                        filter_by = '';
+                                                    }
+                                                    var search_type = $(this).attr('search-type');
+                                                    if (search_type) {
+                                                        search_type = '/' + search_type;
+                                                    } else {
+                                                        search_type = '';
+                                                    }
+                                                    table_url(base_url + "admin/items/itemsList/" + filter_by + search_type);
+                                                });
+                                            });
+                                        </script>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="tab-pane " id="purchase" style="position: relative;">
                 <div class="box" style="border: none; " data-collapsed="0">
                     <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
@@ -1699,12 +1818,13 @@ $edited = can_action('57', 'edited');
                             <!-- ************** general *************-->
                             <div class="tab-pane active" id="manage_expense">
                                 <div class="table-responsive">
-                                    <table class="table table-striped DataTables " id="DataTables" width="100%" >
+                                    <table class="table table-striped DataTables " id="DataTables1" width="100%">
                                         <thead>
                                         <tr>
                                             <th><?= lang('reference_no') ?></th>
                                             <th><?= lang('supplier') ?></th>
                                             <th><?= lang('project') ?></th>
+                                            <th><?= lang('task') ?></th>
                                             <th><?= lang('purchase_date') ?></th>
                                             <th><?= lang('due_amount') ?></th>
                                             <th><?= lang('status') ?></th>
@@ -1724,20 +1844,21 @@ $edited = can_action('57', 'edited');
                                             <?php } ?>
                                         </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="purchase_body">
                                         <script type="text/javascript">
-                                            list = base_url + "admin/purchase/purchaseList/<?php echo '/'.$project_details->project_id;  ?>";
+                                            ttable1 = 'DataTables1';
+                                            list1 = base_url + "admin/purchase/purchaseList/<?php echo $project_details->project_id; ?>";
                                         </script>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                             <!-- End Tasks Management-->
-
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="tab-pane <?= $active == 2 ? 'active' : '' ?>" id="activities" style="position: relative;">
                 <div class="panel panel-custom">
                     <div class="panel-heading">
@@ -2402,8 +2523,8 @@ $edited = can_action('57', 'edited');
             <!-- End milestones-->
 
             <!-- Start Tasks Management-->
-            <div class="tab-pane <?= $active == 6 ? 'active' : '' ?>" id="task" style="position: relative;">
-                <div class="box" style="border: none; " data-collapsed="0">
+            <div class="tab-pane <?= $active == 6 ? 'active' : '' ?>" id="task"( style="position: relative;">
+                <div class="box" style="border: none; " data-coll)apsed="0">
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
@@ -3495,7 +3616,7 @@ $edited = can_action('57', 'edited');
                                             }
                                             ?>
                                             <tr>
-                                                <td><?= $key+1 ?></td>
+                                                <td><?= $key + 1 ?></td>
                                                 <td>
                                                     <a class="text-info"
                                                        href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?>"><?= $name ?></a>
@@ -3737,3 +3858,26 @@ $edited = can_action('57', 'edited');
         </div>
     </div>
 </div>
+
+<script>
+//
+//    $(document).ready(function () {
+//        let url = base_url + "admin/purchase/purchaseList/<?php //echo '/' . $project_details->project_id;  ?>//";
+//
+//        console.log(url)
+//        $.ajax({
+//            url: url,
+//            type: 'GET',
+//            dataType: "json",
+//            success: function (data) {
+//                $("#purchase_body").html(data);
+//            }
+//        });
+//    })
+//
+//    function ins_data() {
+//
+//
+//    }
+
+</script>

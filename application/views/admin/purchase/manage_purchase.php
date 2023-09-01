@@ -36,6 +36,7 @@ if (!empty($created) || !empty($edited)){
                             <th><?= lang('reference_no') ?></th>
                             <th><?= lang('supplier') ?></th>
                             <th><?= lang('project') ?></th>
+                            <th><?= lang('task') ?></th>
                             <th><?= lang('purchase_date') ?></th>
                             <th><?= lang('due_amount') ?></th>
                             <th><?= lang('status') ?></th>
@@ -206,30 +207,65 @@ if (!empty($created) || !empty($edited)){
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <label class="col-sm-4 control-label"><?= lang('Projects') ?></label>
-                                        <div class="col-sm-7">
-                                            <?php
-
-                                            $projects = $this->db->order_by('project_name', 'ASC')
-                                                ->select('project_name,project_id')
-                                                ->get('tbl_project')->result();
-                                            $select = '<select class="selectpicker" data-width="100%" name="project_id" data-none-selected-text="' . lang('Projects') . '">';
-                                            $select .= '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
-                                            if (!empty($projects)) {
-                                                foreach ($projects as $project) {
-                                                    $select .= '<option value="' . $project->project_id . '"';
-                                                    if (!empty($items_info) && $items_info->project_id == $project->project_id) {
-                                                        $select .= ' selected';
+                                        <label class="col-lg-4 control-label"><?= lang('project') ?></label>
+                                        <div class="col-lg-7">
+                                            <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , <?= $project_id; ?>)"
+                                                    id="client_project">
+                                                <?php
+                                                $projects = $this->db->order_by('project_name', 'ASC')
+                                                    ->select('project_name,project_id')
+                                                    ->get('tbl_project')->result();
+                                                 $select = '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
+                                                if (!empty($projects)) {
+                                                    foreach ($projects as $project) {
+                                                        $select .= '<option value="' . $project->project_id . '"';
+                                                        if (!empty($items_info) && $items_info->project_id == $project->project_id) {
+                                                            $select .= ' selected';
+                                                        }
+                                                        if (!empty($project_id) && $project_id == $project->project_id) {
+                                                            $select .= ' selected';
+                                                        }
+                                                        $select .= '>' . $project->project_name . '</option>';
                                                     }
-                                                    if (!empty($project_id) && $project_id == $project->project_id) {
-                                                        $select .= ' selected';
-                                                    }
-                                                    $select .= '>' . $project->project_name . '</option>';
                                                 }
-                                            }
-                                            $select .= '</select>';
-                                            echo $select;
-                                            ?>
+
+                                                echo $select;
+                                                ?>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-4 control-label"><?= lang('task') ?> /
+                                            Sub <?= lang('task') ?></label>
+                                        <div class="col-lg-7">
+                                            <select class="form-control select_box" style="width: 100%" id="task-lists"
+                                                    name="task_id">
+                                                <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                <?php
+                                                if ($project_id) {
+                                                    $tasks_id = get_all_tasks($project_id);
+                                                    $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
+                                                    foreach ($tasks as $key => $task) {
+                                                        if ($task->sub_task_id) {
+                                                            $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
+                                                            if ($s_task->sub_task_id) {
+                                                                $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
+                                                                $task_title = $s1_task->task_name . " => " . $s_task->task_name . " => " . $task->task_name;
+                                                            } else {
+                                                                $task_title = $s_task->task_name . " => " . $task->task_name;
+                                                            }
+                                                        } else {
+                                                            $task_title = $task->task_name;
+                                                        }
+                                                        ?>
+                                                        <option value="<?php echo $task->task_id; ?>"><?= $task_title ?></option>
+                                                        <?php
+                                                    }
+                                                }
+                                                ?>
+
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -690,9 +726,47 @@ if (!empty($created) || !empty($edited)){
         <?php } ?>
     </div>
 </div>
-<script type="text/javascript">
-    $(document).ready(function () {
-        init_items_sortable();
 
-    });
+<script type="text/javascript">
+
+    function showTask(e, project_id) {
+        if (project_id == 77777){
+            let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            $.ajax({
+                async: false,
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                success: function (data) {
+                    var result = data.responseText;
+                    console.log(result);
+                    $('#task-lists').empty();
+                    $("#task-lists").html(result);
+                }
+
+            });
+        }
+        if (project_id == undefined){
+            var base_url = '<?= base_url() ?>';
+            var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            var req = getXMLHTTP();
+            if (req) {
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) {
+                            var result = req.responseText;
+                            $('#task-lists').empty();
+                            $("#task-lists").append(result);
+                        } else {
+                            alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                        }
+                    }
+                }
+                req.open("POST", strURL, true);
+                req.send(null);
+            }
+        }
+    }
+
 </script>

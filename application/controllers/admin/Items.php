@@ -24,7 +24,7 @@ class Items extends Admin_Controller
                 $data['group_info'] = $this->items_model->check_by(array('customer_group_id' => $opt), 'tbl_customer_group');
             }
         } else if ($opt === 'project') {
-            $data['active'] = 1;
+            $data['active'] = 2;
             $data['project_id'] = $id;
             $data['type'] = $opt;
         } else {
@@ -73,6 +73,9 @@ class Items extends Admin_Controller
                 $action = null;
                 $item_name = !empty($v_items->item_name) ? $v_items->item_name : $v_items->item_name;
 
+               $task = $this->db->where('task_id', $v_items->task_id??0)
+                    ->get('tbl_task')
+                    ->row();
                 $sub_array = array();
                 if (!empty($deleted)) {
                     $sub_array[] = '<div class="checkbox c-checkbox" ><label class="needsclick"> <input value="' . $v_items->saved_items_id . '" type="checkbox"><span class="fa fa-check"></span></label></div>';
@@ -89,6 +92,7 @@ class Items extends Admin_Controller
                 $sub_array[] = display_money($v_items->unit_cost, default_currency());
                 $sub_array[] = $v_items->unit_type;
                 $sub_array[] = $v_items->project_name;
+                $sub_array[] = $task->tasks_name ?? '';
                 if (!is_numeric($v_items->tax_rates_id)) {
                     $tax_rates = json_decode($v_items->tax_rates_id);
                 } else {

@@ -118,6 +118,8 @@
         var total_unread_notifications = <?php echo $unread_notifications; ?>,
             autocheck_notifications_timer_id = 0,
             list = null,
+            list1 = null,
+            ttable1 = null,
             bulk_url = null,
             time_format = <?= (config_item('time_format') == 'H:i' ? 'false' : true) ?>,
             ttable = null,
