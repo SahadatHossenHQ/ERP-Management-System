@@ -11,7 +11,14 @@
 </style>
 <?php
 $edited = can_action('54', 'edited');
-
+$task_id_ = $task_details->sub_task_id;
+//var_dump($task_details->task_id);
+//die();
+while ($task_details->project_id === NULL){
+    $tsk = $this->db->where('task_id', $task_id_)->get('tbl_task')->row();
+    $task_details->project_id = $tsk->project_id;
+    $task_id_ = $tsk->sub_task_id;
+}
 $can_edit = $this->tasks_model->can_action('tbl_task', 'edit', array('task_id' => $task_details->task_id));
 // get all comments by tasks id
 $comment_details = $this->db->where(array('task_id' => $task_details->task_id, 'comments_reply_id' => '0', 'task_attachment_id' => '0', 'uploaded_files_id' => '0'))->order_by('comment_datetime', 'DESC')->get('tbl_task_comment')->result();
@@ -21,7 +28,7 @@ $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id)
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
 $all_requisition_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_requisitions')->result();
 $all_expense_info = $this->db->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->result();
-$all_estimates_info = $this->db->where(array('project_id' => $task_details->project_id))->get('tbl_estimates')->result();
+$all_estimates_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_estimates')->result();
 
 $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $task_details->task_id, 'module_name' => 'tasks');
 $check_existing = $this->tasks_model->check_by($where, 'tbl_pinaction');
@@ -67,6 +74,16 @@ $sub_tasks = config_item('allow_sub_tasks');
                    data-toggle="tab"><?= lang('Expense') ?>
 
                     <strong class="pull-right"><?= (!empty($all_expense_info) ? count($all_expense_info) : null) ?></strong>
+                </a>
+            </li>
+            <li class="">
+                <a title="Stock Report" href="#stock_data" data-toggle="tab">
+                    <span><?= lang('Stock') ?></span>
+                </a>
+            </li>
+            <li class="">
+                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
+                    <span><?= lang('Purchase') ?></span>
                 </a>
             </li>
             <li class="">
@@ -1459,7 +1476,217 @@ $sub_tasks = config_item('allow_sub_tasks');
                 </div>
             </div>
             <!-- Task Comments Panel Ends--->
+            <div class="tab-pane " id="stock_data" style="position: relative;">
 
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-left"
+                            style="width:300px;<?php if (!empty($type) && $type == 'category') {
+                                echo 'display:block';
+                            } ?>">
+                            <li class="<?php
+                            if (empty($type)) {
+                                echo 'active';
+                            } ?>">
+                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                            </li>
+                            <li class="divider"></li>
+
+                        </ul>
+                    </div>
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
+                            </li>
+                            <li class="">
+                                <a href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_stock">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                                           cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr>
+
+                                            <th data-orderable="false">
+                                                <div class="checkbox c-checkbox">
+                                                    <label class="needsclick">
+                                                        <input id="select_all" type="checkbox">
+                                                        <span class="fa fa-check"></span></label>
+                                                </div>
+                                            </th>
+
+                                            <th><?= lang('item') ?></th>
+                                            <?php
+                                            $invoice_view = config_item('invoice_view');
+                                            if (!empty($invoice_view) && $invoice_view == '2') {
+                                                ?>
+                                                <th><?= lang('hsn_code') ?></th>
+                                            <?php } ?>
+                                            <?php if (admin()) { ?>
+                                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
+                                            <?php } ?>
+                                            <th class="col-sm-1"><?= lang('unit_price') ?></th>
+                                            <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-2"><?= lang('project') ?></th>
+                                            <th class="col-sm-2"><?= lang('tax') ?></th>
+                                            <th class="col-sm-1"><?= lang('group') ?></th>
+                                            <?php $show_custom_fields = custom_form_table(18, null);
+                                            if (!empty($show_custom_fields)) {
+                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                                    if (!empty($c_label)) {
+                                                        ?>
+                                                        <th><?= $c_label ?> </th>
+                                                    <?php }
+                                                }
+                                            }
+                                            ?>
+                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
+                                                <th class="col-sm-1"><?= lang('action') ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <script type="text/javascript">
+                                            //$(document).ready(function () {
+                                            //    list = base_url + "admin/items/itemsList" + "<?php //echo(($type === 'project') ? '/' . $task_details->project_id . '/' . $type : ''); ?>//"+"?task_id=<?php //echo $task_details->task_id; ?>//";
+                                            //    bulk_url = base_url + "admin/items/bulk_delete";
+                                            //    $('.filtered > .dropdown-toggle').on('click', function () {
+                                            //        if ($('.group').css('display') == 'block') {
+                                            //            $('.group').css('display', 'none');
+                                            //        } else {
+                                            //            $('.group').css('display', 'block')
+                                            //        }
+                                            //    });
+                                            //    $('.filter_by').on('click', function () {
+                                            //        $('.filter_by').removeClass('active');
+                                            //        $('.group').css('display', 'block');
+                                            //        $(this).addClass('active');
+                                            //        var filter_by = $(this).attr('id');
+                                            //        if (filter_by) {
+                                            //            filter_by = filter_by;
+                                            //        } else {
+                                            //            filter_by = '';
+                                            //        }
+                                            //        var search_type = $(this).attr('search-type');
+                                            //        if (search_type) {
+                                            //            search_type = '/' + search_type;
+                                            //        } else {
+                                            //            search_type = '';
+                                            //        }
+                                            //        table_url(base_url + "admin/items/itemsList/" + filter_by + search_type);
+                                            //    });
+                                            //});
+                                        </script>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane " id="purchase" style="position: relative;">
+                <div class="box" style="border: none; " data-collapsed="0">
+                    <div class="btn-group pull-right btn-with-tooltip-group" data-toggle="tooltip"
+                         data-title="<?php echo lang('filter_by'); ?>">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-left"
+                            style="width:300px;<?php if (!empty($type) && $type == 'category') {
+                                echo 'display:block';
+                            } ?>">
+                            <li class="<?php
+                            if (empty($type)) {
+                                echo 'active';
+                            } ?>">
+                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                            </li>
+                            <li class="divider"></li>
+                            <?php if (count($expense_category ?? []) > 0) { ?>
+                                <?php foreach ($expense_category as $v_category) {
+                                    ?>
+                                    <li class="<?php if (!empty($category_id)) {
+                                        if ($type == 'category') {
+                                            if ($category_id == $v_category->expense_category_id) {
+                                                echo 'active';
+                                            }
+                                        }
+                                    } ?>">
+                                        <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
+                                    </li>
+                                <?php }
+                                ?>
+                                <div class="clearfix"></div>
+                                <li class="divider"></li>
+                            <?php } ?>
+                        </ul>
+                    </div>
+                    <div class="nav-tabs-custom">
+                        <!-- Tabs within a box -->
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#manage_expense" data-toggle="tab"><?= lang('Purchase') ?></a>
+                            </li>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/purchase/index/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Purchase') ?></a>
+                            </li>
+                        </ul>
+                        <div class="tab-content bg-white">
+                            <!-- ************** general *************-->
+                            <div class="tab-pane active" id="manage_expense">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables " id="DataTables1" width="100%">
+                                        <thead>
+                                        <tr>
+                                            <th><?= lang('reference_no') ?></th>
+                                            <th><?= lang('supplier') ?></th>
+                                            <th><?= lang('project') ?></th>
+                                            <th><?= lang('task') ?></th>
+                                            <th><?= lang('purchase_date') ?></th>
+                                            <th><?= lang('due_amount') ?></th>
+                                            <th><?= lang('status') ?></th>
+                                            <th><?= lang('tags') ?></th>
+                                            <?php $show_custom_fields = custom_form_table(20, null);
+                                            if (!empty($show_custom_fields)) {
+                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                                    if (!empty($c_label)) {
+                                                        ?>
+                                                        <th><?= $c_label ?> </th>
+                                                    <?php }
+                                                }
+                                            }
+                                            ?>
+                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
+                                                <th class="col-options no-sort"><?= lang('action') ?></th>
+                                            <?php } ?>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="purchase_body">
+                                        <script type="text/javascript">
+                                            ttable1 = 'DataTables1';
+                                            list1 = base_url + "admin/purchase/purchaseList/<?php echo $task_details->project_id; ?>"+"?task_id=<?php echo $task_details->task_id; ?>";
+                                        </script>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Task Attachment Panel Starts --->
             <div class="tab-pane <?= $active == 3 ? 'active' : '' ?>" id="task_attachments">
                 <div class="panel panel-custom">
@@ -1894,7 +2121,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
                             <li class="">
-                                <a href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>">
+                                <a href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
                                     <?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
@@ -1965,7 +2192,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                             <li class="active"><a href="#manage_expense" data-toggle="tab"><?= lang('expense') ?></a>
                             </li>
                             <li class=""><a
-                                        href="<?= base_url() ?>admin/transactions/expense/project_expense/<?= $task_details->project_id ?>"><?= lang('new_expense') ?></a>
+                                        href="<?= base_url() ?>admin/transactions/expense/project_expense/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>"><?= lang('new_expense') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -2073,7 +2300,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                                                   data-toggle="tab"><?= lang('estimates') ?></a>
                             </li>
                             <li class=""><a
-                                        href="<?= base_url() ?>admin/estimates/index/project/<?= $task_details->project_id ?>"><?= lang('new_estimate') ?></a>
+                                        href="<?= base_url() ?>admin/estimates/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>"><?= lang('new_estimate') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">

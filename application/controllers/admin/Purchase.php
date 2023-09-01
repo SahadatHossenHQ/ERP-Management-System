@@ -38,6 +38,8 @@ class Purchase extends Admin_Controller
     public function purchaseList($project_id = NULL)
     {
         if ($this->input->is_ajax_request()) {
+            $task_id = $this->input->get('task_id');
+
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_purchases';
             $this->datatables->join_table = array('tbl_suppliers');
@@ -45,6 +47,9 @@ class Purchase extends Admin_Controller
             $custom_field = custom_form_table_search(20);
             if (!empty($project_id)){
                 $this->datatables->where = array('project_id' => $project_id);
+            }
+            if ($task_id){
+                $this->datatables->where = array('task_id' => $task_id);
             }
             $action_array = array('purchase_id');
             $main_column = array('reference_no', 'tbl_suppliers.name', 'purchase_date', 'due_date', 'status', 'tags');

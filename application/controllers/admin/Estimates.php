@@ -181,8 +181,11 @@ class Estimates extends Admin_Controller
                         $overdue .= '<span class="label label-danger ">' . lang("expired") . '</span>';
                     }
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_estimates->due_date)) . ' ' . $overdue;
-
+                    $project_info = $this->estimates_model->check_by(array('project_id' => $v_estimates->project_id), 'tbl_project');
+                    $task_info = $this->estimates_model->check_by(array('task_id' => $v_estimates->task_id), 'tbl_task');
                     $sub_array[] = '<span class="tags">' . client_name($v_estimates->client_id) . '</span>';
+                    $sub_array[] = '<span class="tags">' . $project_info->project_name . '</span>';
+                    $sub_array[] = '<span class="tags">' . $task_info->task_name . '</span>';
 
                     $sub_array[] = display_money($this->estimates_model->estimate_calculation('total', $v_estimates->estimates_id), client_currency($v_estimates->client_id));
                     $sub_array[] = "<span class='tags label label-" . $label . "'>" . lang($v_estimates->status) . "</span>";
@@ -287,7 +290,7 @@ class Estimates extends Admin_Controller
         $created = can_action('14', 'created');
         $edited = can_action('14', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
-            $data = $this->estimates_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
+            $data = $this->estimates_model->array_from_post(array('reference_no', 'client_id', 'project_id', 'task_id', 'discount_type', 'tags', 'discount_percent', 'user_id', 'adjustment', 'discount_total', 'show_quantity_as'));
             $data['client_visible'] = ($this->input->post('client_visible') == 'Yes') ? 'Yes' : 'No';
             $data['estimate_date'] = date('Y-m-d', strtotime($this->input->post('estimate_date', TRUE)));
             if (empty($data['estimate_date'])) {

@@ -39,11 +39,15 @@ class Items extends Admin_Controller
     public function itemsList($group_id = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
+            $task_id = $this->input->get('task_id');
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_saved_items';
             $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer','tbl_project');
             $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id','tbl_project.project_id=tbl_saved_items.project_id');
 
+//            if ($task_id){
+//                $this->datatables->where = array('task_id' => $task_id);
+//            }
             $custom_field = custom_form_table_search(18);
             $action_array = array('saved_items_id');
             $main_column = array('project_id','item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
@@ -176,7 +180,7 @@ class Items extends Admin_Controller
             // massage for user
             $type = 'error';
             $msg = "<strong style='color:#000'>" . $data['item_name'] . '</strong>  ' . lang('already_exist');
-        } else { // save and update query          
+        } else { // save and update query
 
             $upload_file = array();
 

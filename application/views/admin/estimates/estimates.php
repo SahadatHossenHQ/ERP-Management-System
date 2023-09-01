@@ -1,4 +1,3 @@
-
 <form name="myform" role="form" data-parsley-validate="" novalidate=""
       enctype="multipart/form-data"
       id="form"
@@ -31,7 +30,7 @@
         <?php //$this->load->view("admin/estimates/estimates_state_report"); ?>
     </div>
 
-<?php
+    <?php
     $type = $this->uri->segment(5);
     if (!empty($type) && !is_numeric($type)) {
         $ex = explode('_', $type);
@@ -221,6 +220,8 @@
                                         <th><?= lang('estimate') . ' ' . lang('date') ?></th>
                                         <th><?= lang('expire') . ' ' . lang('date') ?></th>
                                         <th><?= lang('client_name') ?></th>
+                                        <th><?= lang('project') ?></th>
+                                        <th><?= lang('task') ?></th>
                                         <th><?= lang('amount') ?></th>
                                         <th><?= lang('status') ?></th>
                                         <th><?= lang('tags') ?></th>
@@ -497,6 +498,7 @@
                                             <label class="col-lg-3 control-label"><?= lang('project') ?></label>
                                             <div class="col-lg-7">
                                                 <select class="form-control " style="width: 100%" name="project_id"
+                                                        onchange="showTask(event , <?= $estimates_info->project_id; ?>)"
                                                         id="client_project">
                                                     <option value=""><?= lang('none') ?></option>
                                                     <?php
@@ -520,6 +522,43 @@
                                                         }
                                                     }
                                                     ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-3 control-label"><?= lang('task') ?> /
+                                                Sub <?= lang('task') ?></label>
+                                            <div class="col-lg-7">
+                                                <select class="form-control select_box" style="width: 100%"
+                                                        id="task-lists"
+                                                        name="task_id">
+                                                    <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                    <?php
+                                                    $task_id = $_GET['task_id'];
+                                                    if ($project_id) {
+                                                        $tasks_id = get_all_tasks($project_id);
+                                                        $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
+                                                        foreach ($tasks as $key => $task) {
+                                                            if ($task->sub_task_id) {
+                                                                $s_task = $this->db->where('task_id', $task->sub_task_id)->get('tbl_task')->row();
+                                                                if ($s_task->sub_task_id) {
+                                                                    $s1_task = $this->db->where('task_id', $s_task->sub_task_id)->get('tbl_task')->row();
+                                                                    $task_title = $s1_task->task_name . " => " . $s_task->task_name . " => " . $task->task_name;
+                                                                } else {
+                                                                    $task_title = $s_task->task_name . " => " . $task->task_name;
+                                                                }
+                                                            } else {
+                                                                $task_title = $task->task_name;
+                                                            }
+                                                            ?>
+                                                            <option value="<?php echo $task->task_id; ?> " <?php if ($task_id == $task->task_id) {
+                                                                echo "selected";
+                                                            } ?>><?= $task_title ?></option>
+                                                            <?php
+                                                        }
+                                                    }
+                                                    ?>
+
                                                 </select>
                                             </div>
                                         </div>
@@ -1007,12 +1046,54 @@
 <?php } ?>
 </div>
 <script>
-    $(document).ready(function () {  ins_data(base_url+'admin/estimates/estimates_state_report')   });
+    $(document).ready(function () {
+        ins_data(base_url + 'admin/estimates/estimates_state_report')
+    });
 </script>
 <script type="text/javascript">
     function slideToggle($id) {
         $('#quick_state').attr('data-original-title', '<?= lang('view_quick_state') ?>');
         $($id).slideToggle("slow");
+    }
+
+    function showTask(e, project_id) {
+        if (project_id == 77777) {
+            let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            $.ajax({
+                async: false,
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                success: function (data) {
+                    var result = data.responseText;
+                    console.log(result);
+                    $('#task-lists').empty();
+                    $("#task-lists").html(result);
+                }
+
+            });
+        }
+        if (project_id == undefined) {
+            var base_url = '<?= base_url() ?>';
+            var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            var req = getXMLHTTP();
+            if (req) {
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) {
+                            var result = req.responseText;
+                            $('#task-lists').empty();
+                            $("#task-lists").append(result);
+                        } else {
+                            alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                        }
+                    }
+                }
+                req.open("POST", strURL, true);
+                req.send(null);
+            }
+        }
     }
 
     $(document).ready(function () {
