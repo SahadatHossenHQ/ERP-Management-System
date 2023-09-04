@@ -131,6 +131,70 @@ class Purchase extends Admin_Controller
         }
     }
 
+    public function purchaseItemList($project_id = NULL)
+    {
+        if ($this->input->is_ajax_request()) {
+            $task_id = $this->input->get('task_id');
+
+            $this->load->model('datatables');
+            $this->datatables->table = 'tbl_purchase_items';
+            $this->datatables->join_table = array('tbl_purchases');
+            $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
+            $custom_field = custom_form_table_search(20);
+            if (!empty($project_id)){
+                $this->datatables->where = array('tbl_purchases.project_id' => $project_id);
+            }
+            if ($task_id){
+                $this->datatables->where = array('tbl_purchases.task_id' => $task_id);
+            }
+            $action_array = array('items_id');
+            $main_column = array('tbl_purchases.purchase_id','tbl_purchases.reference_no', 'tbl_purchase_items.quantity', 'tbl_purchase_items.item_name', 'tbl_purchase_items.unit_cost', 'tbl_purchase_items.total_cost', 'tbl_purchases.purchase_date', 'tbl_purchases.tags');
+            $result = array_merge($main_column, $custom_field, $action_array);
+            $this->datatables->column_order = $result;
+            $this->datatables->column_search = $result;
+
+            $this->datatables->order = array('tbl_purchases.purchase_id' => 'desc');
+            $fetch_data = make_datatables($this->datatables->where);
+
+            $data = array();
+
+            $edited = can_action('152', 'edited');
+            $deleted = can_action('152', 'deleted');
+
+
+            foreach ($fetch_data as $_key => $v_purchase) {
+//                && (!empty($project_id) ? $v_purchase->project_id == $project_id : true)
+                if (!empty($v_purchase) ) {
+                    $action = null;
+                    $sub_array = array();
+
+                    $currency = $this->purchase_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
+
+                    $sub_array[] = str_replace('[INV]-', '', $v_purchase->reference_no);
+                    $sub_array[] = '<span class="tags">' . $v_purchase->item_name . '</span>';
+
+                    $sub_array[] = $v_purchase->quantity;
+                    $sub_array[] = display_money($v_purchase->unit_cost, $currency->symbol);
+                    $sub_array[] = display_money($v_purchase->total_cost, $currency->symbol);
+                    $sub_array[] = display_date($v_purchase->purchase_date);
+
+
+                    $sub_array[] = get_tags($v_purchase->tags, true);
+
+                    $action .= btn_view('admin/purchase/purchase_details/' . $v_purchase->purchase_id) . ' ';
+                    $action .= '<a class="btn btn-success btn-xs" data-popup="tooltip" data-placement="top" title="Payment" href="' . base_url() . 'admin/purchase/payment/' . $v_purchase->purchase_id . '">' . lang('pay') . '</a>';
+
+                    $sub_array[] = $action;
+                    $data[] = $sub_array;
+                }
+            }
+
+            render_table($data);
+        } else {
+            redirect('admin/dashboard');
+        }
+    }
+
     public function save_purchase($id = NULL)
     {
         $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags',

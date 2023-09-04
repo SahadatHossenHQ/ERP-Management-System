@@ -164,7 +164,7 @@ $sub_tasks = config_item('allow_sub_tasks');
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
     $task_ids = get_all_sub_tasks($task_details->task_id);
-    $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id',$task_ids)->get('tbl_transactions')->row();
+    $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id',[ ...$task_ids, $task_details->task_id])->get('tbl_transactions')->row();
 //    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
 //    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
     $paid_expense = 0;
@@ -1340,23 +1340,30 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                                     ?>
                                     <div class="col-sm-12 text-center">
-                                        <p class="p0 m0 text-warning" style="background: #ffd9d9;">
+                                        <p class="p0 m0 text-warning" style="background: #d30000;    color: white;    font-size: 22px;">
                                             <?php
-                                            $sub_task_ids = get_all_sub_tasks($task_details->task_id);
-                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$task_details->task_id])->get('tbl_task')->row();
-                                            if($task_details->budget > 0) {
-                                                $percentage = ($total_subtask_budget->budget??0 / ($task_details->budget)) * 100;
-                                                if ($total_subtask_budget->budget == $task_details->budget) {
-                                                    $ddd = $total_subtask_budget->budget - $task_details->budget;
+                                            $taSeckkId = $task_details->sub_task_id ?? $task_details->task_id;
+                                            $sub_task_ids = get_all_sub_tasks($taSeckkId);
+                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$taSeckkId])->get('tbl_task')->row();
+                                            $taskdetails = $this->db->where('task_id', $taSeckkId)->get('tbl_task')->row();
+
+
+                                            if($taskdetails->budget > 0) {
+                                                $percentage = ($total_subtask_budget->budget??0 / ($taskdetails->budget)) * 100;
+                                                if ($total_subtask_budget->budget == $taskdetails->budget) {
+                                                    $ddd = $total_subtask_budget->budget - $taskdetails->budget;
                                                     echo "<strong>You have 100 % Of Budget Used for sub-task</strong>";
-                                                }if ($total_subtask_budget->budget > $task_details->budget) {
-                                                    $ddd = $total_subtask_budget->budget - $task_details->budget;
-                                                    echo "<strong>Over Budget Of Sub Tasks ($ddd)</strong>";
+                                                }if ($total_subtask_budget->budget > $taskdetails->budget) {
+                                                    $ddd = $total_subtask_budget->budget - $taskdetails->budget;
+                                                    echo "<strong>Need to update task Budget</strong>";
                                                 } else if ($percentage >= 90 && $percentage < 100) {
                                                     echo "<strong>You have $percentage % Of Budget Used for sub-task</strong>";
                                                 }
                                             }
                                             ?>
+                                            <?php if(($task_details->budget - $total_expense->amount) < 1) { ?>
+                                                <strong>You have expensed more than your budget</strong>
+                                            <?php } ?>
                                         </p>
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('budget') ?></strong>: <?= display_money($task_details->budget, $currency->symbol) ?>
@@ -1367,7 +1374,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
                                         </p>
-                                        <p class="p0 m0">
+                                        <p class="p0 m0"  <?php if(($task_details->budget - $total_expense->amount) < 1) { ?>  style="color: red;font-size :22px"   <?php } ?> >
                                             <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget - $total_expense->amount, $currency->symbol) ?>
                                         </p>
                                         <!--                                        <p class="p0 m0">-->
@@ -1516,76 +1523,22 @@ $sub_tasks = config_item('allow_sub_tasks');
                                            cellspacing="0" width="100%">
                                         <thead>
                                         <tr>
-
-                                            <th data-orderable="false">
-                                                <div class="checkbox c-checkbox">
-                                                    <label class="needsclick">
-                                                        <input id="select_all" type="checkbox">
-                                                        <span class="fa fa-check"></span></label>
-                                                </div>
-                                            </th>
-
+                                            <th>#</th>
                                             <th><?= lang('item') ?></th>
-                                            <?php
-                                            $invoice_view = config_item('invoice_view');
-                                            if (!empty($invoice_view) && $invoice_view == '2') {
-                                                ?>
-                                                <th><?= lang('hsn_code') ?></th>
-                                            <?php } ?>
-                                            <?php if (admin()) { ?>
-                                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
-                                            <?php } ?>
+                                            <th class="col-sm-1"><?= lang('unit') ?></th>
                                             <th class="col-sm-1"><?= lang('unit_price') ?></th>
-                                            <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-1"><?= lang('total_price') ?></th>
                                             <th class="col-sm-2"><?= lang('project') ?></th>
-                                            <th class="col-sm-2"><?= lang('tax') ?></th>
-                                            <th class="col-sm-1"><?= lang('group') ?></th>
-                                            <?php $show_custom_fields = custom_form_table(18, null);
-                                            if (!empty($show_custom_fields)) {
-                                                foreach ($show_custom_fields as $c_label => $v_fields) {
-                                                    if (!empty($c_label)) {
-                                                        ?>
-                                                        <th><?= $c_label ?> </th>
-                                                    <?php }
-                                                }
-                                            }
-                                            ?>
-                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
-                                                <th class="col-sm-1"><?= lang('action') ?></th>
-                                            <?php } ?>
+
+                                            <th class="col-sm-1"><?= lang('action') ?></th>
+
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <script type="text/javascript">
-                                            //$(document).ready(function () {
-                                            //    list = base_url + "admin/items/itemsList" + "<?php //echo(($type === 'project') ? '/' . $task_details->project_id . '/' . $type : ''); ?>//"+"?task_id=<?php //echo $task_details->task_id; ?>//";
-                                            //    bulk_url = base_url + "admin/items/bulk_delete";
-                                            //    $('.filtered > .dropdown-toggle').on('click', function () {
-                                            //        if ($('.group').css('display') == 'block') {
-                                            //            $('.group').css('display', 'none');
-                                            //        } else {
-                                            //            $('.group').css('display', 'block')
-                                            //        }
-                                            //    });
-                                            //    $('.filter_by').on('click', function () {
-                                            //        $('.filter_by').removeClass('active');
-                                            //        $('.group').css('display', 'block');
-                                            //        $(this).addClass('active');
-                                            //        var filter_by = $(this).attr('id');
-                                            //        if (filter_by) {
-                                            //            filter_by = filter_by;
-                                            //        } else {
-                                            //            filter_by = '';
-                                            //        }
-                                            //        var search_type = $(this).attr('search-type');
-                                            //        if (search_type) {
-                                            //            search_type = '/' + search_type;
-                                            //        } else {
-                                            //            search_type = '';
-                                            //        }
-                                            //        table_url(base_url + "admin/items/itemsList/" + filter_by + search_type);
-                                            //    });
-                                            //});
+                                            $(document).ready(function () {
+                                                list = base_url + "admin/purchase/purchaseItemList" + "<?php echo(($type === 'project') ? '/' . $task_details->project_id : ''); ?>"+"?task_id=<?php echo $task_details->task_id; ?>";
+                                            });
                                         </script>
                                         </tbody>
                                     </table>
