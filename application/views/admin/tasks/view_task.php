@@ -14,7 +14,7 @@ $edited = can_action('54', 'edited');
 $task_id_ = $task_details->sub_task_id;
 //var_dump($task_details->task_id);
 //die();
-while ($task_details->project_id === NULL){
+while ($task_details->project_id === NULL) {
     $tsk = $this->db->where('task_id', $task_id_)->get('tbl_task')->row();
     $task_details->project_id = $tsk->project_id;
     $task_id_ = $tsk->sub_task_id;
@@ -82,14 +82,14 @@ $sub_tasks = config_item('allow_sub_tasks');
                 </a>
             </li>
             <li class="">
-                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
+                <a title="Purchase Report" href="#purchase" onclick="ins_data" data-toggle="tab">
                     <span><?= lang('Purchase') ?></span>
                 </a>
             </li>
             <li class="">
                 <a href="#estimates"
                    data-toggle="tab"><?= lang('Estimates') ?><strong class="pull-right">
-                    <?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong>
+                        <?= (!empty($all_estimates_info) ? count($all_estimates_info) : null) ?></strong>
                 </a>
             </li>
             <li class="<?= $active == 2 ? 'active' : '' ?> sub-var" style="margin-right: 0px; ">
@@ -164,9 +164,9 @@ $sub_tasks = config_item('allow_sub_tasks');
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
     $task_ids = get_all_sub_tasks($task_details->task_id);
-    $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id',[ ...$task_ids, $task_details->task_id])->get('tbl_transactions')->row();
-//    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
-//    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
+    $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id', [...$task_ids, $task_details->task_id])->get('tbl_transactions')->row();
+    //    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
+    //    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
     $paid_expense = 0;
     $comment_type = 'tasks';
 
@@ -1340,7 +1340,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     $currency = $this->db->where('code', config_item('default_currency'))->get('tbl_currencies')->row();
                                     ?>
                                     <div class="col-sm-12 text-center">
-                                        <p class="p0 m0 text-warning" style="background: #d30000;    color: white;    font-size: 22px;">
+                                        <p class="p0 m0 text-warning"
+                                           style="background: #d30000;    color: white;    font-size: 22px;">
                                             <?php
                                             $taSeckkId = $task_details->sub_task_id ?? $task_details->task_id;
                                             $sub_task_ids = get_all_sub_tasks($taSeckkId);
@@ -1348,12 +1349,13 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             $taskdetails = $this->db->where('task_id', $taSeckkId)->get('tbl_task')->row();
 
 
-                                            if($taskdetails->budget > 0) {
-                                                $percentage = ($total_subtask_budget->budget??0 / ($taskdetails->budget)) * 100;
+                                            if ($taskdetails->budget > 0) {
+                                                $percentage = ($total_subtask_budget->budget ?? 0 / ($taskdetails->budget)) * 100;
                                                 if ($total_subtask_budget->budget == $taskdetails->budget) {
                                                     $ddd = $total_subtask_budget->budget - $taskdetails->budget;
                                                     echo "<strong>You have 100 % Of Budget Used for sub-task</strong>";
-                                                }if ($total_subtask_budget->budget > $taskdetails->budget) {
+                                                }
+                                                if ($total_subtask_budget->budget > $taskdetails->budget) {
                                                     $ddd = $total_subtask_budget->budget - $taskdetails->budget;
                                                     echo "<strong>Need to update task Budget</strong>";
                                                 } else if ($percentage >= 90 && $percentage < 100) {
@@ -1361,7 +1363,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 }
                                             }
                                             ?>
-                                            <?php if(($task_details->budget - $total_expense->amount) < 1) { ?>
+                                            <?php if (($task_details->budget - $total_expense->amount) < 1) { ?>
                                                 <strong>You have expensed more than your budget</strong>
                                             <?php } ?>
                                         </p>
@@ -1374,7 +1376,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <p class="p0 m0">
                                             <strong><?= lang('total') . ' Task ' . lang('expense') ?></strong>: <?= display_money($total_expense->amount, $currency->symbol) ?>
                                         </p>
-                                        <p class="p0 m0"  <?php if(($task_details->budget - $total_expense->amount) < 1) { ?>  style="color: red;font-size :22px"   <?php } ?> >
+                                        <p class="p0 m0" <?php if (($task_details->budget - $total_expense->amount) < 1) { ?>  style="color: red;font-size :22px"   <?php } ?> >
                                             <strong><?= lang('total') . ' Task ' . lang('balance') ?></strong>: <?= display_money($task_details->budget - $total_expense->amount, $currency->symbol) ?>
                                         </p>
                                         <!--                                        <p class="p0 m0">-->
@@ -1511,6 +1513,11 @@ $sub_tasks = config_item('allow_sub_tasks');
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
                             </li>
+                            <li class=""><a href="#stock_use" data-toggle="tab"><?= lang('Use Stock') ?></a>
+                            </li>
+                            <li class=""><a href="#stock_transfer"
+                                            data-toggle="tab"><?= lang('Stock Transfer') ?></a>
+                            </li>
                             <li class="">
                                 <a href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
                             </li>
@@ -1537,7 +1544,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <tbody>
                                         <script type="text/javascript">
                                             $(document).ready(function () {
-                                                list = base_url + "admin/purchase/purchaseItemList" + "<?php echo(($type === 'project') ? '/' . $task_details->project_id : ''); ?>"+"?task_id=<?php echo $task_details->task_id; ?>";
+                                                list = base_url + "admin/purchase/purchaseItemList" + "<?php echo(($type === 'project') ? '/' . $task_details->project_id : ''); ?>" + "?task_id=<?php echo $task_details->task_id; ?>";
                                             });
                                         </script>
                                         </tbody>
@@ -1545,6 +1552,82 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 </div>
                             </div>
                             <!-- End Tasks Management-->
+                            <div class="tab-pane" id="stock_use">
+                                <div class="row mb-lg invoice estimate-template">
+                                    <form name="myform" role="form" data-parsley-validate="" novalidate=""
+                                          enctype="multipart/form-data"
+                                          id="form"
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post" class="form-horizontal">
+                                        <div class="col-sm-6 col-xs-12  ">
+                                            <div class="row text-right">
+                                                <div class="form-group">
+
+                                                    <?php
+                                                    $this->load->model('datatables');
+                                                    $this->datatables->table = 'tbl_purchase_items';
+                                                    $this->datatables->join_table = array('tbl_purchases');
+                                                    $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
+                                                    if ($task_details->task_id) {
+                                                        $this->datatables->where = array('tbl_purchases.task_id' => $task_details->task_id);
+                                                    }
+                                                    $this->datatables->select = 'items_id,tbl_purchase_items.quantity,tbl_purchase_items.item_name';
+
+                                                    $this->datatables->order = array('tbl_purchases.purchase_id' => 'desc');
+                                                    $fetch_data = make_datatables($this->datatables->where);
+                                                    ?>
+
+                                                    <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
+                                                    <div class="col-lg-7">
+                                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem(event)">
+                                                            <option value="" selected> Select Stock Item</option>
+                                                            <?php
+                                                            foreach ($fetch_data as $_key => $v_purchase) {
+                                                                ?>
+                                                                <option value="<?= $v_purchase->items_id ?>">
+                                                                    <?= $v_purchase->item_name ?>
+                                                                </option>
+                                                                <?php
+                                                            }
+                                                            ?>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Available Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               name="available_stockyy" id="available_stock" disabled>
+                                                        <input type="hidden" class="form-control" value="<?= $task_details->task_id ?>"
+                                                               name="task_id" id="task_id">
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Used Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="used_stock" id="used_stock">
+                                                    </div>
+
+                                                </div>
+
+                                                <button type="submit" class="btn btn-info">Save</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+                            <div class="tab-pane active" id="stock_transfer">
+
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1629,7 +1712,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <tbody id="purchase_body">
                                         <script type="text/javascript">
                                             ttable1 = 'DataTables1';
-                                            list1 = base_url + "admin/purchase/purchaseList/<?php echo $task_details->project_id; ?>"+"?task_id=<?php echo $task_details->task_id; ?>";
+                                            list1 = base_url + "admin/purchase/purchaseList/<?php echo $task_details->project_id; ?>" + "?task_id=<?php echo $task_details->task_id; ?>";
                                         </script>
                                         </tbody>
                                     </table>
@@ -2109,11 +2192,11 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 <td><?= $key + 1 ?></td>
                                                 <td>
                                                     <a class="text-info"
-                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id??0 ?>"><?= $name ?></a>
+                                                       href="<?= base_url() ?>admin/requisition/index/requisition_details/<?= $v_requisition->requisition_id ?? 0 ?>"><?= $name ?></a>
                                                 </td>
-                                                <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date??0)) ?>
+                                                <td><?= strftime(config_item('date_format'), strtotime($v_requisition->due_date ?? 0)) ?>
                                                     <?php
-                                                    if (strtotime($v_requisition->due_date??0) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
+                                                    if (strtotime($v_requisition->due_date ?? 0) < strtotime(date('Y-m-d')) && $v_requisition->status == 'Pending') { ?>
                                                         <span class="label label-danger "><?= lang('expired') ?></span>
                                                     <?php }
                                                     ?>
@@ -2250,7 +2333,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#manage_estimates"
-                                                                                  data-toggle="tab"><?= lang('estimates') ?></a>
+                                                  data-toggle="tab"><?= lang('estimates') ?></a>
                             </li>
                             <li class=""><a
                                         href="<?= base_url() ?>admin/estimates/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>"><?= lang('new_estimate') ?></a>
@@ -2595,3 +2678,19 @@ $sub_tasks = config_item('allow_sub_tasks');
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    function getSelectedItem(e) {
+        var items = <?php echo json_encode($fetch_data); ?>;
+        // console.log(items)
+        // items = JSON.parse(items)
+        var item = items.filter(function (item) {
+            return item.items_id == e.target.value;
+        });
+        console.log(item)
+        $('#available_stock').val(item[0].quantity);
+        $('.available_stock').val(item[0].quantity);
+    }
+
+</script>

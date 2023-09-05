@@ -178,11 +178,7 @@ class Purchase extends Admin_Controller
                     $sub_array[] = display_money($v_purchase->total_cost, $currency->symbol);
                     $sub_array[] = display_date($v_purchase->purchase_date);
 
-
-                    $sub_array[] = get_tags($v_purchase->tags, true);
-
-                    $action .= btn_view('admin/purchase/purchase_details/' . $v_purchase->purchase_id) . ' ';
-                    $action .= '<a class="btn btn-success btn-xs" data-popup="tooltip" data-placement="top" title="Payment" href="' . base_url() . 'admin/purchase/payment/' . $v_purchase->purchase_id . '">' . lang('pay') . '</a>';
+//                    $action .= '<button class="btn btn-success btn-xs"  data-toggle="modal" data-target=".bd-example-modal-sm">Use Stock</button>';
 
                     $sub_array[] = $action;
                     $data[] = $sub_array;
@@ -193,6 +189,30 @@ class Purchase extends Admin_Controller
         } else {
             redirect('admin/dashboard');
         }
+    }
+
+    public function stockIteamAction()
+    {
+        $purchese_item_id = $_POST['purchese_item_id'];
+        $task_id = $_POST['task_id'];
+        $used_stock = $_POST['used_stock'];
+        $userId = $this->session->userdata('user_id');;
+        $array['purchese_item_id'] = $purchese_item_id;
+        $array['task_id'] = $task_id;
+        $array['type'] = 'expense';
+        $array['quantity'] = $used_stock;
+        $array['action_by'] = $userId;
+
+        $items_info = $this->db->where('items_id', $purchese_item_id)->get('tbl_purchase_items')->row();
+        if (($items_info->quantity-$used_stock) < 0){
+            redirect('admin/tasks/view_task_details/' . $task_id);
+        }
+        $this->db->insert('tbl_stock_uses',$array);
+        $data = array('quantity' => $items_info->quantity-$used_stock);
+        $this->db->where('items_id', $purchese_item_id);
+        $this->db->update('tbl_purchase_items', $data);
+
+        redirect('admin/tasks/view_task_details/' . $task_id);
     }
 
     public function save_purchase($id = NULL)
