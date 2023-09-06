@@ -1624,7 +1624,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 </div>
                             </div>
                             <!-- End Tasks Management-->
-                            <div class="tab-pane active" id="stock_transfer">
+                            <div class="tab-pane" id="stock_transfer">
                                 <div class="row mb-lg invoice estimate-template">
                                     <form name="myform" role="form" data-parsley-validate="" novalidate=""
                                           enctype="multipart/form-data"
