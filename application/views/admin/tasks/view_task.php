@@ -1625,7 +1625,112 @@ $sub_tasks = config_item('allow_sub_tasks');
                             </div>
                             <!-- End Tasks Management-->
                             <div class="tab-pane active" id="stock_transfer">
+                                <div class="row mb-lg invoice estimate-template">
+                                    <form name="myform" role="form" data-parsley-validate="" novalidate=""
+                                          enctype="multipart/form-data"
+                                          id="form"
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post" class="form-horizontal">
+                                        <div class="col-sm-6 col-xs-12  ">
+                                            <div class="row text-right">
+                                                <div class="form-group">
 
+                                                    <?php
+                                                    $this->load->model('datatables');
+                                                    $this->datatables->table = 'tbl_purchase_items';
+                                                    $this->datatables->join_table = array('tbl_purchases');
+                                                    $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
+                                                    if ($task_details->task_id) {
+                                                        $this->datatables->where = array('tbl_purchases.task_id' => $task_details->task_id);
+                                                    }
+                                                    $this->datatables->select = 'items_id,tbl_purchase_items.quantity,tbl_purchase_items.item_name';
+
+                                                    $this->datatables->order = array('tbl_purchases.purchase_id' => 'desc');
+                                                    $fetch_data = make_datatables($this->datatables->where);
+                                                    ?>
+
+                                                    <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
+                                                    <div class="col-lg-7">
+                                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem1(event)">
+                                                            <option value="" selected> Select Stock Item</option>
+                                                            <?php
+                                                            foreach ($fetch_data as $_key => $v_purchase) {
+                                                                ?>
+                                                                <option value="<?= $v_purchase->items_id ?>">
+                                                                    <?= $v_purchase->item_name ?>
+                                                                </option>
+                                                                <?php
+                                                            }
+                                                            ?>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Available Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               name="available_stockyy" id="available_stock1" disabled>
+                                                        <input type="hidden" class="form-control" value="<?= $task_details->task_id ?>"
+                                                               name="task_id" id="task_id">
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('project') ?></label>
+                                                    <div class="col-lg-7">
+                                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event )"
+                                                                id="client_project">
+                                                            <option value=""><?= lang('none') ?></option>
+                                                            <?php
+
+                                                                $all_project = $this->db->get('tbl_project')->result();
+                                                                if (!empty($all_project)) {
+                                                                    foreach ($all_project as $v_cproject) {
+                                                                        ?>
+                                                                        <option value="<?= $v_cproject->project_id ?>" <?php
+                                                                        if (!empty($project_id)) {
+                                                                            echo $v_cproject->project_id == $project_id ? 'selected' : '';
+                                                                        }
+                                                                        ?>><?= $v_cproject->project_name ?></option>
+                                                                        <?php
+                                                                    }
+                                                                }
+
+                                                            ?>
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('task') ?> /
+                                                        Sub <?= lang('task') ?></label>
+                                                    <div class="col-lg-7">
+                                                        <select class="form-control select_box" style="width: 100%" id="task-lists"
+                                                                name="trn_task_id">
+                                                            <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('Transfer Amount') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="transfer_amount" id="used_stock">
+                                                    </div>
+
+                                                </div>
+
+
+                                                <button type="submit" class="btn btn-info">Save</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
                             </div>
 
                         </div>
@@ -2680,6 +2785,63 @@ $sub_tasks = config_item('allow_sub_tasks');
 </div>
 
 <script type="text/javascript">
+    function getXMLHTTP() { //fuction to return the xml http object
+        var xmlhttp = false;
+        try {
+            xmlhttp = new XMLHttpRequest();
+        } catch (e) {
+            try {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {
+                try {
+                    xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e1) {
+                    xmlhttp = false;
+                }
+            }
+        }
+        return xmlhttp;
+    }
+
+    function showTask(e, project_id) {
+        if (project_id == 77777){
+            let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            $.ajax({
+                async: false,
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                success: function (data) {
+                    var result = data.responseText;
+                    console.log(result);
+                    $('#task-lists').empty();
+                    $("#task-lists").html(result);
+                }
+
+            });
+        }
+        if (project_id == undefined){
+            var base_url = '<?= base_url() ?>';
+            var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            var req = getXMLHTTP();
+            if (req) {
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) {
+                            var result = req.responseText;
+                            $('#task-lists').empty();
+                            $("#task-lists").append(result);
+                        } else {
+                            alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                        }
+                    }
+                }
+                req.open("POST", strURL, true);
+                req.send(null);
+            }
+        }
+    }
 
     function getSelectedItem(e) {
         var items = <?php echo json_encode($fetch_data); ?>;
@@ -2688,9 +2850,18 @@ $sub_tasks = config_item('allow_sub_tasks');
         var item = items.filter(function (item) {
             return item.items_id == e.target.value;
         });
-        console.log(item)
         $('#available_stock').val(item[0].quantity);
         $('.available_stock').val(item[0].quantity);
+    }
+    function getSelectedItem1(e) {
+        var items = <?php echo json_encode($fetch_data); ?>;
+        // console.log(items)
+        // items = JSON.parse(items)
+        var item = items.filter(function (item) {
+            return item.items_id == e.target.value;
+        });
+        $('#available_stock1').val(item[0].quantity);
+        $('.available_stock1').val(item[0].quantity);
     }
 
 </script>

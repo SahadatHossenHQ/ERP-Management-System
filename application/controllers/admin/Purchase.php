@@ -215,6 +215,57 @@ class Purchase extends Admin_Controller
         redirect('admin/tasks/view_task_details/' . $task_id);
     }
 
+    public function stockIteamTransfer()
+    {
+        $purchese_item_id = $_POST['purchese_item_id'];
+        $task_id = $_POST['task_id'];
+        $project_id = $_POST['project_id'];
+        $trn_task_id = $_POST['trn_task_id'];
+        $transfer_amount = $_POST['transfer_amount'];
+        $userId = $this->session->userdata('user_id');
+
+
+        $items_info = $this->db->where('items_id', $purchese_item_id)->get('tbl_purchase_items')->row();
+        $purchase_info = $this->db->where('purchase_id',$items_info->purchase_id)->get('tbl_purchases')->row();
+
+
+
+        if (($items_info->quantity-$transfer_amount) < 0){
+            redirect('admin/tasks/view_task_details/' . $task_id);
+        }
+
+        $arrayData = json_decode(json_encode($purchase_info), true);
+        unset($arrayData['purchase_id']);
+        $arrayData['task_id'] = $trn_task_id;
+        $arrayData['project_id'] = $project_id;
+        $this->db->insert('tbl_purchases',$arrayData);
+        $id = $this->db->insert_id();
+
+
+        $data = array('quantity' => $items_info->quantity-$transfer_amount, 'total_cost' => $items_info->unit_cost*($items_info->quantity-$transfer_amount));
+        $this->db->where('items_id', $purchese_item_id);
+        $this->db->update('tbl_purchase_items', $data);
+
+        $items_info = json_decode(json_encode($items_info), true);
+        unset($items_info['items_id']);
+        $items_info['purchase_id'] = $id;
+        $items_info['quantity'] = $transfer_amount;
+        $items_info['total_cost'] = $items_info['unit_cost']*$transfer_amount;
+
+        $this->db->insert('tbl_purchase_items',$items_info);
+        $id_ = $this->db->insert_id();
+
+        $array['purchese_item_id'] = $id_;
+        $array['task_id'] = $task_id;
+        $array['project_id'] = $project_id;
+        $array['type'] = 'transfer';
+        $array['quantity'] = $transfer_amount;
+        $array['action_by'] = $userId;
+        $array['to_task_id'] = $trn_task_id;
+        $this->db->insert('tbl_stock_uses',$array);
+        redirect('admin/tasks/view_task_details/' . $task_id);
+    }
+
     public function save_purchase($id = NULL)
     {
         $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags',
