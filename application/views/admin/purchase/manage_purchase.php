@@ -243,6 +243,7 @@ if (!empty($created) || !empty($edited)){
                                                     name="task_id">
                                                 <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                                 <?php
+                                                $task_id = $_GET['task_id'];
                                                 if ($project_id) {
                                                     $tasks_id = get_all_tasks($project_id);
                                                     $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
@@ -258,8 +259,11 @@ if (!empty($created) || !empty($edited)){
                                                         } else {
                                                             $task_title = $task->task_name;
                                                         }
+
                                                         ?>
-                                                        <option value="<?php echo $task->task_id; ?>"><?= $task_title ?></option>
+                                                        <option value="<?php echo $task->task_id; ?>"  <?php if ($task_id == $task->task_id) {
+                                                            echo "selected";
+                                                        } ?>  ><?= $task_title ?></option>
                                                         <?php
                                                     }
                                                 }

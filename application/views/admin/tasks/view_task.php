@@ -98,19 +98,9 @@ $sub_tasks = config_item('allow_sub_tasks');
                 </a>
                 <ul id="project_reports" class="nav s-menu collapse" aria-expanded="false" style="height: 0px;">
                     <li class="">
-                        <a title="Expense Report"
+                        <a title="Expense Report" target="_blank"
                            href="<?= base_url() ?>admin/report/expense_report/project/<?= $task_details->project_id ?>">
                             <span>Expense Report</span></a>
-                    </li>
-                    <li class="">
-                        <a title="Income Reports"
-                           href="<?= base_url() ?>admin/report/income_report/project/<?= $task_details->project_id ?>">
-                            <span>Income Reports</span></a>
-                    </li>
-                    <li class="">
-                        <a title="Income Vs Expense"
-                           href="<?= base_url() ?>admin/report/income_expense/project/<?= $task_details->project_id ?>">
-                            <span>Income Vs Expense</span></a>
                     </li>
                 </ul>
 
