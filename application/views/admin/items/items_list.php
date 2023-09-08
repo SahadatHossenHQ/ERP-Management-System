@@ -74,6 +74,9 @@ if (!empty($created) || !empty($edited)) {
         <li class=""><a href="#stock_transfer"
                         data-toggle="tab"><?= lang('Stock Transfer') ?></a>
         </li>
+        <li class=""><a href="#stock-expense-and-transfer-history1"
+                        data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
+        </li>
 
     </ul>
     <style type="text/css">
@@ -681,7 +684,7 @@ if (!empty($created) || !empty($edited)) {
                           enctype="multipart/form-data"
                           id="form"
                           action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post" class="form-horizontal">
-                        <div class="col-sm-6 col-xs-12  ">
+                        <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
                                 <div class="form-group">
 
@@ -744,7 +747,7 @@ if (!empty($created) || !empty($edited)) {
                           enctype="multipart/form-data"
                           id="form"
                           action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post" class="form-horizontal">
-                        <div class="col-sm-6 col-xs-12  ">
+                        <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
                                 <div class="form-group">
 
@@ -836,6 +839,98 @@ if (!empty($created) || !empty($edited)) {
                     </form>
                 </div>
             </div>
+
+            <div class="tab-pane" id="stock-expense-and-transfer-history1">
+                <div class="table-responsive">
+                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                           cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="2"><?= lang('Item Name') ?></th>
+                            <th class="2"><?= lang('Transfer From Project') ?></th>
+                            <th class="1"><?= lang('Transfer From Task') ?></th>
+                            <th class="1"><?= lang('Transfer To Project') ?></th>
+                            <th class="1"><?= lang('Transfer To Task') ?></th>
+                            <th class="2"><?= lang('quantity') ?></th>
+                            <th class="2"><?= lang('unit') . ' ' . lang('type') ?></th>
+                            <th class="2"><?= lang('Type of Transaction') ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        $this->db->from('tbl_stock_uses');
+                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+                        //                        $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
+                        $query_result = $this->db->get();
+                        $result = $query_result->result();
+                        foreach ($result as $key => $row) {
+                            ?>
+                            <tr>
+                                <td><?= $key+1 ?></td>
+                                <td><?= $row->item_name ?></td>
+                                <td>
+                                    <?php
+                                    $this->db->from('tbl_saved_items');
+                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                    $this->db->select('tbl_project.project_name');
+                                    $this->db->where('saved_items_id', $row->item_id);
+                                    $query_result = $this->db->get();
+                                    $query_result = $query_result->row();
+                                    echo $query_result->project_name ?? '-';
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $this->db->from('tbl_saved_items');
+                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                    $this->db->select('tbl_task.task_name');
+                                    $this->db->where('saved_items_id', $row->item_id);
+                                    $query_result = $this->db->get();
+                                    $query_result = $query_result->row();
+                                    echo $query_result->task_name?? '-';
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $this->db->from('tbl_saved_items');
+                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                    $this->db->select('tbl_project.project_name');
+                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                    $query_result = $this->db->get();
+                                    $query_result = $query_result->row();
+                                    echo $query_result->project_name?? '-';
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $this->db->from('tbl_saved_items');
+                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                    $this->db->select('tbl_task.task_name');
+                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                    $query_result = $this->db->get();
+                                    $query_result = $query_result->row();
+                                    echo $query_result->task_name ?? '-';
+                                    ?>
+
+                                </td>
+                                <td><?= $row->quantity ?></td>
+                                <td><?= $row->unit_type ?></td>
+                                <td class="text-capitalize">
+                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
+                                </td>
+
+                            </tr>
+                            <?php
+                        }
+                        ?>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
 

@@ -124,57 +124,30 @@ $edited = can_action('57', 'edited');
 
         <ul class="mt nav nav-pills nav-stacked navbar-custom-nav">
             <li class="btn-success" style="margin-right: 0px; "></li>
-            <li class="<?= $active == 1 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#task_details"
+            <li class="" style="margin-right: 0px; "><a href="#task_details"
                                                                                            data-toggle="tab"><?= lang('project_details') ?></a>
-            </li>
-
-            <li class="<?= $active == 15 ? 'active' : '' ?>"><a
-                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/15"><?= lang('calendar') ?></a>
-            </li>
-
-            <li class="<?= $active == 3 ? 'active' : '' ?>"><a href="#task_comments"
-                                                               data-toggle="tab"><?= lang('comments') ?><strong
-                            class="pull-right"><?= (!empty($comment_details) ? count($comment_details) : null) ?></strong></a>
-            </li>
-            <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments"
-                                                               data-toggle="tab"><?= lang('attachment') ?><strong
-                            class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
             </li>
             <!--            <li class="-->
             <?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">-->
             <?php //= lang('milestones') ?><!--<strong class="pull-right">-->
             <?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
             <!--            </li>-->
-            <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
-                    <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
-            </li>
             <li class="<?= $active == 70 ? 'active' : '' ?>"><a href="#contactor"
-                                                                data-toggle="tab"><?= lang('contactor') ?></a></li>
-            <li class="<?= $active == 9 ? 'active' : '' ?>"><a href="#bugs" data-toggle="tab"><?= lang('bugs') ?><strong
-                            class="pull-right"><?= (!empty($all_bugs_info) ? count($all_bugs_info) : null) ?></strong></a>
+                                                                                        data-toggle="tab"><?= lang('contactor') ?></a></li>
+            <li class="">
+                <a title="Stock Report" href="#stock_data" data-toggle="tab">
+                    <span><?= lang('Stock') ?></span>
+                </a>
             </li>
-            <li class="<?= $active == 13 ? 'active' : '' ?>"><a
-                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/13"><?= lang('gantt') ?></a>
-            </li>
-            <li class="<?= $active == 8 ? 'active' : '' ?>"><a href="#task_notes"
-                                                               data-toggle="tab"><?= lang('notes') ?></a></li>
-            <li class="<?= $active == 7 ? 'active' : '' ?>"><a href="#timesheet"
-                                                               data-toggle="tab"><?= lang('timesheet') ?><strong
-                            class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong></a>
-            </li>
-
-            <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets"
-                                                                data-toggle="tab"><?= lang('tickets') ?><strong
-                            class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
+            <li class="">
+                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
+                    <span><?= lang('Purchase') ?></span>
+                </a>
             </li>
 
             <li class="<?= $active == 11 ? 'active' : '' ?>"><a href="#invoice"
                                                                 data-toggle="tab"><?= lang('bill_received') ?><strong
                             class="pull-right"><?= (!empty($all_invoice_info) ? count($all_invoice_info) : null) ?></strong></a>
-            </li>
-            <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note"
-                                                                data-toggle="tab"><?= lang('credit_note') ?><strong
-                            class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 12 ? 'active' : '' ?>"><a href="#estimates"
                                                                 data-toggle="tab"><?= lang('estimates') ?><strong
@@ -187,6 +160,18 @@ $edited = can_action('57', 'edited');
             <li class="<?= $active == 10 ? 'active' : '' ?>"><a href="#expense" data-toggle="tab"><?= lang('expense') ?>
                     <strong class="pull-right"><?php
                         echo(!empty($all_expense_info) ? display_money($total_expense->amount, $currency->symbol) : null) ?></strong></a>
+            </li>
+            <li class="<?= $active == 15 ? 'active' : '' ?>"><a
+                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/15"><?= lang('calendar') ?></a>
+            </li>
+
+            <li class="<?= $active == 3 ? 'active' : '' ?>"><a href="#task_comments"
+                                                               data-toggle="tab"><?= lang('comments') ?><strong
+                            class="pull-right"><?= (!empty($comment_details) ? count($comment_details) : null) ?></strong></a>
+            </li>
+            <li class="<?= $active == 4 ? 'active' : '' ?>"><a href="#task_attachments"
+                                                               data-toggle="tab"><?= lang('attachment') ?><strong
+                            class="pull-right"><?= (!empty($project_files_info) ? count($project_files_info) : null) ?></strong></a>
             </li>
             <li class="<?= $active == 16 ? 'active' : '' ?>"><a href="#project_settings"
                                                                 data-toggle="tab"><?= lang('project_settings') ?></a>
@@ -224,21 +209,38 @@ $edited = can_action('57', 'edited');
                 </ul>
 
             </li>
+            <li class="<?= $active == 6 ? 'active' : '' ?>"><a href="#task" data-toggle="tab"><?= lang('tasks') ?>
+                    <strong class="pull-right"><?= (!empty($all_task_info) ? count($all_task_info) : null) ?></strong></a>
+            </li>
+            <li class="<?= $active == 9 ? 'active' : '' ?>"><a href="#bugs" data-toggle="tab"><?= lang('bugs') ?><strong
+                            class="pull-right"><?= (!empty($all_bugs_info) ? count($all_bugs_info) : null) ?></strong></a>
+            </li>
+            <li class="<?= $active == 13 ? 'active' : '' ?>"><a
+                        href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/13"><?= lang('gantt') ?></a>
+            </li>
+            <li class="<?= $active == 8 ? 'active' : '' ?>"><a href="#task_notes"
+                                                               data-toggle="tab"><?= lang('notes') ?></a></li>
+            <li class="<?= $active == 7 ? 'active' : '' ?>"><a href="#timesheet"
+                                                               data-toggle="tab"><?= lang('timesheet') ?><strong
+                            class="pull-right"><?= (!empty($total_timer) ? count($total_timer) : null) ?></strong></a>
+            </li>
 
-            <li class="">
-                <a title="Stock Report" href="#stock_data" data-toggle="tab">
-                    <span><?= lang('Stock') ?></span>
-                </a>
+            <li class="<?= $active == 14 ? 'active' : '' ?>"><a href="#project_tickets"
+                                                                data-toggle="tab"><?= lang('tickets') ?><strong
+                            class="pull-right"><?= (!empty($all_tickets_info) ? count($all_tickets_info) : null) ?></strong></a>
             </li>
-            <li class="">
-                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
-                    <span><?= lang('Purchase') ?></span>
-                </a>
+
+            <li class="<?= $active == 18 ? 'active' : '' ?>"><a href="#credit_note"
+                                                                data-toggle="tab"><?= lang('credit_note') ?><strong
+                            class="pull-right"><?= (!empty($all_credit_note_info) ? count($all_credit_note_info) : null) ?></strong></a>
             </li>
-            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; "><a href="#activities"
-                                                                                           data-toggle="tab"><?= lang('activities') ?>
+            <li class="<?= $active == 2 ? 'active' : '' ?>" style="margin-right: 0px; ">
+                <a href="#activities"
+                   data-toggle="tab"><?= lang('activities') ?>
                     <strong class="pull-right"><?= (!empty($activities_info) ? count($activities_info) : null) ?></strong>
             </li>
+
+
         </ul>
     </div>
     <div class="col-sm-10">
@@ -1673,15 +1675,25 @@ $edited = can_action('57', 'edited');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
+                            <li class="active"><a href="#manage_stock_" data-toggle="tab"><?= lang('Stock') ?></a>
+                            </li>
+                            <li class=""><a href="#stock_use" data-toggle="tab"><?= lang('Use Stock') ?></a>
+                            </li>
+                            <li class=""><a href="#stock_transfer"
+                                            data-toggle="tab"><?= lang('Stock Transfer') ?></a>
+                            </li>
+                            <li class=""><a href="#stock-expense-and-transfer-history2"
+                                            data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
                             </li>
                             <li class="">
                                 <a href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project"><?= lang('New Stock') ?></a>
                             </li>
+
+
                         </ul>
                         <div class="tab-content bg-white">
                             <!-- ************** general *************-->
-                            <div class="tab-pane active" id="manage_stock">
+                            <div class="tab-pane active" id="manage_stock_">
                                 <div class="table-responsive">
                                     <table class="table table-striped DataTables bulk_table" id="DataTables"
                                            cellspacing="0" width="100%">
@@ -1729,7 +1741,7 @@ $edited = can_action('57', 'edited');
                                         <tbody>
                                         <script type="text/javascript">
                                             $(document).ready(function () {
-                                                list = base_url + "admin/items/itemsList" + "<?php echo(($type === 'project') ? '/' . $project_id . '/' . $type : ''); ?>";
+                                                list = base_url + "admin/items/itemsList" + "<?php echo('/' . $project_details->project_id .'/project'); ?>";
                                                 bulk_url = base_url + "admin/items/bulk_delete";
                                                 $('.filtered > .dropdown-toggle').on('click', function () {
                                                     if ($('.group').css('display') == 'block') {
@@ -1763,6 +1775,270 @@ $edited = can_action('57', 'edited');
                                 </div>
                             </div>
                             <!-- End Tasks Management-->
+
+                            <div class="tab-pane" id="stock_use">
+                                <div class="row mb-lg invoice estimate-template">
+                                    <form name="myform" role="form" data-parsley-validate="" novalidate=""
+                                          enctype="multipart/form-data"
+                                          id="form"
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction"
+                                          method="post" class="form-horizontal">
+                                        <div class="col-sm-10 col-xs-12  ">
+                                            <div class="row text-right">
+                                                <div class="form-group">
+
+                                                    <?php
+                                                    $fetch_data = $this->db->where_in('project_id', [$project_details->project_id])->get('tbl_saved_items')->result();
+                                                    ?>
+
+                                                    <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
+                                                    <div class="col-lg-7">
+                                                        <select name="purchese_item_id" class="selectpicker"
+                                                                data-width="100%" onchange="getSelectedItem(event)">
+                                                            <option value="" selected> Select Stock Item</option>
+                                                            <?php
+                                                            foreach ($fetch_data as $_key => $v_purchase) {
+                                                                ?>
+                                                                <option value="<?= $v_purchase->saved_items_id ?>">
+                                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
+                                                                </option>
+                                                                <?php
+                                                            }
+                                                            ?>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Available Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               name="available_stock" id="available_stock" readonly>
+                                                        <input type="hidden" class="form-control"
+                                                               name="unit_type" id="unit_type" readonly>
+
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Used Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="used_stock" id="used_stock">
+                                                    </div>
+
+                                                </div>
+
+                                                <button type="submit" class="btn btn-info">Save</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- End Tasks Management-->
+                            <div class="tab-pane" id="stock_transfer">
+                                <div class="row mb-lg invoice estimate-template">
+                                    <form name="myform" role="form" data-parsley-validate="" novalidate=""
+                                          enctype="multipart/form-data"
+                                          id="form"
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer"
+                                          method="post" class="form-horizontal">
+                                        <div class="col-sm-10 col-xs-12  ">
+                                            <div class="row text-right">
+                                                <div class="form-group">
+
+                                                    <?php
+                                                    $fetch_data = $this->db->where_in('project_id', [$project_details->project_id])->get('tbl_saved_items')->result();
+                                                    ?>
+
+                                                    <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
+                                                    <div class="col-lg-7">
+                                                        <select name="purchese_item_id" class="selectpicker"
+                                                                data-width="100%" onchange="getSelectedItem1(event)">
+                                                            <option value="" selected> Select Stock Item</option>
+                                                            <?php
+                                                            foreach ($fetch_data as $_key => $v_purchase) {
+                                                                ?>
+                                                                <option value="<?= $v_purchase->saved_items_id ?>">
+                                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
+                                                                </option>
+                                                                <?php
+                                                            }
+                                                            ?>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-3 control-label"><?= lang('Available Stock') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               name="available_stockyy" id="available_stock1" disabled>
+                                                        <input type="hidden" class="form-control"
+                                                               value="<?= $project_details->task_id ?>"
+                                                               name="task_id" id="task_id">
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('project') ?></label>
+                                                    <div class="col-lg-7">
+                                                        <select class="form-control select_box" style="width: 100%"
+                                                                name="project_id" onchange="showTask(event )"
+                                                                id="client_project">
+                                                            <option value=""><?= lang('none') ?></option>
+                                                            <?php
+
+                                                            $all_project = $this->db->get('tbl_project')->result();
+                                                            if (!empty($all_project)) {
+                                                                foreach ($all_project as $v_cproject) {
+                                                                    ?>
+                                                                    <option value="<?= $v_cproject->project_id ?>" <?php
+                                                                    if (!empty($project_id)) {
+                                                                        echo $v_cproject->project_id == $project_id ? 'selected' : '';
+                                                                    }
+                                                                    ?>><?= $v_cproject->project_name ?></option>
+                                                                    <?php
+                                                                }
+                                                            }
+
+                                                            ?>
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('task') ?> /
+                                                        Sub <?= lang('task') ?></label>
+                                                    <div class="col-lg-7">
+                                                        <select class="form-control select_box" style="width: 100%"
+                                                                id="task-lists"
+                                                                name="trn_task_id">
+                                                            <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group text-left">
+                                                    <label class="col-lg-3 control-label"><?= lang('Transfer Amount') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="text" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="transfer_amount" id="used_stock">
+                                                    </div>
+
+                                                </div>
+
+
+                                                <button type="submit" class="btn btn-info">Save</button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane active" id="stock-expense-and-transfer-history2">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                                           cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th class="col-sm-2"><?= lang('Item Name') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer From Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer From Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer To Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer To Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('quantity') ?></th>
+                                            <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        $this->db->from('tbl_stock_uses');
+                                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+                                        $this->db->join('tbl_saved_items as item_2', 'tbl_stock_uses.transfer_to_item_id = item_2.saved_items_id', 'left');
+                                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+                                        $this->db->where('tbl_saved_items.project_id', $project_details->project_id);
+                                        $this->db->or_where('item_2.project_id', $project_details->project_id);
+                                        $query_result = $this->db->get();
+                                        $result = $query_result->result();
+                                        foreach ($result as $key => $row) {
+                                            ?>
+                                            <tr>
+                                                <td><?= $key+1 ?></td>
+                                                <td><?= $row->item_name ?></td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name?? '-';
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name ?? '-';
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name?? '-';
+                                                    ?>
+
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name ?? '-';
+                                                    ?>
+
+                                                </td>
+                                                <td><?= $row->quantity ?></td>
+                                                <td><?= $row->unit_type ?></td>
+                                                <td class="text-capitalize">
+                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
+                                                </td>
+
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -2758,11 +3034,15 @@ $edited = can_action('57', 'edited');
                                         <?php
 
                                         $sub_task_ids = get_all_tasks($project_details->project_id);
-                                        $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
-                                            ->select('tbl_task.*,tbl_customer_group.customer_group')
-                                            ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
-                                            ->get('tbl_task')
-                                            ->result();
+                                        if($sub_task_ids) {
+                                            $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
+                                                ->select('tbl_task.*,tbl_customer_group.customer_group')
+                                                ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
+                                                ->get('tbl_task')
+                                                ->result();
+                                        } else {
+                                            $tasks = null;
+                                        }
                                         if (!empty($tasks)) :
                                             foreach ($tasks as $key => $task) :
                                                 $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
@@ -3859,7 +4139,7 @@ $edited = can_action('57', 'edited');
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
 //
 //    $(document).ready(function () {
 //        let url = base_url + "admin/purchase/purchaseList/<?php //echo '/' . $project_details->project_id;  ?>//";
@@ -3879,5 +4159,85 @@ $edited = can_action('57', 'edited');
 //
 //
 //    }
+
+function getXMLHTTP() { //fuction to return the xml http object
+    var xmlhttp = false;
+    try {
+        xmlhttp = new XMLHttpRequest();
+    } catch (e) {
+        try {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        } catch (e) {
+            try {
+                xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (e1) {
+                xmlhttp = false;
+            }
+        }
+    }
+    return xmlhttp;
+}
+
+function showTask(e, project_id) {
+    if (project_id == 77777) {
+        let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+        $.ajax({
+            async: false,
+            url: url,
+            type: 'GET',
+            dataType: "json",
+            success: function (data) {
+                var result = data.responseText;
+                console.log(result);
+                $('#task-lists').empty();
+                $("#task-lists").html(result);
+            }
+
+        });
+    }
+    if (project_id == undefined) {
+        var base_url = '<?= base_url() ?>';
+        var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+        var req = getXMLHTTP();
+        if (req) {
+            req.onreadystatechange = function () {
+                if (req.readyState == 4) {
+                    // only if "OK"
+                    if (req.status == 200) {
+                        var result = req.responseText;
+                        $('#task-lists').empty();
+                        $("#task-lists").append(result);
+                    } else {
+                        alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                    }
+                }
+            }
+            req.open("POST", strURL, true);
+            req.send(null);
+        }
+    }
+}
+
+function getSelectedItem(e) {
+    var items = <?php echo json_encode($fetch_data); ?>;
+    // console.log(items)
+    // items = JSON.parse(items)
+    var item = items.filter(function (item) {
+        return item.saved_items_id == e.target.value;
+    });
+    console.log(item)
+    $('#available_stock').val(item[0].quantity);
+    $('#unit_type').val(item[0].unit_type);
+}
+
+function getSelectedItem1(e) {
+    var items = <?php echo json_encode($fetch_data); ?>;
+    // console.log(items)
+    // items = JSON.parse(items)
+    var item = items.filter(function (item) {
+        return item.saved_items_id == e.target.value;
+    });
+    $('#available_stock1').val(item[0].quantity);
+}
 
 </script>

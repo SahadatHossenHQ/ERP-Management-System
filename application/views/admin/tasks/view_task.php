@@ -1511,40 +1511,97 @@ $sub_tasks = config_item('allow_sub_tasks');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
+                            <li class="active"><a href="#manage_stock1" data-toggle="tab"><?= lang('Stock') ?></a>
                             </li>
                             <li class=""><a href="#stock_use" data-toggle="tab"><?= lang('Use Stock') ?></a>
                             </li>
                             <li class=""><a href="#stock_transfer"
                                             data-toggle="tab"><?= lang('Stock Transfer') ?></a>
                             </li>
+                            <li class=""><a href="#stock-expense-and-transfer-history"
+                                            data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
+                            </li>
                             <li class="">
-                                <a href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
+                                <a target="_blank" href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
                             <!-- ************** general *************-->
-                            <div class="tab-pane active" id="manage_stock">
+                            <div class="tab-pane active" id="manage_stock1">
                                 <div class="table-responsive">
                                     <table class="table table-striped DataTables bulk_table" id="DataTables"
                                            cellspacing="0" width="100%">
                                         <thead>
                                         <tr>
-                                            <th>#</th>
+
+                                            <th data-orderable="false">
+                                                <div class="checkbox c-checkbox">
+                                                    <label class="needsclick">
+                                                        <input id="select_all" type="checkbox">
+                                                        <span class="fa fa-check"></span></label>
+                                                </div>
+                                            </th>
+
                                             <th><?= lang('item') ?></th>
-                                            <th class="col-sm-1"><?= lang('unit') ?></th>
+                                            <?php
+                                            $invoice_view = config_item('invoice_view');
+                                            if (!empty($invoice_view) && $invoice_view == '2') {
+                                                ?>
+                                                <th><?= lang('hsn_code') ?></th>
+                                            <?php } ?>
+                                            <?php if (admin()) { ?>
+                                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
+                                            <?php } ?>
                                             <th class="col-sm-1"><?= lang('unit_price') ?></th>
-                                            <th class="col-sm-1"><?= lang('total_price') ?></th>
+                                            <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('project') ?></th>
-
-                                            <th class="col-sm-1"><?= lang('action') ?></th>
-
+                                            <th class="col-sm-2"><?= lang('tax') ?></th>
+                                            <th class="col-sm-1"><?= lang('group') ?></th>
+                                            <?php $show_custom_fields = custom_form_table(18, null);
+                                            if (!empty($show_custom_fields)) {
+                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                                    if (!empty($c_label)) {
+                                                        ?>
+                                                        <th><?= $c_label ?> </th>
+                                                    <?php }
+                                                }
+                                            }
+                                            ?>
+                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
+                                                <th class="col-sm-1"><?= lang('action') ?></th>
+                                            <?php } ?>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <script type="text/javascript">
                                             $(document).ready(function () {
-                                                list = base_url + "admin/purchase/purchaseItemList" + "<?php echo(($type === 'project') ? '/' . $task_details->project_id : ''); ?>" + "?task_id=<?php echo $task_details->task_id; ?>";
+                                                list = base_url + "admin/items/itemsList" + "<?php echo('/' . $task_details->task_id . '/task'); ?>";
+                                                bulk_url = base_url + "admin/items/bulk_delete";
+                                                $('.filtered > .dropdown-toggle').on('click', function () {
+                                                    if ($('.group').css('display') == 'block') {
+                                                        $('.group').css('display', 'none');
+                                                    } else {
+                                                        $('.group').css('display', 'block')
+                                                    }
+                                                });
+                                                $('.filter_by').on('click', function () {
+                                                    $('.filter_by').removeClass('active');
+                                                    $('.group').css('display', 'block');
+                                                    $(this).addClass('active');
+                                                    var filter_by = $(this).attr('id');
+                                                    if (filter_by) {
+                                                        filter_by = filter_by;
+                                                    } else {
+                                                        filter_by = '';
+                                                    }
+                                                    var search_type = $(this).attr('search-type');
+                                                    if (search_type) {
+                                                        search_type = '/' + search_type;
+                                                    } else {
+                                                        search_type = '';
+                                                    }
+                                                    table_url(base_url + "admin/items/itemsList/" + filter_by + search_type);
+                                                });
                                             });
                                         </script>
                                         </tbody>
@@ -1559,7 +1616,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                           id="form"
                                           action="<?php echo base_url(); ?>admin/purchase/stockIteamAction"
                                           method="post" class="form-horizontal">
-                                        <div class="col-sm-6 col-xs-12  ">
+                                        <div class="col-sm-10 col-xs-12  ">
                                             <div class="row text-right">
                                                 <div class="form-group">
 
@@ -1624,7 +1681,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                           id="form"
                                           action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer"
                                           method="post" class="form-horizontal">
-                                        <div class="col-sm-6 col-xs-12  ">
+                                        <div class="col-sm-10 col-xs-12  ">
                                             <div class="row text-right">
                                                 <div class="form-group">
 
@@ -1718,6 +1775,73 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         </div>
 
                                     </form>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane " id="stock-expense-and-transfer-history">
+                                <div class="table-responsive">
+                                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                                           cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th class="col-sm-2"><?= lang('Item Name') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer From') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer To') ?></th>
+                                            <th class="col-sm-2"><?= lang('quantity') ?></th>
+                                            <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        $this->db->from('tbl_stock_uses');
+                                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+                                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+                                        $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
+                                        $query_result = $this->db->get();
+                                        $result = $query_result->result();
+                                        foreach ($result as $key => $row) {
+                                            ?>
+                                            <tr>
+                                                <td><?= $key+1 ?></td>
+                                                <td><?= $row->item_name ?></td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name;
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name ?? '-';
+                                                    ?>
+
+                                                </td>
+                                                <td><?= $row->quantity ?></td>
+                                                <td><?= $row->unit_type ?></td>
+                                                <td class="text-capitalize">
+                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
+                                                </td>
+
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 

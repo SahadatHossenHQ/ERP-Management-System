@@ -40,14 +40,12 @@ class Items extends Admin_Controller
     {
         if ($this->input->is_ajax_request()) {
             $task_id = $this->input->get('task_id');
+            $project_id = $this->input->get('project_id');
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_saved_items';
             $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer','tbl_project');
             $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id','tbl_project.project_id=tbl_saved_items.project_id');
 
-//            if ($task_id){
-//                $this->datatables->where = array('task_id' => $task_id);
-//            }
             $custom_field = custom_form_table_search(18);
             $action_array = array('saved_items_id');
             $main_column = array('project_id','item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
@@ -64,9 +62,12 @@ class Items extends Admin_Controller
                 $where = array('tbl_saved_items.manufacturer_id' => $group_id);
             } else if (!empty($type) && $type == 'project') {
                 $where = array('tbl_saved_items.project_id' => $group_id);
+            } else if (!empty($type) && $type == 'task') {
+                $where = array('tbl_saved_items.task_id' => $group_id);
             } else {
                 $where = null;
             }
+
             $fetch_data = make_datatables($where);
 
             $data = array();
@@ -138,7 +139,7 @@ class Items extends Admin_Controller
                 $data[] = $sub_array;
             }
 
-            render_table($data);
+            render_table($data,$where);
         } else {
             redirect('admin/dashboard');
         }

@@ -256,7 +256,7 @@ class Purchase extends Admin_Controller
         $array['type'] = 'transfer';
         $array['quantity'] = $transfer_amount;
         $array['action_by'] = $userId;
-        $array['unit_type'] = $unit_type;
+        $array['unit_type'] = $items_info->unit_type;
         $array['to_task_id'] = $trn_task_id;
         $this->db->insert('tbl_stock_uses',$array);
 
