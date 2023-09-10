@@ -207,7 +207,7 @@ class Purchase extends Admin_Controller
         $array['item_id'] = $saved_items_id;
         $array['project_id'] = $items_info->project_id;
         $array['task_id'] = $items_info->task_id;
-        $array['type'] = 'expense';
+        $array['type'] = 'used';
         $array['quantity'] = $used_stock;
         $array['action_by'] = $userId;
         $array['unit_type'] = $unit_type;
@@ -644,8 +644,10 @@ class Purchase extends Admin_Controller
                             ->get('tbl_saved_items')->row();
                         $array = json_decode(json_encode($saved_item), true);
 
+                        $array['item_name'] = $purchase->item_name;
                         $array['unit_cost'] = $purchase->unit_cost;
                         $array['project_id'] = $purchase->project_id;
+                        $array['task_id'] = $purchase->task_id;
                         $array['total_cost'] = $purchase->total_cost;
                         $array['quantity'] = $purchase->quantity;
                         $array['unit_type'] = $purchase->unit_type;

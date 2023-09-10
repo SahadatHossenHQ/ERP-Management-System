@@ -1492,7 +1492,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
 
@@ -1509,7 +1509,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('Stock Transfer') ?></a>
                             </li>
                             <li class=""><a href="#stock-expense-and-transfer-history"
-                                            data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
+                                            data-toggle="tab"><?= lang('Stock Uses & Transfer History') ?></a>
                             </li>
                             <li class="">
                                 <a target="_blank" href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
@@ -1770,14 +1770,17 @@ $sub_tasks = config_item('allow_sub_tasks');
 
                             <div class="tab-pane " id="stock-expense-and-transfer-history">
                                 <div class="table-responsive">
+
                                     <table class="table table-striped DataTables bulk_table" id="DataTables"
                                            cellspacing="0" width="100%">
                                         <thead>
                                         <tr>
                                             <th>#</th>
                                             <th class="col-sm-2"><?= lang('Item Name') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer From') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer To') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
                                             <th class="col-sm-2"><?= lang('quantity') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
@@ -1787,10 +1790,13 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <?php
                                         $this->db->from('tbl_stock_uses');
                                         $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+                                        $this->db->join('tbl_saved_items as item_2', 'tbl_stock_uses.transfer_to_item_id = item_2.saved_items_id', 'left');
                                         $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
                                         $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
+                                        $this->db->or_where('item_2.task_id', $task_details->task_id);
                                         $query_result = $this->db->get();
                                         $result = $query_result->result();
+
                                         foreach ($result as $key => $row) {
                                             ?>
                                             <tr>
@@ -1799,13 +1805,36 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 <td>
                                                     <?php
                                                     $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name?? '-';
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
                                                     $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
                                                     $this->db->select('tbl_task.task_name');
                                                     $this->db->where('saved_items_id', $row->item_id);
                                                     $query_result = $this->db->get();
                                                     $query_result = $query_result->row();
-                                                    echo $query_result->task_name;
+                                                    echo $query_result->task_name ?? '-';
                                                     ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name?? '-';
+                                                    ?>
+
                                                 </td>
                                                 <td>
                                                     <?php
@@ -1855,7 +1884,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category ?? []) > 0) { ?>
@@ -1868,7 +1897,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             }
                                         }
                                     } ?>">
-                                        <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
+                                        <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
                                     </li>
                                 <?php }
                                 ?>
@@ -2206,7 +2235,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     </td>
 
                                                     <td>
-                                                        <a href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_tasks->task_id ?>"
+                                                        <a target="_blank" href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_tasks->task_id ?>"
                                                            class="text-info small"><?= $task_info->task_name ?>
                                                             <?php
                                                             if (!empty($v_tasks->reason)) {
@@ -2364,7 +2393,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
                             <li class="">
-                                <a href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
+                                <a target="_blank" href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
                                     <?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
@@ -2487,7 +2516,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     ?>
                                                     <tr id="table-expense-<?= $v_expense->transactions_id ?>">
                                                         <td>
-                                                            <a href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                            <a target="_blank" href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
                                                                 <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
                                                             </a>
                                                         </td>

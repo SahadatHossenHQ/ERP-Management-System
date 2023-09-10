@@ -257,7 +257,7 @@ $edited = can_action('57', 'edited');
                             <?php if (!empty($project_details->project_name)) echo $project_details->project_name; ?>
                             <div class="pull-right text-sm">
                                 <?php if (!empty($can_edit) && !empty($edited)) { ?>
-                                    <a href="<?= base_url() ?>admin/projects/index/<?= $project_details->project_id ?>"><?= lang('edit') . ' ' . lang('project') ?></a>
+                                    <a target="_blank" href="<?= base_url() ?>admin/projects/index/<?= $project_details->project_id ?>"><?= lang('edit') . ' ' . lang('project') ?></a>
                                 <?php } ?>
                             </div>
                         </div>
@@ -395,7 +395,7 @@ $edited = can_action('57', 'edited');
                                                             <span class="caret"></span></button>
                                                         <ul class="dropdown-menu animated zoomIn">
                                                             <li>
-                                                                <a href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/started' ?>"><?= lang('started') ?></a>
+                                                                <a target="_blank" href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/started' ?>"><?= lang('started') ?></a>
                                                             </li>
                                                             <li>
                                                                 <a href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/in_progress' ?>"><?= lang('in_progress') ?></a>
@@ -425,14 +425,14 @@ $edited = can_action('57', 'edited');
                                                 <?php if (timer_status('projects', $project_details->project_id, 'on')) { ?>
 
                                                     <span class="label label-success"><?= lang('on') ?></span>
-                                                    <a class="btn btn-xs btn-danger "
+                                                    <a class="btn btn-xs btn-danger " target="_blank"
                                                        href="<?= base_url() ?>admin/projects/tasks_timer/off/<?= $project_details->project_id ?>"><?= lang('stop_timer') ?> </a>
                                                 <?php } else {
                                                     ?>
                                                     <span class="label label-danger"><?= lang('off') ?></span>
                                                     <?php $this_permission = $this->items_model->can_action('tbl_project', 'view', array('project_id' => $project_details->project_id), true);
                                                     if (!empty($this_permission)) { ?>
-                                                        <a class="btn btn-xs btn-success <?= $disabled ?>"
+                                                        <a class="btn btn-xs btn-success <?= $disabled ?>" target="_blank"
                                                            href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
                                                     <?php }
                                                 }
@@ -1524,7 +1524,7 @@ $edited = can_action('57', 'edited');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category) > 0) { ?>
@@ -1683,7 +1683,7 @@ $edited = can_action('57', 'edited');
                                             data-toggle="tab"><?= lang('Stock Transfer') ?></a>
                             </li>
                             <li class=""><a href="#stock-expense-and-transfer-history2"
-                                            data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
+                                            data-toggle="tab"><?= lang('Stock Uses & Transfer History') ?></a>
                             </li>
                             <li class="">
                                 <a href="<?= base_url() ?>admin/items/items_list/<?= $project_details->project_id ?>/project"><?= lang('New Stock') ?></a>
@@ -1953,10 +1953,10 @@ $edited = can_action('57', 'edited');
                                         <tr>
                                             <th>#</th>
                                             <th class="col-sm-2"><?= lang('Item Name') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer From Project') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer From Task') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer To Project') ?></th>
-                                            <th class="col-sm-2"><?= lang('Transfer To Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
                                             <th class="col-sm-2"><?= lang('quantity') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>

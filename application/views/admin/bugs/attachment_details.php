@@ -74,7 +74,7 @@ if ($type == 'g') {
                                                        href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->uploaded_files_id ?>"> <?= $v_files->file_name ?></a></strong>
                                                 </span>
 
-                                            <a href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->uploaded_files_id ?>"
+                                            <a target="_blank" href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->uploaded_files_id ?>"
                                                class="pull-right"><i
                                                     class="fa fa-5x fa-cloud-download"></i></a>
                                         </div>

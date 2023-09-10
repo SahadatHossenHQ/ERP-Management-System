@@ -603,7 +603,7 @@ $edited = can_action('30', 'edited');
                                                 <td><?= $v_reminder->description ?></td>
                                                 <td><?= strftime(config_item('date_format'), strtotime($v_reminder->date)) . ' ' . display_time($v_reminder->date) ?></td>
                                                 <td>
-                                                    <a href="<?= base_url() ?>admin/user/user_details/<?= $v_reminder->user_id ?>"> <?= $remind_user_info->fullname ?></a>
+                                                    <a target="_blank" href="<?= base_url() ?>admin/user/user_details/<?= $v_reminder->user_id ?>"> <?= $remind_user_info->fullname ?></a>
                                                 </td>
                                                 <td><?= $v_reminder->notified ?></td>
                                                 <td>

@@ -13,7 +13,7 @@ $currency = $this->purchase_model->check_by(array('code' => config_item('default
         if (!empty($can_edit) && !empty($edited)) { ?>
             <?php if ($this->purchase_model->get_purchase_cost($purchase_info->purchase_id) > 0) {
                 ?>
-                <?php if ($purchase_info->status == 'cancelled') {
+                <?php if ($purchase_info->status == 'cancelled' || $purchase_info->status == 'Paid') {
                     $disable = 'disabled';
                     $p_url = '';
                 } else {

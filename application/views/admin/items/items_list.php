@@ -75,7 +75,7 @@ if (!empty($created) || !empty($edited)) {
                         data-toggle="tab"><?= lang('Stock Transfer') ?></a>
         </li>
         <li class=""><a href="#stock-expense-and-transfer-history1"
-                        data-toggle="tab"><?= lang('Stock Expense & Transfer History') ?></a>
+                        data-toggle="tab"><?= lang('Stock Uses & Transfer History') ?></a>
         </li>
 
     </ul>
@@ -848,10 +848,10 @@ if (!empty($created) || !empty($edited)) {
                         <tr>
                             <th>#</th>
                             <th class="2"><?= lang('Item Name') ?></th>
-                            <th class="2"><?= lang('Transfer From Project') ?></th>
-                            <th class="1"><?= lang('Transfer From Task') ?></th>
-                            <th class="1"><?= lang('Transfer To Project') ?></th>
-                            <th class="1"><?= lang('Transfer To Task') ?></th>
+                            <th class="2"><?= lang('Transfer/Used From Project') ?></th>
+                            <th class="1"><?= lang('Transfer/Used From Task') ?></th>
+                            <th class="1"><?= lang('Transfer/Used To Project') ?></th>
+                            <th class="1"><?= lang('Transfer/Used To Task') ?></th>
                             <th class="2"><?= lang('quantity') ?></th>
                             <th class="2"><?= lang('unit') . ' ' . lang('type') ?></th>
                             <th class="2"><?= lang('Type of Transaction') ?></th>
