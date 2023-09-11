@@ -4,13 +4,13 @@ if (!defined('BASEPATH'))
 
 class Transactions extends Admin_Controller
 {
-    
+
     public function __construct()
     {
         parent::__construct();
         $this->load->model('transactions_model');
         $this->load->model('invoice_model');
-        
+
         $this->load->helper('ckeditor');
         $this->data['ckeditor'] = array(
             'id' => 'ck_editor',
@@ -22,7 +22,7 @@ class Transactions extends Admin_Controller
             )
         );
     }
-    
+
     public function deposit($id = NULL)
     {
         $data['title'] = lang('all_deposit');
@@ -56,7 +56,7 @@ class Transactions extends Admin_Controller
                         if ($v_deposit->category_id == $id) {
                             array_push($data['all_deposit_info'], $v_deposit);
                         }
-                        
+
                     }
                 }
             }
@@ -66,7 +66,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/deposit', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function depositList($filterBy = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
@@ -74,16 +74,16 @@ class Transactions extends Admin_Controller
             $this->datatables->table = 'tbl_transactions';
             $this->datatables->join_table = array('tbl_accounts', 'tbl_client');
             $this->datatables->join_where = array('tbl_accounts.account_id=tbl_transactions.account_id', 'tbl_transactions.paid_by=tbl_client.client_id');
-            
+
             $custom_field = custom_form_table_search(1);
             $action_array = array('transactions_id');
             $main_column = array('transactions_id', 'transaction_prefix', 'tbl_transactions.name', 'tbl_transactions.date', 'tbl_accounts.account_name', 'amount', 'tags', 'tbl_client.name', 'reference');
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
             $this->datatables->column_search = $result;
-            
+
             $this->datatables->order = array('transactions_id' => 'desc');
-            
+
             $where = null;
             if (empty($type)) {
                 $where = array('type' => 'Income');
@@ -95,7 +95,7 @@ class Transactions extends Admin_Controller
             }
             // get all invoice
             $fetch_data = $this->datatables->get_deposit($filterBy, $type);
-            
+
             $data = array();
             $edited = can_action('30', 'edited');
             $deleted = can_action('30', 'deleted');
@@ -104,7 +104,7 @@ class Transactions extends Admin_Controller
                     $action = null;
                     $can_edit = $this->transactions_model->can_action('tbl_transactions', 'edit', array('transactions_id' => $v_deposit->transactions_id));
                     $can_delete = $this->transactions_model->can_action('tbl_transactions', 'delete', array('transactions_id' => $v_deposit->transactions_id));
-                    
+
                     $account_info = $this->transactions_model->check_by(array('account_id' => $v_deposit->account_id), 'tbl_accounts');
                     $client_info = $this->transactions_model->check_by(array('client_id' => $v_deposit->paid_by), 'tbl_client');
                     $category_info = $this->transactions_model->check_by(array('income_category_id' => $v_deposit->category_id), 'tbl_income_category');
@@ -113,7 +113,7 @@ class Transactions extends Admin_Controller
                     } else {
                         $client_name = '-';
                     }
-                    
+
                     $sub_array = array();
                     if (!empty($deleted) || !empty($can_delete)) {
                         $sub_array[] = '<div class="checkbox c-checkbox" ><label class="needsclick"> <input value="' . $v_deposit->transactions_id . '" type="checkbox"><span class="fa fa-check"></span></label></div>';
@@ -121,23 +121,23 @@ class Transactions extends Admin_Controller
                     $transaction_prefix = null;
                     $transaction_prefix .= '<a data-toggle="modal" data-target="#myModal" class="text-info" href="' . base_url() . 'admin/transactions/view_expense/' . $v_deposit->transactions_id . '">' . (!empty($v_deposit->transaction_prefix) ? $v_deposit->transaction_prefix : ' ') . '</a>';
                     $sub_array[] = $transaction_prefix;
-                    
+
                     $name = null;
                     $name .= '<a data-toggle="modal" data-target="#myModal" class="text-info" href="' . base_url() . 'admin/transactions/view_expense/' . $v_deposit->transactions_id . '">' . (!empty($v_deposit->name) ? $v_deposit->name : '-') . '</a>';
                     $sub_array[] = $name;
-                    
+
                     $date = null;
                     $date .= '<a data-toggle="modal" data-target="#myModal" class="text-info" href="' . base_url() . 'admin/transactions/view_expense/' . $v_deposit->transactions_id . '">' . strftime(config_item('date_format'), strtotime($v_deposit->date)) . '</a>';
                     $sub_array[] = $date;
-                    
+
                     $sub_array[] = '<span class="tags">' . (!empty($account_info->account_name) ? $account_info->account_name : '-') . '</span>';
-                    
+
                     $sub_array[] = '<span class="tags">' . $client_name . '</span>';
                     $sub_array[] = get_tags($v_deposit->tags, true);
-                    
+
                     $sub_array[] = display_money($v_deposit->amount, default_currency());
                     $sub_array[] = display_money($v_deposit->total_balance, default_currency());
-                    
+
                     $custom_form_table = custom_form_table(1, $v_deposit->transactions_id);
                     if (!empty($custom_form_table)) {
                         foreach ($custom_form_table as $c_label => $v_fields) {
@@ -150,7 +150,7 @@ class Transactions extends Admin_Controller
                         $attachment = '<a href="' . base_url() . 'admin/transactions/download/' . $v_deposit->transactions_id . '">' . lang('download') . '</a>';
                     }
                     $sub_array[] = $attachment;
-                    
+
                     $action .= '<a class="btn btn-info btn-xs" data-toggle="modal" data-target="#myModal" href="' . base_url() . 'admin/transactions/view_expense/' . $v_deposit->transactions_id . '"><span class="fa fa-list-alt"></span></a>' . ' ';
                     if (!empty($can_edit) && !empty($edited)) {
                         $action .= btn_edit('admin/transactions/deposit/' . $v_deposit->transactions_id) . ' ';
@@ -162,14 +162,14 @@ class Transactions extends Admin_Controller
                     $data[] = $sub_array;
                 }
             }
-            
+
             render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
     }
-    
-    
+
+
     public function transaction_deposit_state_report()
     {
         $data = array();
@@ -177,8 +177,8 @@ class Transactions extends Admin_Controller
         echo json_encode($pathonor_jonno);
         exit;
     }
-    
-    
+
+
     public function import($type)
     {
         if ($type == 'Income') {
@@ -192,7 +192,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/import', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function save_imported()
     {
         //load the excel library
@@ -216,21 +216,21 @@ class Transactions extends Admin_Controller
                 }
                 //All data from excel
                 $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
-                
-                
+
+
                 for ($x = 2; $x <= count($sheetData); $x++) {
-                    
+
                     // **********************
                     // Save Into leads table
                     // **********************
-                    
+
                     $data = $this->transactions_model->array_from_post(array('name', 'account_id', 'type', 'category_id', 'paid_by', 'payment_methods_id'));
-                    
+
                     $date = date('Y-m-d', strtotime($sheetData[$x]["A"]));
-                    
+
                     $data['date'] = trim($date);
                     $data['amount'] = trim($sheetData[$x]["B"]);
-                    
+
                     $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
                     if ($data['type'] == 'Income') {
                         $ac_data['balance'] = $account_info->balance + $data['amount'];
@@ -240,10 +240,10 @@ class Transactions extends Admin_Controller
                     $this->transactions_model->_table_name = "tbl_accounts"; //table name
                     $this->transactions_model->_primary_key = "account_id";
                     $this->transactions_model->save($ac_data, $account_info->account_id);
-                    
+
                     $data['notes'] = trim($sheetData[$x]["C"]);
                     $data['reference'] = trim($sheetData[$x]["D"]);
-                    
+
                     if (!empty($_FILES['attachement']['name']['0'])) {
                         $old_path_info = $this->input->post('upload_path', true);
                         if (!empty($old_path_info)) {
@@ -254,7 +254,7 @@ class Transactions extends Admin_Controller
                         $mul_val = $this->transactions_model->multi_uploadAllType('attachement');
                         $data['attachement'] = json_encode($mul_val);
                     }
-                    
+
                     $permission = $this->input->post('permission', true);
                     if (!empty($permission)) {
                         if ($permission == 'everyone') {
@@ -307,17 +307,17 @@ class Transactions extends Admin_Controller
         } else {
             redirect($_SERVER['HTTP_REFERER']);
         }
-        
+
     }
-    
+
     public function save_deposit($id = NULL)
     {
-        
+
         $created = can_action('30', 'created');
         $edited = can_action('30', 'edited');
         if (!empty($created) || !empty($edited) && !empty($id)) {
             $data = $this->transactions_model->array_from_post(array('transaction_prefix', 'name', 'account_id', 'date', 'tags', 'notes', 'category_id', 'paid_by', 'payment_methods_id', 'reference'));
-            
+
             $data['type'] = 'Income';
             $data['amount'] = $this->input->post('amount', TRUE);
             $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
@@ -333,7 +333,7 @@ class Transactions extends Admin_Controller
                     $data['amount'] = $this->input->post('amount', TRUE);
                     $data['credit'] = $this->input->post('amount', TRUE);
                     $ac_data['balance'] = $account_info->balance + $data['amount'];
-                    
+
                     $this->transactions_model->_table_name = "tbl_accounts"; //table name
                     $this->transactions_model->_primary_key = "account_id";
                     $this->transactions_model->save($ac_data, $account_info->account_id);
@@ -345,9 +345,9 @@ class Transactions extends Admin_Controller
                     $account_info = $this->db->get('tbl_accounts')->row();
                 }
                 $data['total_balance'] = $account_info->balance;
-                
+
                 $upload_file = array();
-                
+
                 $files = $this->input->post("files", true);
                 $target_path = getcwd() . "/uploads/";
                 //process the fiiles which has been uploaded by dropzone
@@ -373,13 +373,13 @@ class Transactions extends Admin_Controller
                         }
                     }
                 }
-                
+
                 $fileName = $this->input->post('fileName', true);
                 $path = $this->input->post('path', true);
                 $fullPath = $this->input->post('fullPath', true);
                 $size = $this->input->post('size', true);
                 $is_image = $this->input->post('is_image', true);
-                
+
                 if (!empty($fileName)) {
                     foreach ($fileName as $key => $name) {
                         $old['fileName'] = $name;
@@ -387,7 +387,7 @@ class Transactions extends Admin_Controller
                         $old['fullPath'] = $fullPath[$key];
                         $old['size'] = $size[$key];
                         $old['is_image'] = $is_image[$key];
-                        
+
                         array_push($upload_file, $old);
                     }
                 }
@@ -396,7 +396,7 @@ class Transactions extends Admin_Controller
                 } else {
                     $data['attachement'] = null;
                 }
-                
+
                 $permission = $this->input->post('permission', true);
                 if (!empty($permission)) {
                     if ($permission == 'everyone') {
@@ -418,12 +418,12 @@ class Transactions extends Admin_Controller
                     }
                     $data['permission'] = $assigned;
                 }
-                
-                
+
+
                 $this->transactions_model->_table_name = "tbl_transactions"; //table name
                 $this->transactions_model->_primary_key = "transactions_id";
-                
-                
+
+
                 if (!empty($id)) {
                     $this->transactions_model->save($data, $id);
                     $activity = ('activity_update_deposit');
@@ -440,7 +440,7 @@ class Transactions extends Admin_Controller
                     $this->send_transactions_sms('deposit', $id);
                 }
                 save_custom_field(1, $id);
-                
+
                 // save into activities
                 $activities = array(
                     'user' => $this->session->userdata('user_id'),
@@ -455,7 +455,7 @@ class Transactions extends Admin_Controller
                 $this->transactions_model->_table_name = "tbl_activities"; //table name
                 $this->transactions_model->_primary_key = "activities_id";
                 $this->transactions_model->save($activities);
-                
+
                 $designation_id = $this->session->userdata('designations_id');
                 if (!empty($designation_id)) {
                     $designation_info = $this->transactions_model->check_by(array('designations_id' => $this->session->userdata('designations_id')), 'tbl_designations');
@@ -463,13 +463,13 @@ class Transactions extends Admin_Controller
                 if (!empty($designation_info)) {
                     $dept_head = $this->transactions_model->check_by(array('departments_id' => $designation_info->departments_id), 'tbl_departments');
                 }
-                
+
                 $check_head = $this->db->where('department_head_id', $this->session->userdata('user_id'))->get('tbl_departments')->row();
                 $role = $this->session->userdata('user_type');
                 if ($role == 3 && empty($check_head)) {
                     $this->deposit_email($data, $id);
                 }
-                
+
                 // get departments head by departments id
                 $all_admin = $this->db->where('role_id', 1)->get('tbl_users')->result();
                 if (!empty($dept_head)) {
@@ -496,7 +496,7 @@ class Transactions extends Admin_Controller
                 if (!empty($notifyUser)) {
                     show_notification($notifyUser);
                 }
-                
+
                 $type = 'success';
             } else {
                 $type = 'error';
@@ -506,7 +506,7 @@ class Transactions extends Admin_Controller
         }
         redirect('admin/transactions/deposit/');
     }
-    
+
     public function send_transactions_sms($type, $transaction_id)
     {
         $mobile = can_received_sms('transaction_record_sms_number');
@@ -517,7 +517,7 @@ class Transactions extends Admin_Controller
         }
         return true;
     }
-    
+
     public function bulk_delete_deposit()
     {
         $selected_id = $this->input->post('ids', true);
@@ -534,7 +534,7 @@ class Transactions extends Admin_Controller
             exit();
         }
     }
-    
+
     public function delete_deposit($id, $bulk = null)
     {
         $deleted = can_action('30', 'deleted');
@@ -543,12 +543,12 @@ class Transactions extends Admin_Controller
         if (!empty($deposit_info)) {
             if (!empty($deleted) && !empty($can_delete)) {
                 $account_info = $this->transactions_model->check_by(array('account_id' => $deposit_info->account_id), 'tbl_accounts');
-                
+
                 $ac_data['balance'] = $account_info->balance - $deposit_info->amount;
                 $this->transactions_model->_table_name = "tbl_accounts"; //table name
                 $this->transactions_model->_primary_key = "account_id";
                 $this->transactions_model->save($ac_data, $account_info->account_id);
-                
+
                 $activity = ('activity_delete_deposit');
                 $msg = lang('delete_deposit');
                 // save into activities
@@ -566,7 +566,7 @@ class Transactions extends Admin_Controller
                 $this->transactions_model->_table_name = "tbl_activities"; //table name
                 $this->transactions_model->_primary_key = "activities_id";
                 $this->transactions_model->save($activities);
-                
+
                 $comments_info = $this->transactions_model->check_by(array('transactions_id' => $id), 'tbl_transactions');
                 if (!empty($comments_info->attachment)) {
                     $attachment = json_decode($comments_info->attachment);
@@ -574,11 +574,11 @@ class Transactions extends Admin_Controller
                         remove_files($v_file->fileName);
                     }
                 }
-                
+
                 $this->transactions_model->_table_name = "tbl_transactions"; //table name
                 $this->transactions_model->_primary_key = "transactions_id";
                 $this->transactions_model->delete($id);
-                
+
                 $type = 'success';
             } else {
                 $type = 'error';
@@ -594,14 +594,14 @@ class Transactions extends Admin_Controller
         echo json_encode(array("status" => $type, 'message' => $msg));
         exit();
     }
-    
+
     public function expense($id = NULL)
     {
         $data['title'] = lang('all_expense');
         // get permission user by menu id
         $data['permission_user'] = $this->transactions_model->all_permission_user('31');
-        
-        
+
+
         if (!empty($id)) {
             $data['active'] = 2;
             if (is_numeric($id)) {
@@ -638,7 +638,7 @@ class Transactions extends Admin_Controller
                         if ($v_expense->category_id == $id) {
                             array_push($data['all_expense_info'], $v_expense);
                         }
-                        
+
                     }
                 }
             }
@@ -648,8 +648,8 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/expense', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
-    
+
+
     public function expenseList($filterBy = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
@@ -663,7 +663,7 @@ class Transactions extends Admin_Controller
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
             $this->datatables->column_search = $result;
-            
+
             $this->datatables->order = array('transactions_id' => 'desc');
             $where = null;
             if (empty($type)) {
@@ -676,9 +676,9 @@ class Transactions extends Admin_Controller
             }
             // get all invoice
             $fetch_data = $this->datatables->get_expense($filterBy, $type);
-            
+
             $data = array();
-            
+
             $edited = can_action('30', 'edited');
             $deleted = can_action('30', 'deleted');
             foreach ($fetch_data as $_key => $v_expense) {
@@ -705,7 +705,7 @@ class Transactions extends Admin_Controller
                 $name .= '<a class="text-info" href="' . base_url() . 'admin/transactions/view_details/' . $v_expense->transactions_id . '">' . (!empty($v_expense->name) ? $v_expense->name : '-') . '</a>';
                 $sub_array[] = $name;
                 if ($v_expense->branch_id) {
-                    $branch_info = $this->db->where('id' , $v_expense->branch_id)->get('tbl_branches')->row();
+                    $branch_info = $this->db->where('id', $v_expense->branch_id)->get('tbl_branches')->row();
                     $branch_name = $branch_info->name ?? '-';
                 } else {
                     $branch_name = '-';
@@ -715,7 +715,7 @@ class Transactions extends Admin_Controller
                 $date = null;
                 $date .= '<a class="text-info" href="' . base_url() . 'admin/transactions/view_details/' . $v_expense->transactions_id . '">' . strftime(config_item('date_format'), strtotime($v_expense->date)) . '</a>';
                 $sub_array[] = $date;
-                
+
                 $sub_array[] = '<span class="tags">' . (!empty($account_info->account_name) ? $account_info->account_name : '-') . '</span>';
                 $sub_array[] = display_money($v_expense->amount, default_currency());
                 $sub_array[] = get_tags($v_expense->tags, true);
@@ -776,7 +776,7 @@ class Transactions extends Admin_Controller
                     $e_status .= '     <span class="label label-' . $label . '">' . lang($status) . '</span>' . ' ' . $recurring;
                 }
                 $sub_array[] = '<span class="">' . $e_status . '</span>' . $text;
-                
+
                 $custom_form_table = custom_form_table(2, $v_expense->transactions_id);
                 if (!empty($custom_form_table)) {
                     foreach ($custom_form_table as $c_label => $v_fields) {
@@ -789,7 +789,7 @@ class Transactions extends Admin_Controller
                     $attachment = '<a href="' . base_url() . 'admin/transactions/download/' . $v_expense->transactions_id . '">' . lang('download') . '</a>';
                 }
                 $sub_array[] = $attachment;
-                
+
                 $action .= '<a class="btn btn-info btn-xs"  href="' . base_url() . 'admin/transactions/view_details/' . $v_expense->transactions_id . '"><span class="fa fa-list-alt"></span></a>' . ' ';
                 if (!empty($can_edit) && !empty($edited)) {
                     $action .= btn_edit('admin/transactions/expense/' . $v_expense->transactions_id) . ' ';
@@ -799,15 +799,16 @@ class Transactions extends Admin_Controller
                 }
                 $sub_array[] = $action;
                 $data[] = $sub_array;
-                
+
             }
+
             render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
     }
-    
-    
+
+
     public function transactions_state_report()
     {
         $data = array();
@@ -815,7 +816,7 @@ class Transactions extends Admin_Controller
         echo json_encode($pathonor_jonno);
         exit;
     }
-    
+
     public function save_expense($id = NULL)
     {
         $created = can_action('31', 'created');
@@ -847,7 +848,7 @@ class Transactions extends Admin_Controller
                 $data['recurring'] = 'No';
             }
             $data['total_cycles'] = !isset($data['total_cycles']) || $data['recurring'] == 'No' ? 0 : $data['total_cycles'];
-            
+
             $data['type'] = 'Expense';
             if (empty($data['client_visible'])) {
                 $data['client_visible'] = 'No';
@@ -856,16 +857,16 @@ class Transactions extends Admin_Controller
                 $data['billable'] = 'No';
             }
             $data['account_id'] = $this->input->post('account_id', TRUE);
-            
+
             $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
             if (!empty($account_info)) {
                 $account_info = $account_info;
             } else {
                 $account_info = $this->db->get('tbl_accounts')->row();
             }
-            
+
             $data['amount'] = $this->input->post('amount', TRUE);
-            
+
             if (!empty($data['amount'])) {
                 $check_head = $this->db->where('department_head_id', $this->session->userdata('user_id'))->get('tbl_departments')->row();
                 $role = $this->session->userdata('user_type');
@@ -875,13 +876,13 @@ class Transactions extends Admin_Controller
                     } else {
                         $data['amount'] = $this->input->post('amount', TRUE);
                         $data['debit'] = $this->input->post('amount', TRUE);
-                        
+
                         $ac_data['balance'] = $account_info->balance - $data['amount'];
                         $this->transactions_model->_table_name = "tbl_accounts"; //table name
                         $this->transactions_model->_primary_key = "account_id";
                         $this->transactions_model->save($ac_data, $account_info->account_id);
                     }
-                    
+
                     $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
                     if (!empty($account_info)) {
                         $account_info = $account_info;
@@ -891,7 +892,7 @@ class Transactions extends Admin_Controller
                     $data['total_balance'] = $account_info->balance;
                     $data['status'] = 'paid';
                 }
-                
+
                 $upload_file = array();
                 $files = $this->input->post("files", true);
                 $target_path = getcwd() . "/uploads/";
@@ -918,13 +919,13 @@ class Transactions extends Admin_Controller
                         }
                     }
                 }
-                
+
                 $fileName = $this->input->post('fileName', true);
                 $path = $this->input->post('path', true);
                 $fullPath = $this->input->post('fullPath', true);
                 $size = $this->input->post('size', true);
                 $is_image = $this->input->post('is_image', true);
-                
+
                 if (!empty($fileName)) {
                     foreach ($fileName as $key => $name) {
                         $old['fileName'] = $name;
@@ -932,7 +933,7 @@ class Transactions extends Admin_Controller
                         $old['fullPath'] = $fullPath[$key];
                         $old['size'] = $size[$key];
                         $old['is_image'] = $is_image[$key];
-                        
+
                         array_push($upload_file, $old);
                     }
                 }
@@ -941,7 +942,7 @@ class Transactions extends Admin_Controller
                 } else {
                     $data['attachement'] = null;
                 }
-                
+
                 $permission = $this->input->post('permission', true);
                 if (!empty($permission)) {
                     if ($permission == 'everyone') {
@@ -970,12 +971,12 @@ class Transactions extends Admin_Controller
                         redirect($_SERVER['HTTP_REFERER']);
                     }
                 }
-                
-                
+
+
                 $this->transactions_model->_table_name = "tbl_transactions"; //table name
                 $this->transactions_model->_primary_key = "transactions_id";
-                
-                
+
+
                 if (!empty($id)) {
                     $this->transactions_model->save($data, $id);
                     $activity = ('activity_update_expense');
@@ -1025,7 +1026,7 @@ class Transactions extends Admin_Controller
                     $head = $this->db->where('user_id', $dept_head->department_head_id)->get('tbl_users')->row();
                     array_push($all_admin, $head);
                 }
-                
+
                 $notifyUser = array();
                 if (!empty($all_admin)) {
                     foreach ($all_admin as $v_user) {
@@ -1046,7 +1047,7 @@ class Transactions extends Admin_Controller
                 if (!empty($notifyUser)) {
                     show_notification($notifyUser);
                 }
-                
+
             } else {
                 $type = 'error';
                 $msg = 'please enter the amount';
@@ -1059,9 +1060,9 @@ class Transactions extends Admin_Controller
         } else {
             redirect('admin/transactions/expense');
         }
-        
+
     }
-    
+
     public function categories($type = null)
     {
         $data['title'] = lang('categories');
@@ -1074,7 +1075,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/categories', $data, FALSE);
         $this->load->view('admin/_layout_modal', $data);
     }
-    
+
     public function update_categories($type)
     {
         if ($type == 'income') {
@@ -1084,11 +1085,11 @@ class Transactions extends Admin_Controller
         }
         $this->transactions_model->_table_name = 'tbl_' . $category;
         $this->transactions_model->_primary_key = $category . '_id';
-        
-        
+
+
         $cate_data[$category] = $this->input->post('categories', TRUE);
         $cate_data['description'] = $this->input->post('description', TRUE);
-        
+
         // update root category
         $where = array($category => $cate_data[$category]);
         // duplicate value check in DB
@@ -1105,7 +1106,7 @@ class Transactions extends Admin_Controller
             $msg = "<strong style='color:#000'>" . $cate_data[$category] . '</strong>  ' . lang('already_exist');
         } else { // save and update query
             $id = $this->transactions_model->save($cate_data);
-            
+
             $activity = array(
                 'user' => $this->session->userdata('user_id'),
                 'module' => 'settings',
@@ -1116,7 +1117,7 @@ class Transactions extends Admin_Controller
             $this->transactions_model->_table_name = 'tbl_activities';
             $this->transactions_model->_primary_key = 'activities_id';
             $this->transactions_model->save($activity);
-            
+
             // messages for user
             $type = "success";
             $msg = lang($category . '_added');
@@ -1137,7 +1138,7 @@ class Transactions extends Admin_Controller
         echo json_encode($result);
         exit();
     }
-    
+
     public function view_expense($id)
     {
         $data['expense_info'] = $this->db->where('transactions_id', $id)->get('tbl_transactions')->row();
@@ -1157,7 +1158,7 @@ class Transactions extends Admin_Controller
             $this->load->view('admin/_layout_main', $data);
         }
     }
-    
+
     public function view_details($id)
     {
         $data['expense_info'] = $this->db->where('transactions_id', $id)->get('tbl_transactions')->row();
@@ -1174,7 +1175,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/' . $subview, $data, true);
         $this->load->view('admin/_layout_main', $data);
     }
-    
+
     function deposit_email($data, $id)
     {
         // get departments head user id
@@ -1184,7 +1185,7 @@ class Transactions extends Admin_Controller
         $all_admin = $this->db->where('role_id', 1)->get('tbl_users')->result();
         $head = $this->db->where('user_id', $dept_head->department_head_id)->get('tbl_users')->row();
         $account_info = $this->transactions_model->check_by(array('account_id' => $data['account_id']), 'tbl_accounts');
-        
+
         if (!empty($dept_head->department_head_id) || !empty($all_admin)) {
             $deposit_email = config_item('deposit_email');
             if (!empty($deposit_email) && $deposit_email == 1) {
@@ -1200,7 +1201,7 @@ class Transactions extends Admin_Controller
                     $message = str_replace("{SITE_NAME}", config_item('company_name'), $Link);
                     $data['message'] = $message;
                     $message = $this->load->view('email_template', $data, TRUE);
-                    
+
                     $params['subject'] = $subject;
                     $params['message'] = $message;
                     $params['resourceed_file'] = '';
@@ -1221,14 +1222,14 @@ class Transactions extends Admin_Controller
                         $params['recipient'] = $head->email;
                         $this->transactions_model->send_email($params);
                     }
-                    
+
                 }
             } else {
                 return true;
             }
         }
     }
-    
+
     function expense_request_email($data, $id)
     {
         // get departments head user id
@@ -1239,7 +1240,7 @@ class Transactions extends Admin_Controller
             $head = $this->db->where('user_id', $dept_head->department_head_id)->get('tbl_users')->row();
         }
         $all_admin = $this->db->where('role_id', 1)->get('tbl_users')->result();
-        
+
         if (!empty($dept_head->department_head_id) || !empty($all_admin)) {
             $expense_email = config_item('expense_email');
             if (!empty($expense_email) && $expense_email == 1) {
@@ -1253,7 +1254,7 @@ class Transactions extends Admin_Controller
                     $message = str_replace("{SITE_NAME}", config_item('company_name'), $Link);
                     $data['message'] = $message;
                     $message = $this->load->view('email_template', $data, TRUE);
-                    
+
                     $params['subject'] = $subject;
                     $params['message'] = $message;
                     $params['resourceed_file'] = '';
@@ -1274,14 +1275,14 @@ class Transactions extends Admin_Controller
                         $params['recipient'] = $head->email;
                         $this->transactions_model->send_email($params);
                     }
-                    
+
                 }
             } else {
                 return true;
             }
         }
     }
-    
+
     public function bulk_delete_expense()
     {
         $selected_id = $this->input->post('ids', true);
@@ -1298,7 +1299,7 @@ class Transactions extends Admin_Controller
             exit();
         }
     }
-    
+
     public function delete_expense($id, $bulk = null)
     {
         $deleted = can_action('31', 'deleted');
@@ -1307,12 +1308,12 @@ class Transactions extends Admin_Controller
             $can_delete = $this->transactions_model->can_action('tbl_transactions', 'delete', array('transactions_id' => $id));
         if (!empty($deleted) && !empty($can_delete)) {
             $account_info = $this->transactions_model->check_by(array('account_id' => $expense_info->account_id), 'tbl_accounts');
-            
+
             $ac_data['balance'] = $account_info->balance + $expense_info->amount;
             $this->transactions_model->_table_name = "tbl_accounts"; //table name
             $this->transactions_model->_primary_key = "account_id";
             $this->transactions_model->save($ac_data, $account_info->account_id);
-            
+
             $activity = ('activity_delete_expense');
             $msg = lang('delete_expense');
             // save into activities
@@ -1330,7 +1331,7 @@ class Transactions extends Admin_Controller
             $this->transactions_model->_table_name = "tbl_activities"; //table name
             $this->transactions_model->_primary_key = "activities_id";
             $this->transactions_model->save($activities);
-            
+
             $comments_info = $this->transactions_model->check_by(array('transactions_id' => $id), 'tbl_transactions');
             if (!empty($comments_info->attachment)) {
                 $attachment = json_decode($comments_info->attachment);
@@ -1341,8 +1342,8 @@ class Transactions extends Admin_Controller
             $this->transactions_model->_table_name = "tbl_transactions"; //table name
             $this->transactions_model->_primary_key = "transactions_id";
             $this->transactions_model->delete($id);
-            
-            
+
+
             $type = 'success';
         } else {
             $type = 'error';
@@ -1354,8 +1355,8 @@ class Transactions extends Admin_Controller
         echo json_encode(array("status" => $type, 'message' => $msg));
         exit();
     }
-    
-    
+
+
     public function transfer($id = NULL)
     {
         $data['title'] = lang('transfer');
@@ -1376,7 +1377,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/transfer', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function transferList($filterBy = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
@@ -1387,7 +1388,7 @@ class Transactions extends Admin_Controller
             $this->datatables->column_order = array('tbl_accounts.account_name', 'date', 'amount', 'payment_methods_id');
             $this->datatables->column_search = array('tbl_accounts.account_name', 'tbl_accounts.account_name', 'amount', 'date', 'payment_methods_id');
             $this->datatables->order = array('create_date' => 'desc');
-            
+
             $where = null;
             if ($type == 'to_account') {
                 $where = array('to_account_id' => $filterBy);
@@ -1395,34 +1396,34 @@ class Transactions extends Admin_Controller
                 $where = array('from_account_id' => $filterBy);
             }
             $fetch_data = make_datatables($where);
-            
+
             $data = array();
-            
+
             $edited = can_action('30', 'edited');
             $deleted = can_action('30', 'deleted');
             foreach ($fetch_data as $_key => $v_transfer) {
                 $action = null;
                 $can_edit = $this->transactions_model->can_action('tbl_transfer', 'edit', array('transfer_id' => $v_transfer->transfer_id));
                 $can_delete = $this->transactions_model->can_action('tbl_transfer', 'delete', array('transfer_id' => $v_transfer->transfer_id));
-                
+
                 $to_account_info = $this->transactions_model->check_by(array('account_id' => $v_transfer->to_account_id), 'tbl_accounts');
                 $from_account_info = $this->transactions_model->check_by(array('account_id' => $v_transfer->from_account_id), 'tbl_accounts');
-                
+
                 $sub_array = array();
                 $sub_array[] = (!empty($from_account_info->account_name) ? $from_account_info->account_name : '-');
                 $sub_array[] = (!empty($to_account_info->account_name) ? $to_account_info->account_name : '-');
-                
+
                 $sub_array[] = display_money($v_transfer->amount, default_currency());
-                
+
                 $sub_array[] = strftime(config_item('date_format'), strtotime($v_transfer->date));
-                
+
                 $attachment = null;
                 $attachment_info = json_decode($v_transfer->attachement);
                 if (!empty($attachment_info)) {
                     $attachment = '<a href="' . base_url() . 'admin/transactions/download_transfer/' . $v_transfer->transfer_id . '">' . lang('download') . '</a>';
                 }
                 $sub_array[] = $attachment;
-                
+
                 if (!empty($can_edit) && !empty($edited)) {
                     $action .= btn_edit('admin/transactions/transfer/' . $v_transfer->transfer_id) . ' ';
                 }
@@ -1431,14 +1432,14 @@ class Transactions extends Admin_Controller
                 }
                 $sub_array[] = $action;
                 $data[] = $sub_array;
-                
+
             }
             render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
     }
-    
+
     public function save_transfer($id = NULL)
     {
         $created = can_action('32', 'created');
@@ -1477,24 +1478,24 @@ class Transactions extends Admin_Controller
                     $transfer_data = $this->transactions_model->array_from_post(array('date', 'notes', 'payment_methods_id', 'reference'));
                     if (empty($id)) {
                         $ac_data['balance'] = $from_acc_info->balance - $amount;
-                        
+
                         $this->transactions_model->_table_name = "tbl_accounts"; //table name
                         $this->transactions_model->_primary_key = "account_id";
                         $this->transactions_model->save($ac_data, $from_acc_info->account_id);
-                        
+
                         $froma_data['balance'] = $to_acc_info->balance + $amount;
                         $this->transactions_model->_table_name = "tbl_accounts"; //table name
                         $this->transactions_model->_primary_key = "account_id";
                         $this->transactions_model->save($froma_data, $to_acc_info->account_id);
-                        
+
                         $transfer_data['to_account_id'] = $to_account_id;
                         $transfer_data['from_account_id'] = $from_account_id;
                         $transfer_data['amount'] = $amount;
                     }
-                    
+
                     // save into tbl_transfer
                     $transfer_data['type'] = 'Transfer';
-                    
+
                     $upload_file = array();
                     $files = $this->input->post("files", true);
                     $target_path = getcwd() . "/uploads/";
@@ -1521,13 +1522,13 @@ class Transactions extends Admin_Controller
                             }
                         }
                     }
-                    
+
                     $fileName = $this->input->post('fileName', true);
                     $path = $this->input->post('path', true);
                     $fullPath = $this->input->post('fullPath', true);
                     $size = $this->input->post('size', true);
                     $is_image = $this->input->post('is_image', true);
-                    
+
                     if (!empty($fileName)) {
                         foreach ($fileName as $key => $name) {
                             $old['fileName'] = $name;
@@ -1535,7 +1536,7 @@ class Transactions extends Admin_Controller
                             $old['fullPath'] = $fullPath[$key];
                             $old['size'] = $size[$key];
                             $old['is_image'] = $is_image[$key];
-                            
+
                             array_push($upload_file, $old);
                         }
                     }
@@ -1544,7 +1545,7 @@ class Transactions extends Admin_Controller
                     } else {
                         $transfer_data['attachement'] = null;
                     }
-                    
+
                     $permission = $this->input->post('permission', true);
                     if (!empty($permission)) {
                         if ($permission == 'everyone') {
@@ -1573,14 +1574,14 @@ class Transactions extends Admin_Controller
                             redirect($_SERVER['HTTP_REFERER']);
                         }
                     }
-                    
+
                     $this->transactions_model->_table_name = "tbl_transfer"; //table name
                     $this->transactions_model->_primary_key = "transfer_id";
                     $transfer_id = $this->transactions_model->save($transfer_data, $id);
-                    
+
                     $from_acc_info = $this->transactions_model->check_by(array('account_id' => $from_account_id), 'tbl_accounts');
                     $to_acc_info = $this->transactions_model->check_by(array('account_id' => $to_account_id), 'tbl_accounts');
-                    
+
                     // save into tbl_tansactions
                     $to_data = $this->transactions_model->array_from_post(array('date', 'notes', 'payment_methods_id', 'reference'));
                     $to_data['type'] = 'Transfer';
@@ -1591,11 +1592,11 @@ class Transactions extends Admin_Controller
                         $to_data['total_balance'] = $to_acc_info->balance;
                     }
                     $to_data['transfer_id'] = $transfer_id;
-                    
+
                     $this->transactions_model->_table_name = "tbl_transactions"; //table name
                     $this->transactions_model->_primary_key = "transactions_id";
                     $this->transactions_model->save($to_data, $transaction_id_1);
-                    
+
                     // save into tbl_tansactions
                     $from_data = $this->transactions_model->array_from_post(array('date', 'notes', 'payment_methods_id', 'reference'));
                     $from_data['type'] = 'Transfer';
@@ -1606,11 +1607,11 @@ class Transactions extends Admin_Controller
                         $from_data['total_balance'] = $from_acc_info->balance;
                     }
                     $from_data['transfer_id'] = $transfer_id;
-                    
+
                     $this->transactions_model->_table_name = "tbl_transactions"; //table name
                     $this->transactions_model->_primary_key = "transactions_id";
                     $this->transactions_model->save($from_data, $transaction_id_2);
-                    
+
                     $type = 'success';
                     if (!empty($id)) {
                         $activity = ('activity_update_transfer');
@@ -1638,8 +1639,8 @@ class Transactions extends Admin_Controller
                     $this->transactions_model->_table_name = "tbl_activities"; //table name
                     $this->transactions_model->_primary_key = "activities_id";
                     $this->transactions_model->save($activities);
-                    
-                    
+
+
                     // get departments head user id
                     $designation_info = $this->transactions_model->check_by(array('designations_id' => $this->session->userdata('designations_id')), 'tbl_designations');
                     if (!empty($designation_info)) {
@@ -1671,16 +1672,16 @@ class Transactions extends Admin_Controller
                     if (!empty($notifyUser)) {
                         show_notification($notifyUser);
                     }
-                    
+
                 }
             }
-            
+
             $message = $msg;
             set_message($type, $message);
         }
         redirect('admin/transactions/transfer');
     }
-    
+
     public function delete_transfer($id)
     {
         $deleted = can_action('31', 'deleted');
@@ -1689,17 +1690,17 @@ class Transactions extends Admin_Controller
             $transfer_info = $this->transactions_model->check_by(array('transfer_id' => $id), 'tbl_transfer');
             $from_acc_info = $this->transactions_model->check_by(array('account_id' => $transfer_info->to_account_id), 'tbl_accounts');
             $to_acc_info = $this->transactions_model->check_by(array('account_id' => $transfer_info->from_account_id), 'tbl_accounts');
-            
+
             $ac_data['balance'] = $from_acc_info->balance - $transfer_info->amount;
             $this->transactions_model->_table_name = "tbl_accounts"; //table name
             $this->transactions_model->_primary_key = "account_id";
             $this->transactions_model->save($ac_data, $from_acc_info->account_id);
-            
+
             $froma_data['balance'] = $to_acc_info->balance + $transfer_info->amount;
             $this->transactions_model->_table_name = "tbl_accounts"; //table name
             $this->transactions_model->_primary_key = "account_id";
             $this->transactions_model->save($froma_data, $to_acc_info->account_id);
-            
+
             $comments_info = $this->transactions_model->check_by(array('transactions_id' => $id), 'tbl_transactions');
             if (!empty($comments_info->attachment)) {
                 $attachment = json_decode($comments_info->attachment);
@@ -1707,17 +1708,17 @@ class Transactions extends Admin_Controller
                     remove_files($v_file->fileName);
                 }
             }
-            
+
             $this->transactions_model->_table_name = "tbl_transfer"; //table name
             $this->transactions_model->_primary_key = "transfer_id";
             $this->transactions_model->delete($id);
-            
+
             $this->transactions_model->_table_name = "tbl_transactions"; //table name
             $this->transactions_model->delete_multiple(array('transfer_id' => $id));
-            
+
             $activity = ('activity_delete_transfer');
             $msg = lang('delete_transfer');
-            
+
             // save into activities
             $activities = array(
                 'user' => $this->session->userdata('user_id'),
@@ -1732,7 +1733,7 @@ class Transactions extends Admin_Controller
             $this->transactions_model->_table_name = "tbl_activities"; //table name
             $this->transactions_model->_primary_key = "activities_id";
             $this->transactions_model->save($activities);
-            
+
             $type = 'success';
         } else {
             $type = 'error';
@@ -1744,7 +1745,7 @@ class Transactions extends Admin_Controller
 //        set_message($type, $message);
 //        redirect('admin/transactions/transfer/');
     }
-    
+
     public function transactions_report($id = null)
     {
         $data['title'] = lang('transactions_report');
@@ -1752,7 +1753,7 @@ class Transactions extends Admin_Controller
         $data['subview'] = $this->load->view('admin/transactions/transactions_report', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function transactions_reportList($filterBy = null)
     {
         if ($this->input->is_ajax_request()) {
@@ -1769,9 +1770,9 @@ class Transactions extends Admin_Controller
             }
             // get all invoice
             $fetch_data = $this->datatables->get_transactions_report($filterBy);
-            
+
             $data = array();
-            
+
             $total_amount = 0;
             $total_debit = 0;
             $total_credit = 0;
@@ -1779,32 +1780,32 @@ class Transactions extends Admin_Controller
             foreach ($fetch_data as $_key => $v_transaction) {
                 $action = null;
                 $account_info = $this->transactions_model->check_by(array('account_id' => $v_transaction->account_id), 'tbl_accounts');
-                
+
                 $sub_array = array();
                 $sub_array[] = strftime(config_item('date_format'), strtotime($v_transaction->date));
                 $sub_array[] = (!empty($account_info->account_name) ? $account_info->account_name : '-');
                 $sub_array[] = lang($v_transaction->type);
                 $sub_array[] = (!empty($v_transaction->name) ? $v_transaction->name : '-');
-                
+
                 $sub_array[] = display_money($v_transaction->amount, default_currency());
                 $sub_array[] = display_money($v_transaction->credit, default_currency());
                 $sub_array[] = display_money($v_transaction->debit, default_currency());
                 $sub_array[] = display_money($v_transaction->total_balance, default_currency());
-                
+
                 $data[] = $sub_array;
-                
+
                 $total_amount += $v_transaction->amount;
                 $total_credit += $v_transaction->credit;
                 $total_debit += $v_transaction->debit;
-                
-                
+
+
             }
             render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
     }
-    
+
     public function get_transactions_report()
     {// this function is to create get monthy recap report
         $m = date('n');
@@ -1821,7 +1822,7 @@ class Transactions extends Admin_Controller
         }
         return $transaction_report; // return the result
     }
-    
+
     public function transactions_report_pdf()
     {
         $data['title'] = lang('transactions_report');
@@ -1829,14 +1830,14 @@ class Transactions extends Admin_Controller
         $viewfile = $this->load->view('admin/transactions/transactions_report_pdf', $data, TRUE);
         pdf_create($viewfile, slug_it(lang('transactions_report')));
     }
-    
+
     public function transfer_report()
     {
         $data['title'] = lang('transfer_report');
         $data['subview'] = $this->load->view('admin/transactions/transfer_report', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function transfer_reportList($filterBy = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
@@ -1855,36 +1856,36 @@ class Transactions extends Admin_Controller
             }
             // get all invoice
             $fetch_data = $this->datatables->get_transfer($filterBy, $type);
-            
+
             $data = array();
-            
+
             $edited = can_action('30', 'edited');
             $deleted = can_action('30', 'deleted');
             foreach ($fetch_data as $_key => $v_transfer) {
                 $action = null;
                 $can_edit = $this->transactions_model->can_action('tbl_transfer', 'edit', array('transfer_id' => $v_transfer->transfer_id));
                 $can_delete = $this->transactions_model->can_action('tbl_transfer', 'delete', array('transfer_id' => $v_transfer->transfer_id));
-                
+
                 $to_account_info = $this->transactions_model->check_by(array('account_id' => $v_transfer->to_account_id), 'tbl_accounts');
                 $from_account_info = $this->transactions_model->check_by(array('account_id' => $v_transfer->from_account_id), 'tbl_accounts');
-                
+
                 $sub_array = array();
                 $sub_array[] = strftime(config_item('date_format'), strtotime($v_transfer->date));
                 $sub_array[] = (!empty($from_account_info->account_name) ? $from_account_info->account_name : '-');
                 $sub_array[] = (!empty($from_account_info->account_name) ? $to_account_info->account_name : '-');
                 $sub_array[] = $v_transfer->type;
-                
+
                 $sub_array[] = display_money($v_transfer->amount, default_currency());
-                
+
                 $data[] = $sub_array;
-                
+
             }
             render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
     }
-    
+
     public function transfer_report_pdf()
     {
         $data['title'] = lang('transfer_report');
@@ -1892,14 +1893,14 @@ class Transactions extends Admin_Controller
         $viewfile = $this->load->view('admin/transactions/transfer_report_pdf', $data, TRUE);
         pdf_create($viewfile, slug_it(lang('transfer_report')));
     }
-    
+
     public function balance_sheet()
     {
         $data['title'] = lang('balance_sheet');
         $data['subview'] = $this->load->view('admin/transactions/balance_sheet', $data, TRUE);
         $this->load->view('admin/_layout_main', $data); //page load
     }
-    
+
     public function balance_sheet_pdf()
     {
         $data['title'] = lang('balance_sheet') . ' ' . lang('pdf');
@@ -1907,7 +1908,7 @@ class Transactions extends Admin_Controller
         $viewfile = $this->load->view('admin/transactions/balance_sheet_pdf', $data, TRUE);
         pdf_create($viewfile, slug_it(lang('balance_sheet')));
     }
-    
+
     public function download($id, $fileName = null)
     {
         if (!empty($fileName)) {
@@ -1927,9 +1928,9 @@ class Transactions extends Admin_Controller
             }
         } else {
             $this->load->library('zip');
-            
+
             $file_info = $this->transactions_model->check_by(array('transactions_id' => $id), 'tbl_transactions');
-            
+
             $attachement_info = json_decode($file_info->attachement);
             if (!empty($attachement_info)) {
                 $total = count($attachement_info);
@@ -1948,7 +1949,7 @@ class Transactions extends Admin_Controller
                     $file_name = $file_info->date . ' ' . $file_info->type;
                     $this->zip->download($file_name . '.zip');
                 }
-                
+
             } else {
                 $type = "error";
                 $message = 'Operation Fieled !';
@@ -1961,13 +1962,13 @@ class Transactions extends Admin_Controller
             }
         }
     }
-    
+
     public function download_transfer($id)
     {
         $this->load->library('zip');
-        
+
         $file_info = $this->transactions_model->check_by(array('transfer_id' => $id), 'tbl_transfer');
-        
+
         $attachement_info = json_decode($file_info->attachement);
         if (!empty($attachement_info)) {
             $total = count($attachement_info);
@@ -1986,7 +1987,7 @@ class Transactions extends Admin_Controller
                 $file_name = $file_info->date . ' ' . $file_info->type;
                 $this->zip->download($file_name . '.zip');
             }
-            
+
         } else {
             $type = "error";
             $message = 'Operation Fieled !';
@@ -1998,38 +1999,38 @@ class Transactions extends Admin_Controller
             }
         }
     }
-    
+
     public function set_status($action, $id)
     {
         $transaction_info = $this->db->where('transactions_id', $id)->get('tbl_transactions')->row();
         $account_info = $this->transactions_model->check_by(array('account_id' => $transaction_info->account_id), 'tbl_accounts');
-        
+
         if ($action == 'approved') {
             $status = 'unpaid';
             $activity = 'activity_approved_expense';
         }
-        
+
         if ($action == 'paid') {
             $status = 'paid';
-            
+
             $data['amount'] = $transaction_info->amount;
             $data['debit'] = $transaction_info->amount;
             $ac_data['balance'] = $account_info->balance - $data['amount'];
-            
+
             $this->transactions_model->_table_name = "tbl_accounts"; //table name
             $this->transactions_model->_primary_key = "account_id";
             $this->transactions_model->save($ac_data, $transaction_info->account_id);
-            
-            
+
+
             $data['total_balance'] = $account_info->balance;
             $activity = 'activity_paid_expense';
         }
         $data['status'] = $status;
         $this->transactions_model->_table_name = "tbl_transactions"; //table name
         $this->transactions_model->_primary_key = "transactions_id";
-        
+
         $this->transactions_model->save($data, $id);
-        
+
         // save into activities
         $activities = array(
             'user' => $this->session->userdata('user_id'),
@@ -2046,9 +2047,9 @@ class Transactions extends Admin_Controller
         $this->transactions_model->_primary_key = "activities_id";
         $this->transactions_model->save($activities);
         $type = 'success';
-        
+
         $this->expense_confirmation_email($id, $action);
-        
+
         $message = lang('update_a_expense');
         set_message($type, $message);
         if (empty($_SERVER['HTTP_REFERER'])) {
@@ -2057,19 +2058,19 @@ class Transactions extends Admin_Controller
             redirect($_SERVER['HTTP_REFERER']);
         }
     }
-    
+
     function expense_confirmation_email($id, $action)
     {
         $transaction_info = $this->db->where('transactions_id', $id)->get('tbl_transactions')->row();
         $added_info = $this->db->where('user_id', $transaction_info->added_by)->get('tbl_users')->row();
-        
+
         // send confirmation to this employee
         if ($action == 'approved') {
-            
+
             $expense_email = config_item('expense_email');
             if (!empty($expense_email) && $expense_email == 1) {
                 $email_template = email_templates(array('email_group' => 'expense_approved_email'));
-                
+
                 $message = $email_template->template_body;
                 $subject = $email_template->subject;
                 $username = str_replace("{NAME}", $added_info->username, $message);
@@ -2077,14 +2078,14 @@ class Transactions extends Admin_Controller
                 $message = str_replace("{SITE_NAME}", config_item('company_name'), $amount);
                 $data['message'] = $message;
                 $message = $this->load->view('email_template', $data, TRUE);
-                
+
                 $params['subject'] = $subject;
                 $params['message'] = $message;
                 $params['resourceed_file'] = '';
                 $params['recipient'] = $added_info->email;
                 $this->transactions_model->send_email($params);
-                
-                
+
+
                 if (!empty($added_info->user_id)) {
                     $notifiedUsers = array($added_info->user_id);
                     foreach ($notifiedUsers as $users) {
@@ -2100,7 +2101,7 @@ class Transactions extends Admin_Controller
                     }
                     show_notification($notifiedUsers);
                 }
-                
+
             }
         }
         if ($action == 'paid') {
@@ -2113,12 +2114,12 @@ class Transactions extends Admin_Controller
                 $head = $this->db->where('user_id', $dept_head->department_head_id)->get('tbl_users')->row();
                 array_push($all_admin, $head);
             }
-            
+
             if (!empty($dept_head->department_head_id) || !empty($all_admin)) {
                 $expense_email = config_item('expense_email');
                 if (!empty($expense_email) && $expense_email == 1) {
                     $email_template = email_templates(array('email_group' => 'expense_paid_email'));
-                    
+
                     $message = $email_template->template_body;
                     $subject = $email_template->subject;
                     $username = str_replace("{NAME}", $added_info->username, $message);
@@ -2128,7 +2129,7 @@ class Transactions extends Admin_Controller
                     $message = str_replace("{SITE_NAME}", config_item('company_name'), $Link);
                     $data['message'] = $message;
                     $message = $this->load->view('email_template', $data, TRUE);
-                    
+
                     $params['subject'] = $subject;
                     $params['message'] = $message;
                     $params['resourceed_file'] = '';
@@ -2156,23 +2157,23 @@ class Transactions extends Admin_Controller
                             }
                         }
                     }
-                    
+
                     if (!empty($notifyUser)) {
                         show_notification($notifyUser);
                     }
-                    
+
                     if (empty($already_send)) {
                         $params['recipient'] = $head->email;
                         $this->transactions_model->send_email($params);
                     }
-                    
-                    
+
+
                 }
             }
         }
         return true;
     }
-    
+
     public function download_pdf($id)
     {
         $this->load->helper('dompdf');
@@ -2191,7 +2192,7 @@ class Transactions extends Admin_Controller
         }
         pdf_create($viewfile, slug_it($type . ' ' . lang('details') . $reference));
     }
-    
+
     public function convert($id)
     {
         // get permission user
@@ -2206,5 +2207,5 @@ class Transactions extends Admin_Controller
             redirect('admin/transactions/expense');
         }
     }
-    
+
 }
