@@ -34,11 +34,13 @@ if (!empty($created) || !empty($edited)){
                         <thead>
                         <tr>
                             <th><?= lang('reference_no') ?></th>
-                            <th><?= lang('supplier') ?></th>
+                            <th><?= lang('Item Name') ?></th>
+                            <th><?= lang('supplier') ?></th>f
                             <th><?= lang('project') ?></th>
                             <th><?= lang('task') ?></th>
                             <th><?= lang('purchase_date') ?></th>
                             <th><?= lang('due_amount') ?></th>
+                            <th><?= lang('paid_amount') ?></th>
                             <th><?= lang('status') ?></th>
                             <th><?= lang('tags') ?></th>
                             <?php $show_custom_fields = custom_form_table(20, null);

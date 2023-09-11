@@ -75,8 +75,9 @@ class Purchase extends Admin_Controller
                         ->get('tbl_task')
                         ->row();
                     $currency = $this->purchase_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
-
+                    $tbl_purchase_items = $this->db->where('purchase_id', $v_purchase->purchase_id)->get('tbl_purchase_items')->row();
                     $sub_array[] = '<a href="' . base_url() . 'admin/purchase/purchase_details/' . $v_purchase->purchase_id . '">' . ($v_purchase->reference_no) . '</a>';
+                    $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $tbl_purchase_items->item_name . '</span>' : '-';
                     $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $v_purchase->name . '</span>' : '-';
                     if (!empty($v_purchase->project_id)){
                         $project = $this->db->select('project_name')->where('project_id', $v_purchase->project_id)->get('tbl_project')->row();
@@ -87,6 +88,7 @@ class Purchase extends Admin_Controller
                     $sub_array[] = $task->task_name;
                     $sub_array[] = display_date($v_purchase->purchase_date);
                     $sub_array[] = display_money($this->purchase_model->calculate_to('purchase_due', $v_purchase->purchase_id), $currency->symbol);
+                    $sub_array[] = display_money($this->purchase_model->calculate_to('paid_amount', $v_purchase->purchase_id), $currency->symbol);
                     $status = $this->purchase_model->get_payment_status($v_purchase->purchase_id);
                     if ($status == ('fully_paid')) {
                         $bg = "success";
@@ -666,8 +668,9 @@ class Purchase extends Admin_Controller
                             $trans_id = $this->input->post('trans_id', true);
                             // save into tbl_transaction
                             $tr_data = array(
-                                'name' => lang('purchase_payment', lang('trans_id') . '# ' . $trans_id),
+                                'name' => lang($purchase->item_name, lang('trans_id') . '# ' . $trans_id),
                                 'type' => 'Expense',
+                                'transaction_prefix' => $purchase->reference_no,
                                 'amount' => $paid_amount,
                                 'debit' => $paid_amount,
                                 'credit' => 0,
@@ -676,6 +679,7 @@ class Purchase extends Admin_Controller
                                 'project_id' => $purchase_info->project_id,
                                 'payment_methods_id' => $this->input->post('payment_methods_id', TRUE),
                                 'reference' => $trans_id,
+                                'status' => $status,
                                 'notes' => lang('this_expense_from_purchase_payment', $reference),
                                 'permission' => 'all',
                             );
