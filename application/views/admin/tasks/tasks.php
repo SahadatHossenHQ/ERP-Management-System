@@ -288,6 +288,7 @@ if ($tasks == 'kanban') {
                                                     <select name="category_id"
                                                             class="form-control select_box"
                                                             style="width: 100%">
+                                                        <option value="">Select Category</option>
                                                         <?php
                                                         $all_customer_group = $this->db->where('type', 'tasks')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
                                                         if (!empty($all_customer_group)) {
@@ -678,6 +679,7 @@ if ($tasks == 'kanban') {
                                                     <select name="contactor_id"
                                                             class="form-control select_box"
                                                             style="width: 100%">
+                                                        <option value="">Select Contactor</option>
                                                         <?php
                                                         $all_customer_group = $this->db->where('type', 'contactor')->order_by('customer_group_id', 'DESC')->get('tbl_customer_group')->result();
 
@@ -694,6 +696,7 @@ if ($tasks == 'kanban') {
                                                         $created = can_action('125', 'created');
                                                         ?>
                                                     </select>
+
                                                     <?php if (!empty($created)) { ?>
                                                         <div class="input-group-addon"
                                                              title="<?= lang('new') . ' ' . lang('contactor') ?>"
