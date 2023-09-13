@@ -2097,14 +2097,14 @@ $edited = can_action('57', 'edited');
                                     <table class="table table-striped DataTables " id="DataTables1" width="100%">
                                         <thead>
                                         <tr>
-                                            <th><?= lang('reference_no') ?></th>
+                                            <th><?= lang('reference_no') ?></th>s
+                                            <th><?= lang('Item Name') ?></th>
                                             <th><?= lang('supplier') ?></th>
                                             <th><?= lang('project') ?></th>
                                             <th><?= lang('task') ?></th>
                                             <th><?= lang('purchase_date') ?></th>
                                             <th><?= lang('due_amount') ?></th>
                                             <th><?= lang('status') ?></th>
-                                            <th><?= lang('tags') ?></th>
                                             <?php $show_custom_fields = custom_form_table(20, null);
                                             if (!empty($show_custom_fields)) {
                                                 foreach ($show_custom_fields as $c_label => $v_fields) {

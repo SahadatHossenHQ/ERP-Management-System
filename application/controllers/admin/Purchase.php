@@ -13,7 +13,7 @@ class Purchase extends Admin_Controller
         $this->load->library('gst');
     }
 
-    public function index($id = NULL,$type = Null)
+    public function index($id = NULL, $type = Null)
     {
         $data['title'] = lang('all') . ' ' . lang('purchase');
         if (!empty($id) && $type == NULL) {
@@ -45,10 +45,10 @@ class Purchase extends Admin_Controller
             $this->datatables->join_table = array('tbl_suppliers');
             $this->datatables->join_where = array('tbl_suppliers.supplier_id=tbl_purchases.supplier_id');
             $custom_field = custom_form_table_search(20);
-            if (!empty($project_id)){
+            if (!empty($project_id)) {
                 $this->datatables->where = array('project_id' => $project_id);
             }
-            if ($task_id){
+            if ($task_id) {
                 $this->datatables->where = array('task_id' => $task_id);
             }
             $action_array = array('purchase_id');
@@ -66,12 +66,12 @@ class Purchase extends Admin_Controller
             $deleted = can_action('152', 'deleted');
             foreach ($fetch_data as $_key => $v_purchase) {
 //                && (!empty($project_id) ? $v_purchase->project_id == $project_id : true)
-                if (!empty($v_purchase) ) {
+                if (!empty($v_purchase)) {
                     $action = null;
                     $sub_array = array();
                     $can_edit = $this->purchase_model->can_action('tbl_purchases', 'edit', array('purchase_id' => $v_purchase->purchase_id));
                     $can_delete = $this->purchase_model->can_action('tbl_purchases', 'delete', array('purchase_id' => $v_purchase->purchase_id));
-                    $task = $this->db->where('task_id', $v_purchase->task_id??0)
+                    $task = $this->db->where('task_id', $v_purchase->task_id ?? 0)
                         ->get('tbl_task')
                         ->row();
                     $currency = $this->purchase_model->check_by(array('code' => config_item('default_currency')), 'tbl_currencies');
@@ -79,7 +79,7 @@ class Purchase extends Admin_Controller
                     $sub_array[] = '<a href="' . base_url() . 'admin/purchase/purchase_details/' . $v_purchase->purchase_id . '">' . ($v_purchase->reference_no) . '</a>';
                     $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $tbl_purchase_items->item_name . '</span>' : '-';
                     $sub_array[] = !empty($v_purchase) ? '<span class="tags">' . $v_purchase->name . '</span>' : '-';
-                    if (!empty($v_purchase->project_id)){
+                    if (!empty($v_purchase->project_id)) {
                         $project = $this->db->select('project_name')->where('project_id', $v_purchase->project_id)->get('tbl_project')->row();
                         $sub_array[] = $project->project_name;
                     } else {
@@ -143,14 +143,14 @@ class Purchase extends Admin_Controller
             $this->datatables->join_table = array('tbl_purchases');
             $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
             $custom_field = custom_form_table_search(20);
-            if (!empty($project_id)){
+            if (!empty($project_id)) {
                 $this->datatables->where = array('tbl_purchases.project_id' => $project_id);
             }
-            if ($task_id){
+            if ($task_id) {
                 $this->datatables->where = array('tbl_purchases.task_id' => $task_id);
             }
             $action_array = array('items_id');
-            $main_column = array('tbl_purchases.purchase_id','tbl_purchases.reference_no', 'tbl_purchase_items.quantity', 'tbl_purchase_items.item_name', 'tbl_purchase_items.unit_cost', 'tbl_purchase_items.total_cost', 'tbl_purchases.purchase_date', 'tbl_purchases.tags');
+            $main_column = array('tbl_purchases.purchase_id', 'tbl_purchases.reference_no', 'tbl_purchase_items.quantity', 'tbl_purchase_items.item_name', 'tbl_purchase_items.unit_cost', 'tbl_purchase_items.total_cost', 'tbl_purchases.purchase_date', 'tbl_purchases.tags');
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
             $this->datatables->column_search = $result;
@@ -166,7 +166,7 @@ class Purchase extends Admin_Controller
 
             foreach ($fetch_data as $_key => $v_purchase) {
 //                && (!empty($project_id) ? $v_purchase->project_id == $project_id : true)
-                if (!empty($v_purchase) ) {
+                if (!empty($v_purchase)) {
                     $action = null;
                     $sub_array = array();
 
@@ -203,7 +203,7 @@ class Purchase extends Admin_Controller
 
         $items_info = $this->db->where('saved_items_id', $saved_items_id)->get('tbl_saved_items')->row();
 
-        if (($items_info->quantity-$used_stock) < 0 || $used_stock <= 0){
+        if (($items_info->quantity - $used_stock) < 0 || $used_stock <= 0) {
             redirect($_SERVER['HTTP_REFERER']);
         }
         $array['item_id'] = $saved_items_id;
@@ -213,9 +213,9 @@ class Purchase extends Admin_Controller
         $array['quantity'] = $used_stock;
         $array['action_by'] = $userId;
         $array['unit_type'] = $unit_type;
-        $this->db->insert('tbl_stock_uses',$array);
+        $this->db->insert('tbl_stock_uses', $array);
 
-        $data = array('quantity' => $items_info->quantity-$used_stock, 'total_cost' => $items_info->unit_cost*($items_info->quantity-$transfer_amount));
+        $data = array('quantity' => $items_info->quantity - $used_stock, 'total_cost' => $items_info->unit_cost * ($items_info->quantity - $transfer_amount));
         $this->db->where('saved_items_id', $saved_items_id);
         $this->db->update('tbl_saved_items', $data);
 
@@ -233,21 +233,21 @@ class Purchase extends Admin_Controller
 
         $items_info = $this->db->where('saved_items_id', $saved_items_id)->get('tbl_saved_items')->row();
 
-        if (($items_info->quantity-$transfer_amount) < 0 || $transfer_amount <= 0){
+        if (($items_info->quantity - $transfer_amount) < 0 || $transfer_amount <= 0) {
             redirect($_SERVER['HTTP_REFERER']);
         }
 
         $arrayData = json_decode(json_encode($items_info), true);
         unset($arrayData['saved_items_id']);
         $arrayData['quantity'] = $transfer_amount;
-        $arrayData['total_cost'] = $transfer_amount+$items_info->unit_cost;
+        $arrayData['total_cost'] = $transfer_amount + $items_info->unit_cost;
         $arrayData['task_id'] = $trn_task_id;
         $arrayData['project_id'] = $project_id;
-        $this->db->insert('tbl_saved_items',$arrayData);
+        $this->db->insert('tbl_saved_items', $arrayData);
         $id = $this->db->insert_id();
 
 
-        $data = array('quantity' => $items_info->quantity-$transfer_amount, 'total_cost' => $items_info->unit_cost*($items_info->quantity-$transfer_amount));
+        $data = array('quantity' => $items_info->quantity - $transfer_amount, 'total_cost' => $items_info->unit_cost * ($items_info->quantity - $transfer_amount));
         $this->db->where('saved_items_id', $saved_items_id);
         $this->db->update('tbl_saved_items', $data);
 
@@ -260,7 +260,7 @@ class Purchase extends Admin_Controller
         $array['action_by'] = $userId;
         $array['unit_type'] = $items_info->unit_type;
         $array['to_task_id'] = $trn_task_id;
-        $this->db->insert('tbl_stock_uses',$array);
+        $this->db->insert('tbl_stock_uses', $array);
 
         redirect($_SERVER['HTTP_REFERER']);
     }
@@ -268,7 +268,7 @@ class Purchase extends Admin_Controller
     public function save_purchase($id = NULL)
     {
         $data = $this->purchase_model->array_from_post(array('reference_no', 'supplier_id', 'discount_type', 'tags',
-            'discount_percent', 'user_id','project_id','task_id',
+            'discount_percent', 'user_id', 'project_id', 'task_id',
             'adjustment', 'discount_total', 'show_quantity_as',));
         $data['update_stock'] = ($this->input->post('update_stock') == 'Yes') ? 'Yes' : 'No';
         $data['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date', TRUE)));
@@ -396,6 +396,9 @@ class Purchase extends Admin_Controller
                     $this->purchase_model->save($items, $items_id);
                 } else {
                     $items_id = $this->purchase_model->save($items);
+                }
+                if (!$id){
+                    $this->saveStock($purchase_id);
                 }
                 $index++;
             }
@@ -638,24 +641,24 @@ class Purchase extends Admin_Controller
 
 //                    update stock
                     $purchase = $this->db->where('tbl_purchases.purchase_id', $purchase_id)
-                        ->join('tbl_purchase_items','tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
+                        ->join('tbl_purchase_items', 'tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
                         ->get('tbl_purchases')->row();
 
-                    if ($purchase->saved_items_id !== 0){
-                        $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $purchase->saved_items_id)
-                            ->get('tbl_saved_items')->row();
-                        $array = json_decode(json_encode($saved_item), true);
-
-                        $array['item_name'] = $purchase->item_name;
-                        $array['unit_cost'] = $purchase->unit_cost;
-                        $array['project_id'] = $purchase->project_id;
-                        $array['task_id'] = $purchase->task_id;
-                        $array['total_cost'] = $purchase->total_cost;
-                        $array['quantity'] = $purchase->quantity;
-                        $array['unit_type'] = $purchase->unit_type;
-
-                        unset($array['saved_items_id']);
-                        $this->db->insert('tbl_saved_items',$array);
+                    if ($purchase->saved_items_id !== 0) {
+//                        $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $purchase->saved_items_id)
+//                            ->get('tbl_saved_items')->row();
+//                        $array = json_decode(json_encode($saved_item), true);
+//
+//                        $array['item_name'] = $purchase->item_name;
+//                        $array['unit_cost'] = $purchase->unit_cost;
+//                        $array['project_id'] = $purchase->project_id;
+//                        $array['task_id'] = $purchase->task_id;
+//                        $array['total_cost'] = $purchase->total_cost;
+//                        $array['quantity'] = $purchase->quantity;
+//                        $array['unit_type'] = $purchase->unit_type;
+//
+//                        unset($array['saved_items_id']);
+//                        $this->db->insert('tbl_saved_items',$array);
                     }
 
                     if ($this->input->post('deduct_from_account') == 'on') {
@@ -677,6 +680,7 @@ class Purchase extends Admin_Controller
                                 'date' => date('Y-m-d', strtotime($this->input->post('payment_date', TRUE))),
                                 'paid_by' => $purchase_info->supplier_id,
                                 'project_id' => $purchase_info->project_id,
+                                'task_id' => $purchase_info->task_id,
                                 'payment_methods_id' => $this->input->post('payment_methods_id', TRUE),
                                 'reference' => $trans_id,
                                 'status' => $status,
@@ -741,6 +745,30 @@ class Purchase extends Admin_Controller
             set_message('error', lang('there_in_no_value'));
             redirect($_SERVER['HTTP_REFERER']);
         }
+    }
+
+    public function saveStock($purchase_id)
+    {
+        $purchase = $this->db->where('tbl_purchases.purchase_id', $purchase_id)
+            ->join('tbl_purchase_items', 'tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
+            ->get('tbl_purchases')->row();
+        if ($purchase->saved_items_id !== 0) {
+            $saved_item = $this->db->where('tbl_saved_items.saved_items_id', $purchase->saved_items_id)
+                ->get('tbl_saved_items')->row();
+            $array = json_decode(json_encode($saved_item), true);
+            unset($array['saved_items_id']);
+        }
+        $array['item_name'] = $purchase->item_name;
+        $array['unit_cost'] = $purchase->unit_cost;
+        $array['project_id'] = $purchase->project_id;
+        $array['task_id'] = $purchase->task_id;
+        $array['total_cost'] = $purchase->total_cost;
+        $array['quantity'] = $purchase->quantity;
+        $array['unit_type'] = $purchase->unit_type;
+
+        $this->db->insert('tbl_saved_items', $array);
+        return $this->db->insert_id();
+
     }
 
     public function send_payment_sms($purchase_id, $payments_id)

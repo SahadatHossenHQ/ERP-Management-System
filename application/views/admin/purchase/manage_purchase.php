@@ -35,7 +35,7 @@ if (!empty($created) || !empty($edited)){
                         <tr>
                             <th><?= lang('reference_no') ?></th>
                             <th><?= lang('Item Name') ?></th>
-                            <th><?= lang('supplier') ?></th>f
+                            <th><?= lang('supplier') ?></th>
                             <th><?= lang('project') ?></th>
                             <th><?= lang('task') ?></th>
                             <th><?= lang('purchase_date') ?></th>
