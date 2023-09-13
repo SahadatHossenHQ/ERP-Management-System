@@ -3097,13 +3097,13 @@ $edited = can_action('57', 'edited');
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <span class="label label-<?= $label ?>"><?= display_money($task->budget) ?></span>
+                                                        <span class="label label-info"><?= display_money($task->budget) ?></span>
                                                     </td>
                                                     <td>
-                                                        <span class="label label-<?= $label ?>"><?= display_money($expense->amount) ?></span>
+                                                        <span class="label label-success"><?= display_money($expense->amount) ?></span>
                                                     </td>
                                                     <td>
-                                                        <span class="label label-<?= $label ?>"><?= display_money($task->budget - $expense->amount) ?></span>
+                                                        <span class="label label-danger"><?= display_money($task->budget - $expense->amount) ?></span>
                                                     </td>
 
                                                 </tr>

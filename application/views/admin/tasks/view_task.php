@@ -1492,7 +1492,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
 
@@ -1512,7 +1513,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('Stock Uses & Transfer History') ?></a>
                             </li>
                             <li class="">
-                                <a target="_blank" href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
@@ -1800,7 +1802,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         foreach ($result as $key => $row) {
                                             ?>
                                             <tr>
-                                                <td><?= $key+1 ?></td>
+                                                <td><?= $key + 1 ?></td>
                                                 <td><?= $row->item_name ?></td>
                                                 <td>
                                                     <?php
@@ -1810,7 +1812,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     $this->db->where('saved_items_id', $row->item_id);
                                                     $query_result = $this->db->get();
                                                     $query_result = $query_result->row();
-                                                    echo $query_result->project_name?? '-';
+                                                    echo $query_result->project_name ?? '-';
                                                     ?>
                                                 </td>
                                                 <td>
@@ -1832,7 +1834,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     $this->db->where('saved_items_id', $row->transfer_to_item_id);
                                                     $query_result = $this->db->get();
                                                     $query_result = $query_result->row();
-                                                    echo $query_result->project_name?? '-';
+                                                    echo $query_result->project_name ?? '-';
                                                     ?>
 
                                                 </td>
@@ -1851,7 +1853,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 <td><?= $row->quantity ?></td>
                                                 <td><?= $row->unit_type ?></td>
                                                 <td class="text-capitalize">
-                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
+                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"
+                                                       href="#"><?= $row->type ?></a>
                                                 </td>
 
                                             </tr>
@@ -1884,7 +1887,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category ?? []) > 0) { ?>
@@ -1897,7 +1901,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             }
                                         }
                                     } ?>">
-                                        <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
+                                        <a target="_blank"
+                                           href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
                                     </li>
                                 <?php }
                                 ?>
@@ -2175,92 +2180,105 @@ $sub_tasks = config_item('allow_sub_tasks');
                     <!-- Tabs within a box -->
                     <ul class="nav nav-tabs">
                         <li class="<?= $time_active == 1 ? 'active' : ''; ?>"><a href="#general"
-                                                                                 data-toggle="tab"><?= lang('timesheet') ?></a>
+                                                                                 data-toggle="tab"><?= lang('Contactor') ?></a>
                         </li>
-                        <li class="<?= $time_active == 2 ? 'active' : ''; ?>"><a href="#contact"
-                                                                                 data-toggle="tab"><?= lang('manual_entry') ?></a>
-                        </li>
+<!--                        <li class="--><?php //= $time_active == 2 ? 'active' : ''; ?><!--"><a href="#contact"-->
+<!--                                                                                 data-toggle="tab">--><?php //= lang('manual_entry') ?><!--</a>-->
+<!--                        </li>-->
                     </ul>
                     <div class="tab-content bg-white">
                         <!-- ************** general *************-->
                         <div class="tab-pane <?= $time_active == 1 ? 'active' : ''; ?>" id="general">
                             <div class="table-responsive">
-                                <table id="table-tasks-timelog" class="table table-striped     DataTables">
+                                <table class="table table-striped">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('user') ?></th>
-                                        <th><?= lang('start_time') ?></th>
-                                        <th><?= lang('stop_time') ?></th>
-                                        <th><?= lang('task_name') ?></th>
-                                        <th class="col-time"><?= lang('time_spend') ?></th>
-                                        <th><?= lang('action') ?></th>
+                                        <th><?= lang('name') ?></th>
+                                        <th><?= lang('task') ?> Name</th>
+                                        <th><?= lang('progress') ?></th>
+                                        <th><?= lang('status') ?></th>
+                                        <th><?= lang('budget') ?></th>
+                                        <th><?= lang('Paid') ?></th>
+                                        <th><?= lang('Due') ?></th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (!empty($total_timer)) {
-                                        foreach ($total_timer as $v_tasks) {
-                                            $task_info = $this->db->where(array('task_id' => $v_tasks->task_id))->get('tbl_task')->row();
-                                            if (!empty($task_info)) {
-                                                ?>
-                                                <tr id="table_tasks_timer-<?= $v_tasks->tasks_timer_id ?>">
-                                                    <td class="small">
-
-                                                        <a class="pull-left recect_task  ">
-                                                            <?php
-                                                            $profile_info = $this->db->where(array('user_id' => $v_tasks->user_id))->get('tbl_account_details')->row();
-                                                            $user_info = $this->db->where(array('user_id' => $v_tasks->user_id))->get('tbl_users')->row();
-                                                            if (!empty($user_info)) {
-                                                                ?>
-                                                                <img style="width: 30px;margin-left: 18px;
-                                                                             height: 29px;
-                                                                             border: 1px solid #aaa;"
-                                                                     src="<?= base_url() . $profile_info->avatar ?>"
-                                                                     class="img-circle">
-
-                                                                <?= ucfirst($user_info->username) ?>
-                                                            <?php } else {
-                                                                echo '-';
-                                                            } ?>
-                                                        </a>
 
 
-                                                    </td>
+                                    $tasks = $this->db->where_in('tbl_task.task_id', [$task_details->task_id])
+                                        ->select('tbl_task.*,tbl_customer_group.customer_group')
+                                        ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
+                                        ->get('tbl_task')
+                                        ->result();
 
-                                                    <td><span
-                                                                class="label label-success"><?= strftime(config_item('date_format'), $v_tasks->start_time) . ' ' . display_time($v_tasks->start_time, true) ?></span>
-                                                    </td>
-                                                    <td><span
-                                                                class="label label-danger"><?= strftime(config_item('date_format'), $v_tasks->end_time) . ' ' . display_time($v_tasks->end_time, true) ?></span>
-                                                    </td>
 
-                                                    <td>
-                                                        <a target="_blank" href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_tasks->task_id ?>"
-                                                           class="text-info small"><?= $task_info->task_name ?>
-                                                            <?php
-                                                            if (!empty($v_tasks->reason)) {
-                                                                $edit_user_info = $this->db->where(array('user_id' => $v_tasks->edited_by))->get('tbl_users')->row();
-                                                                echo '<i class="text-danger" data-html="true" data-toggle="tooltip" data-placement="top" title="Reason : ' . $v_tasks->reason . '<br>' . ' Edited By : ' . $edit_user_info->username . '">Edited</i>';
-                                                            }
-                                                            ?>
-                                                        </a></td>
-                                                    <td>
-                                                        <small
-                                                                class="small text-muted"><?= $this->tasks_model->get_time_spent_result($v_tasks->end_time - $v_tasks->start_time) ?></small>
-                                                    </td>
-                                                    <td>
-                                                        <?= btn_edit('admin/tasks/view_task_details/' . $v_tasks->tasks_timer_id . '/5/edit') ?>
-                                                        <?php if ($v_tasks->user_id == $this->session->userdata('user_id')) { ?>
-                                                            <?php echo ajax_anchor(base_url("admin/tasks/update_tasks_timer/" . $v_tasks->tasks_timer_id . '/delete_task_timmer'), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_tasks_timer-" . $v_tasks->tasks_timer_id)); ?>
-                                                        <?php } ?>
-                                                    </td>
+                                    if (!empty($tasks)) :
+                                        foreach ($tasks as $key => $task) :
+                                            $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
+                                                ->where('task_id', $task->task_id)
+                                                ->get('tbl_transactions')
+                                                ->row();
+                                            ?>
+                                            <tr id="table-bugs-<?= $task->task_id ?>">
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="#"><?php echo $task->customer_group; ?></a>
+                                                </td>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
+                                                </td>
 
-                                                </tr>
-                                                <?php
-                                            }
-                                        }
-                                    }
-                                    ?>
+                                                <td>
+                                                    <div class="inline ">
+                                                        <div class="easypiechart text-success" style="margin: 0px;"
+                                                             data-percent="<?= $task->task_progress ?>"
+                                                             data-line-width="5" data-track-Color="#f0f0f0"
+                                                             data-bar-color="#<?php
+                                                             if ($task->task_progress == 100) {
+                                                                 echo '8ec165';
+                                                             } else {
+                                                                 echo 'fb6b5b';
+                                                             }
+                                                             ?>" data-rotate="270" data-scale-Color="false"
+                                                             data-size="50" data-animate="2000">
+                                                                    <span class="small text-muted"><?= $task->task_progress ?>
+                                                                        %</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $disabled = null;
+                                                    if (!empty($task->task_status)) {
+                                                        if ($task->task_status == 'completed') {
+                                                            $status = "<div class='label label-success'>" . lang($task->task_status) . "</div>";
+                                                            $disabled = 'disabled';
+                                                        } elseif ($task->task_status == 'in_progress') {
+                                                            $status = "<div class='label label-primary'>" . lang($task->task_status) . "</div>";
+                                                        } elseif ($task->task_status == 'cancel') {
+                                                            $status = "<div class='label label-danger'>" . lang($task->task_status) . "</div>";
+                                                        } else {
+                                                            $status = "<div class='label label-warning'>" . lang($task->task_status) . "</div>";
+                                                        } ?>
+                                                        <?= $status; ?>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-info"><?= display_money($task->budget) ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-success"><?= display_money($expense->amount) ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-danger"><?= display_money($task->budget - $expense->amount) ?></span>
+                                                </td>
+
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -2393,7 +2411,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
                             <li class="">
-                                <a target="_blank" href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
                                     <?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
@@ -2516,7 +2535,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     ?>
                                                     <tr id="table-expense-<?= $v_expense->transactions_id ?>">
                                                         <td>
-                                                            <a target="_blank" href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                            <a target="_blank"
+                                                               href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
                                                                 <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
                                                             </a>
                                                         </td>

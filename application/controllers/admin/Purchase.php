@@ -398,7 +398,7 @@ class Purchase extends Admin_Controller
                     $items_id = $this->purchase_model->save($items);
                 }
                 if (!$id){
-                    $this->saveStock($purchase_id);
+                    $this->saveStock($items_id);
                 }
                 $index++;
             }
@@ -747,9 +747,9 @@ class Purchase extends Admin_Controller
         }
     }
 
-    public function saveStock($purchase_id)
+    public function saveStock($items_id)
     {
-        $purchase = $this->db->where('tbl_purchases.purchase_id', $purchase_id)
+        $purchase = $this->db->where('tbl_purchase_items.items_id', $items_id)
             ->join('tbl_purchase_items', 'tbl_purchases.purchase_id = tbl_purchase_items.purchase_id')
             ->get('tbl_purchases')->row();
         if ($purchase->saved_items_id !== 0) {
@@ -767,7 +767,6 @@ class Purchase extends Admin_Controller
         $array['unit_type'] = $purchase->unit_type;
 
         $this->db->insert('tbl_saved_items', $array);
-        return $this->db->insert_id();
 
     }
 
