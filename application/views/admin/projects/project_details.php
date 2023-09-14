@@ -125,7 +125,7 @@ $edited = can_action('57', 'edited');
         <ul class="mt nav nav-pills nav-stacked navbar-custom-nav">
             <li class="btn-success" style="margin-right: 0px; "></li>
             <li class="" style="margin-right: 0px; "><a href="#task_details"
-                                                                                           data-toggle="tab"><?= lang('project_details') ?></a>
+                                                        data-toggle="tab"><?= lang('project_details') ?></a>
             </li>
             <!--            <li class="-->
             <?php //= $active == 5 ? 'active' : '' ?><!--"><a href="#milestones" data-toggle="tab">-->
@@ -133,14 +133,14 @@ $edited = can_action('57', 'edited');
             <?php //= (!empty($all_milestones_info) ? count($all_milestones_info) : null) ?><!--</strong></a>-->
             <!--            </li>-->
             <li class="<?= $active == 70 ? 'active' : '' ?>"><a href="#contactor"
-                                                                                        data-toggle="tab"><?= lang('contactor') ?></a></li>
+                                                                data-toggle="tab"><?= lang('contactor') ?></a></li>
             <li class="">
                 <a title="Stock Report" href="#stock_data" data-toggle="tab">
                     <span><?= lang('Stock') ?></span>
                 </a>
             </li>
             <li class="">
-                <a title="Purchase Report" href="#purchase"  onclick="ins_data" data-toggle="tab">
+                <a title="Purchase Report" href="#purchase" onclick="ins_data" data-toggle="tab">
                     <span><?= lang('Purchase') ?></span>
                 </a>
             </li>
@@ -257,7 +257,8 @@ $edited = can_action('57', 'edited');
                             <?php if (!empty($project_details->project_name)) echo $project_details->project_name; ?>
                             <div class="pull-right text-sm">
                                 <?php if (!empty($can_edit) && !empty($edited)) { ?>
-                                    <a target="_blank" href="<?= base_url() ?>admin/projects/index/<?= $project_details->project_id ?>"><?= lang('edit') . ' ' . lang('project') ?></a>
+                                    <a target="_blank"
+                                       href="<?= base_url() ?>admin/projects/index/<?= $project_details->project_id ?>"><?= lang('edit') . ' ' . lang('project') ?></a>
                                 <?php } ?>
                             </div>
                         </div>
@@ -395,7 +396,8 @@ $edited = can_action('57', 'edited');
                                                             <span class="caret"></span></button>
                                                         <ul class="dropdown-menu animated zoomIn">
                                                             <li>
-                                                                <a target="_blank" href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/started' ?>"><?= lang('started') ?></a>
+                                                                <a target="_blank"
+                                                                   href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/started' ?>"><?= lang('started') ?></a>
                                                             </li>
                                                             <li>
                                                                 <a href="<?= base_url() ?>admin/projects/change_status/<?= $project_details->project_id . '/in_progress' ?>"><?= lang('in_progress') ?></a>
@@ -432,7 +434,8 @@ $edited = can_action('57', 'edited');
                                                     <span class="label label-danger"><?= lang('off') ?></span>
                                                     <?php $this_permission = $this->items_model->can_action('tbl_project', 'view', array('project_id' => $project_details->project_id), true);
                                                     if (!empty($this_permission)) { ?>
-                                                        <a class="btn btn-xs btn-success <?= $disabled ?>" target="_blank"
+                                                        <a class="btn btn-xs btn-success <?= $disabled ?>"
+                                                           target="_blank"
                                                            href="<?= base_url() ?>admin/projects/tasks_timer/on/<?= $project_details->project_id ?>"><?= lang('start_timer') ?> </a>
                                                     <?php }
                                                 }
@@ -1524,7 +1527,8 @@ $edited = can_action('57', 'edited');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a target="_blank" href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/projects/project_details/<?= $project_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category) > 0) { ?>
@@ -1741,7 +1745,7 @@ $edited = can_action('57', 'edited');
                                         <tbody>
                                         <script type="text/javascript">
                                             $(document).ready(function () {
-                                                list = base_url + "admin/items/itemsList" + "<?php echo('/' . $project_details->project_id .'/project'); ?>";
+                                                list = base_url + "admin/items/itemsList" + "<?php echo('/' . $project_details->project_id . '/project'); ?>";
                                                 bulk_url = base_url + "admin/items/bulk_delete";
                                                 $('.filtered > .dropdown-toggle').on('click', function () {
                                                     if ($('.group').css('display') == 'block') {
@@ -1975,7 +1979,7 @@ $edited = can_action('57', 'edited');
                                         foreach ($result as $key => $row) {
                                             ?>
                                             <tr>
-                                                <td><?= $key+1 ?></td>
+                                                <td><?= $key + 1 ?></td>
                                                 <td><?= $row->item_name ?></td>
                                                 <td>
                                                     <?php
@@ -1985,7 +1989,7 @@ $edited = can_action('57', 'edited');
                                                     $this->db->where('saved_items_id', $row->item_id);
                                                     $query_result = $this->db->get();
                                                     $query_result = $query_result->row();
-                                                    echo $query_result->project_name?? '-';
+                                                    echo $query_result->project_name ?? '-';
                                                     ?>
                                                 </td>
                                                 <td>
@@ -2007,7 +2011,7 @@ $edited = can_action('57', 'edited');
                                                     $this->db->where('saved_items_id', $row->transfer_to_item_id);
                                                     $query_result = $this->db->get();
                                                     $query_result = $query_result->row();
-                                                    echo $query_result->project_name?? '-';
+                                                    echo $query_result->project_name ?? '-';
                                                     ?>
 
                                                 </td>
@@ -2026,7 +2030,8 @@ $edited = can_action('57', 'edited');
                                                 <td><?= $row->quantity ?></td>
                                                 <td><?= $row->unit_type ?></td>
                                                 <td class="text-capitalize">
-                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
+                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"
+                                                       href="#"><?= $row->type ?></a>
                                                 </td>
 
                                             </tr>
@@ -2097,7 +2102,8 @@ $edited = can_action('57', 'edited');
                                     <table class="table table-striped DataTables " id="DataTables1" width="100%">
                                         <thead>
                                         <tr>
-                                            <th><?= lang('reference_no') ?></th>s
+                                            <th><?= lang('reference_no') ?></th>
+                                            s
                                             <th><?= lang('Item Name') ?></th>
                                             <th><?= lang('supplier') ?></th>
                                             <th><?= lang('project') ?></th>
@@ -2799,7 +2805,7 @@ $edited = can_action('57', 'edited');
             <!-- End milestones-->
 
             <!-- Start Tasks Management-->
-            <div class="tab-pane <?= $active == 6 ? 'active' : '' ?>" id="task"( style="position: relative;">
+            <div class="tab-pane <?= $active == 6 ? 'active' : '' ?>" id="task" ( style="position: relative;">
                 <div class="box" style="border: none; " data-coll)apsed="0">
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
@@ -3034,7 +3040,7 @@ $edited = can_action('57', 'edited');
                                         <?php
 
                                         $sub_task_ids = get_all_tasks($project_details->project_id);
-                                        if($sub_task_ids) {
+                                        if ($sub_task_ids) {
                                             $tasks = $this->db->where_in('tbl_task.task_id', $sub_task_ids)
                                                 ->select('tbl_task.*,tbl_customer_group.customer_group')
                                                 ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
@@ -3652,83 +3658,83 @@ $edited = can_action('57', 'edited');
                     </div>
                 </div>
             </div>
-            <?php if (!empty($all_invoice_info)) { ?>
-                <div class="tab-pane <?= $active == 11 ? 'active' : '' ?>" id="invoice" style="position: relative;">
-                    <div class="panel panel-custom">
-                        <div class="nav-tabs-custom">
-                            <ul class="nav nav-tabs">
-                                <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_credit_note"
-                                                                                      data-toggle="tab"><?= lang('bill_received') ?></a>
-                                </li>
-                                <li class=""><a
-                                            href="<?= base_url() ?>admin/invoice/manage_invoice/project/<?= $project_details->project_id ?>"><?= lang('new') . ' ' . lang('bill_received') ?></a>
-                                </li>
-                            </ul>
-                        </div>
 
-                        <div class="panel-body">
+            <div class="tab-pane <?= $active == 11 ? 'active' : '' ?>" id="invoice" style="position: relative;">
+                <div class="panel panel-custom">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="<?= $estimate == 1 ? 'active' : ''; ?>"><a href="#manage_credit_note"
+                                                                                  data-toggle="tab"><?= lang('bill_received') ?></a>
+                            </li>
+                            <li class=""><a
+                                        href="<?= base_url() ?>admin/invoice/manage_invoice/project/<?= $project_details->project_id ?>"><?= lang('new') . ' ' . lang('bill_received') ?></a>
+                            </li>
+                        </ul>
+                    </div>
 
-                            <div class="table-responsive">
-                                <table id="table-invoice" class="table table-striped ">
-                                    <thead>
-                                    <tr>
-                                        <th><?= lang('bill_received') ?></th>
-                                        <th class="col-date"><?= lang('due_date') ?></th>
-                                        <th class="col-currency"><?= lang('amount') ?></th>
-                                        <th class="col-currency"><?= lang('due_amount') ?></th>
-                                        <th><?= lang('status') ?></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php
-                                    foreach ($all_invoice_info as $v_invoices) {
-                                        if ($this->invoice_model->get_payment_status($v_invoices->invoices_id) == lang('fully_paid')) {
-                                            $invoice_status = lang('fully_paid');
-                                            $label = "success";
-                                        } elseif ($v_invoices->emailed == 'Yes') {
-                                            $invoice_status = lang('sent');
-                                            $label = "info";
-                                        } else {
-                                            $invoice_status = lang('draft');
-                                            $label = "default";
-                                        }
-                                        ?>
-                                        <tr>
-                                            <td><a class="text-info"
-                                                   href="<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoices->invoices_id ?>"><?= $v_invoices->reference_no ?></a>
-                                            </td>
-                                            <td><?= strftime(config_item('date_format'), strtotime($v_invoices->due_date)) ?>
-                                                <?php
-                                                $payment_status = $this->invoice_model->get_payment_status($v_invoices->invoices_id);
-                                                if (strtotime($v_invoices->due_date) < strtotime(date('Y-m-d')) && $payment_status != lang('fully_paid')) { ?>
-                                                    <span class="label label-danger "><?= lang('overdue') ?></span>
-                                                    <?php
-                                                }
-                                                ?>
-                                            </td>
-                                            <td><?= display_money($this->invoice_model->calculate_to('invoice_cost', $v_invoices->invoices_id), $currency->symbol) ?></td>
-                                            <td><?= display_money($this->invoice_model->calculate_to('invoice_due', $v_invoices->invoices_id), $currency->symbol) ?></td>
-                                            <td><span class="label label-<?= $label ?>"><?= $invoice_status ?></span>
-                                                <?php if ($v_invoices->recurring == 'Yes') { ?>
-                                                    <span data-toggle="tooltip" data-placement="top"
-                                                          title="<?= lang('recurring') ?>"
-                                                          class="label label-primary"><i
-                                                                class="fa fa-retweet"></i></span>
-                                                <?php } ?>
+                    <div class="panel-body">
 
-                                            </td>
-
-                                        </tr>
-                                        <?php
+                        <div class="table-responsive">
+                            <table id="table-invoice" class="table table-striped ">
+                                <thead>
+                                <tr>
+                                    <th><?= lang('bill_received') ?></th>
+                                    <th class="col-date"><?= lang('due_date') ?></th>
+                                    <th class="col-currency"><?= lang('amount') ?></th>
+                                    <th class="col-currency"><?= lang('due_amount') ?></th>
+                                    <th><?= lang('status') ?></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php
+                                foreach ($all_invoice_info as $v_invoices) {
+                                    if ($this->invoice_model->get_payment_status($v_invoices->invoices_id) == lang('fully_paid')) {
+                                        $invoice_status = lang('fully_paid');
+                                        $label = "success";
+                                    } elseif ($v_invoices->emailed == 'Yes') {
+                                        $invoice_status = lang('sent');
+                                        $label = "info";
+                                    } else {
+                                        $invoice_status = lang('draft');
+                                        $label = "default";
                                     }
                                     ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <tr>
+                                        <td><a class="text-info"
+                                               href="<?= base_url() ?>admin/invoice/manage_invoice/invoice_details/<?= $v_invoices->invoices_id ?>"><?= $v_invoices->reference_no ?></a>
+                                        </td>
+                                        <td><?= strftime(config_item('date_format'), strtotime($v_invoices->due_date)) ?>
+                                            <?php
+                                            $payment_status = $this->invoice_model->get_payment_status($v_invoices->invoices_id);
+                                            if (strtotime($v_invoices->due_date) < strtotime(date('Y-m-d')) && $payment_status != lang('fully_paid')) { ?>
+                                                <span class="label label-danger "><?= lang('overdue') ?></span>
+                                                <?php
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><?= display_money($this->invoice_model->calculate_to('invoice_cost', $v_invoices->invoices_id), $currency->symbol) ?></td>
+                                        <td><?= display_money($this->invoice_model->calculate_to('invoice_due', $v_invoices->invoices_id), $currency->symbol) ?></td>
+                                        <td><span class="label label-<?= $label ?>"><?= $invoice_status ?></span>
+                                            <?php if ($v_invoices->recurring == 'Yes') { ?>
+                                                <span data-toggle="tooltip" data-placement="top"
+                                                      title="<?= lang('recurring') ?>"
+                                                      class="label label-primary"><i
+                                                            class="fa fa-retweet"></i></span>
+                                            <?php } ?>
+
+                                        </td>
+
+                                    </tr>
+                                    <?php
+                                }
+                                ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
+            </div>
+
             <div class="tab-pane <?= $active == 18 ? 'active' : '' ?>" id="credit_note" style="position: relative;">
                 <div class="box" style="border: none; " data-collapsed="0">
                     <div class="nav-tabs-custom">
@@ -4140,104 +4146,104 @@ $edited = can_action('57', 'edited');
 </div>
 
 <script type="text/javascript">
-//
-//    $(document).ready(function () {
-//        let url = base_url + "admin/purchase/purchaseList/<?php //echo '/' . $project_details->project_id;  ?>//";
-//
-//        console.log(url)
-//        $.ajax({
-//            url: url,
-//            type: 'GET',
-//            dataType: "json",
-//            success: function (data) {
-//                $("#purchase_body").html(data);
-//            }
-//        });
-//    })
-//
-//    function ins_data() {
-//
-//
-//    }
+    //
+    //    $(document).ready(function () {
+    //        let url = base_url + "admin/purchase/purchaseList/<?php //echo '/' . $project_details->project_id;  ?>//";
+    //
+    //        console.log(url)
+    //        $.ajax({
+    //            url: url,
+    //            type: 'GET',
+    //            dataType: "json",
+    //            success: function (data) {
+    //                $("#purchase_body").html(data);
+    //            }
+    //        });
+    //    })
+    //
+    //    function ins_data() {
+    //
+    //
+    //    }
 
-function getXMLHTTP() { //fuction to return the xml http object
-    var xmlhttp = false;
-    try {
-        xmlhttp = new XMLHttpRequest();
-    } catch (e) {
+    function getXMLHTTP() { //fuction to return the xml http object
+        var xmlhttp = false;
         try {
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            xmlhttp = new XMLHttpRequest();
         } catch (e) {
             try {
-                xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-            } catch (e1) {
-                xmlhttp = false;
-            }
-        }
-    }
-    return xmlhttp;
-}
-
-function showTask(e, project_id) {
-    if (project_id == 77777) {
-        let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
-        $.ajax({
-            async: false,
-            url: url,
-            type: 'GET',
-            dataType: "json",
-            success: function (data) {
-                var result = data.responseText;
-                console.log(result);
-                $('#task-lists').empty();
-                $("#task-lists").html(result);
-            }
-
-        });
-    }
-    if (project_id == undefined) {
-        var base_url = '<?= base_url() ?>';
-        var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
-        var req = getXMLHTTP();
-        if (req) {
-            req.onreadystatechange = function () {
-                if (req.readyState == 4) {
-                    // only if "OK"
-                    if (req.status == 200) {
-                        var result = req.responseText;
-                        $('#task-lists').empty();
-                        $("#task-lists").append(result);
-                    } else {
-                        alert("There was a problem while using XMLHTTP:\n" + req.statusText);
-                    }
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {
+                try {
+                    xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e1) {
+                    xmlhttp = false;
                 }
             }
-            req.open("POST", strURL, true);
-            req.send(null);
+        }
+        return xmlhttp;
+    }
+
+    function showTask(e, project_id) {
+        if (project_id == 77777) {
+            let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            $.ajax({
+                async: false,
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                success: function (data) {
+                    var result = data.responseText;
+                    console.log(result);
+                    $('#task-lists').empty();
+                    $("#task-lists").html(result);
+                }
+
+            });
+        }
+        if (project_id == undefined) {
+            var base_url = '<?= base_url() ?>';
+            var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
+            var req = getXMLHTTP();
+            if (req) {
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) {
+                            var result = req.responseText;
+                            $('#task-lists').empty();
+                            $("#task-lists").append(result);
+                        } else {
+                            alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                        }
+                    }
+                }
+                req.open("POST", strURL, true);
+                req.send(null);
+            }
         }
     }
-}
 
-function getSelectedItem(e) {
-    var items = <?php echo json_encode($fetch_data); ?>;
-    // console.log(items)
-    // items = JSON.parse(items)
-    var item = items.filter(function (item) {
-        return item.saved_items_id == e.target.value;
-    });
-    console.log(item)
-    $('#available_stock').val(item[0].quantity);
-    $('#unit_type').val(item[0].unit_type);
-}
+    function getSelectedItem(e) {
+        var items = <?php echo json_encode($fetch_data); ?>;
+        // console.log(items)
+        // items = JSON.parse(items)
+        var item = items.filter(function (item) {
+            return item.saved_items_id == e.target.value;
+        });
+        console.log(item)
+        $('#available_stock').val(item[0].quantity);
+        $('#unit_type').val(item[0].unit_type);
+    }
 
-function getSelectedItem1(e) {
-    var items = <?php echo json_encode($fetch_data); ?>;
-    // console.log(items)
-    // items = JSON.parse(items)
-    var item = items.filter(function (item) {
-        return item.saved_items_id == e.target.value;
-    });
-    $('#available_stock1').val(item[0].quantity);
-}
+    function getSelectedItem1(e) {
+        var items = <?php echo json_encode($fetch_data); ?>;
+        // console.log(items)
+        // items = JSON.parse(items)
+        var item = items.filter(function (item) {
+            return item.saved_items_id == e.target.value;
+        });
+        $('#available_stock1').val(item[0].quantity);
+    }
 
 </script>

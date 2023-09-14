@@ -48,8 +48,7 @@
                     } else {
                         $con_array = array('type' => 'Expense');
                     }
-                    
-                    $total_expense = $this->db->where([...$con_array])->select_sum('debit')->get('tbl_transactions')->row();
+                    $total_expense = $this->db->where($con_array)->select_sum('debit')->get('tbl_transactions')->row();
                     $this_month = $this->db->where([...$con_array,'date >=' => $first_day_month, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();
                     $this_week = $this->db->where([...$con_array,'date >=' => $this_week_start, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();
                     $this_30_days = $this->db->where([...$con_array,'date >=' => $before_30_days, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();

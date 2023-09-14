@@ -10,6 +10,8 @@
     }
 </style>
 <?php
+$task_ids = get_all_sub_tasks($task_details->task_id);
+$task_ids = $task_ids ?? [];
 $edited = can_action('54', 'edited');
 $task_id_ = $task_details->sub_task_id;
 //var_dump($task_details->task_id);
@@ -27,7 +29,8 @@ $total_timer = $this->db->where(array('task_id' => $task_details->task_id, 'star
 $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id))->get('tbl_task')->result();
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
 $all_requisition_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_requisitions')->result();
-$all_expense_info = $this->db->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->result();
+
+$all_expense_info = $this->db->where(array( 'type' => 'Expense'))->where_in('task_id',[...$task_ids,$task_details->task_id])->get('tbl_transactions')->result();
 $all_estimates_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_estimates')->result();
 
 $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $task_details->task_id, 'module_name' => 'tasks');
@@ -153,7 +156,7 @@ $sub_tasks = config_item('allow_sub_tasks');
         $progress = 'progress-bar-success';
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
-    $task_ids = get_all_sub_tasks($task_details->task_id);
+
     $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id', [...$task_ids, $task_details->task_id])->get('tbl_transactions')->row();
     //    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
     //    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
