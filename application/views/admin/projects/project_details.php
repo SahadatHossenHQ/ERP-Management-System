@@ -1725,21 +1725,22 @@ $edited = can_action('57', 'edited');
                                             <th class="col-sm-1"><?= lang('unit_price') ?></th>
                                             <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('project') ?></th>
-                                            <th class="col-sm-2"><?= lang('tax') ?></th>
+                                            <th class="col-sm-2"><?= lang('task') ?></th>
+                                            <th class="col-sm-1"><?= lang('tax') ?></th>
                                             <th class="col-sm-1"><?= lang('group') ?></th>
-                                            <?php $show_custom_fields = custom_form_table(18, null);
-                                            if (!empty($show_custom_fields)) {
-                                                foreach ($show_custom_fields as $c_label => $v_fields) {
-                                                    if (!empty($c_label)) {
-                                                        ?>
-                                                        <th><?= $c_label ?> </th>
-                                                    <?php }
-                                                }
-                                            }
-                                            ?>
-                                            <?php if (!empty($edited) || !empty($deleted)) { ?>
-                                                <th class="col-sm-1"><?= lang('action') ?></th>
-                                            <?php } ?>
+<!--                                            --><?php //$show_custom_fields = custom_form_table(18, null);
+//                                            if (!empty($show_custom_fields)) {
+//                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+//                                                    if (!empty($c_label)) {
+//                                                        ?>
+<!--                                                        <th>--><?php //= $c_label ?><!-- </th>-->
+<!--                                                    --><?php //}
+//                                                }
+//                                            }
+//                                            ?>
+<!--                                            --><?php //if (!empty($edited) || !empty($deleted)) { ?>
+<!--                                                <th class="col-sm-1">--><?php //= lang('action') ?><!--</th>-->
+<!--                                            --><?php //} ?>
                                         </tr>
                                         </thead>
                                         <tbody>

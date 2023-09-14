@@ -345,19 +345,20 @@
                                             <div class="col-lg-7">
                                                 <?php $this->load->helper('string'); ?>
                                                 <input type="text" class="form-control" value="<?php
-                                                if (!empty($estimates_info)) {
-                                                    echo $estimates_info->reference_no;
-                                                } else {
-                                                    if (empty(config_item('requisition_number_format'))) {
-                                                        echo config_item('requisition_prefix');
-                                                    }
-                                                    if (config_item('increment_requisition_number') == 'FALSE') {
-                                                        $this->load->helper('string');
-                                                        echo random_string('nozero', 6);
-                                                    } else {
-                                                        echo $this->requisition_model->generate_requisition_number();
-                                                    }
-                                                }
+                                                echo $this->requisition_model->generate_requisition_number();
+//                                                if (!empty($estimates_info)) {
+//                                                    echo $estimates_info->reference_no;
+//                                                } else {
+//                                                    if (empty(config_item('requisition_number_format'))) {
+//                                                        echo config_item('requisition_prefix');
+//                                                    }
+//                                                    if (config_item('increment_requisition_number') == 'FALSE') {
+//                                                        $this->load->helper('string');
+//                                                        echo random_string('nozero', 6);
+//                                                    } else {
+//                                                        echo $this->requisition_model->generate_requisition_number();
+//                                                    }
+//                                                }
                                                 ?>" name="reference_no">
                                             </div>
 

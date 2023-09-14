@@ -49,9 +49,15 @@
                         $con_array = array('type' => 'Expense');
                     }
                     $total_expense = $this->db->where($con_array)->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_month = $this->db->where([...$con_array,'date >=' => $first_day_month, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_week = $this->db->where([...$con_array,'date >=' => $this_week_start, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_30_days = $this->db->where([...$con_array,'date >=' => $before_30_days, 'date <=' => $mdate])->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_month = $this->db->where(['date >=' => $first_day_month, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_week = $this->db->where(['date >=' => $this_week_start, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_30_days = $this->db->where(['date >=' => $before_30_days, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
                     echo display_money($total_expense->debit, $curency->symbol);
                     ?></p>
                 <p><?= lang('total_expense_this_month') ?>
