@@ -28,7 +28,8 @@ $comment_details = $this->db->where(array('task_id' => $task_details->task_id, '
 $total_timer = $this->db->where(array('task_id' => $task_details->task_id, 'start_time !=' => 0, 'end_time !=' => 0,))->get('tbl_tasks_timer')->result();
 $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id))->get('tbl_task')->result();
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
-$all_requisition_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_requisitions')->result();
+$all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+$all_requisition_info = $this->db->where_in('task_id' , $all_sub_task_ids)->get('tbl_requisitions')->result();
 
 $all_expense_info = $this->db->where(array( 'type' => 'Expense'))->where_in('task_id',[...$task_ids,$task_details->task_id])->get('tbl_transactions')->result();
 $all_estimates_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_estimates')->result();
@@ -2209,8 +2210,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     <tbody>
                                     <?php
 
-
-                                    $tasks = $this->db->where_in('tbl_task.task_id', [$task_details->task_id])
+                                    $all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+                                    $tasks = $this->db->where_in('tbl_task.task_id', $all_sub_task_ids)
                                         ->select('tbl_task.*,tbl_customer_group.customer_group')
                                         ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
                                         ->get('tbl_task')

@@ -63,7 +63,10 @@ class Purchase extends Admin_Controller
             $this->datatables->column_search = $result;
 
             $this->datatables->order = array('purchase_id' => 'desc');
-            $fetch_data = make_datatables($this->datatables->where);
+
+            $all_sub_task_ids = get_all_sub_tasks($task_id);
+            $whereIn = $task_id ? ['task_id',$all_sub_task_ids] : null;
+            $fetch_data = make_datatables($this->datatables->where,$whereIn);
 
             $data = array();
 

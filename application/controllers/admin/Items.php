@@ -68,7 +68,9 @@ class Items extends Admin_Controller
                 $where = null;
             }
 
-            $fetch_data = make_datatables($where);
+            $all_sub_task_ids = get_all_sub_tasks($group_id);
+            $whereIn = $type === 'task' ? ['task_id',$all_sub_task_ids] : null;
+            $fetch_data = make_datatables($where,$whereIn);
 
             $data = array();
 
