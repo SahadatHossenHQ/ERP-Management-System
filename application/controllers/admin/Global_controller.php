@@ -860,8 +860,17 @@ class Global_Controller extends MY_Controller
             } else {
                 $task_title = $task->task_name;
             }
-
             $HTML .= "<option value='" . $task->task_id . "'>" . $task_title . "</option>";
+            $all_sub_task_ids = get_all_sub_tasks($task->task_id);
+            unset($all_sub_task_ids[$task->task_id]);
+            $all_sub_tasks = $this->db->where_in('task_id', $all_sub_task_ids)->get('tbl_task')->result();
+            foreach ($all_sub_tasks as $sub_task_) {
+                if ($sub_task_->task_id !== $task->task_id){
+                    $HTML .= "<option value='" . $sub_task_->task_id . "'>" . $task->task_name." => ".$sub_task_->task_name . "</option>";
+                }
+            }
+
+
         }
 
         echo $HTML;
