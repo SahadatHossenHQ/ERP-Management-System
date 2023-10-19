@@ -199,6 +199,7 @@ class Report extends Admin_Controller
         $m = date('n');
         $year = date('Y');
         $num = cal_days_in_month(CAL_GREGORIAN, $m, $year);
+
         for ($i = 1; $i <= $num; $i++) {
             if ($m >= 1 && $m <= 9) { // if i<=9 concate with Mysql.becuase on Mysql query fast in two digit like 01.
                 $date = $year . "-" . '0' . $m;
@@ -210,6 +211,7 @@ class Report extends Admin_Controller
             if ($project_id){
                 $trn->where('project_id', $project_id);
             }
+
             $transaction_report[$i] = $trn->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
         }
         return $transaction_report; // return the result

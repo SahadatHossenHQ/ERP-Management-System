@@ -28,12 +28,12 @@ if (!empty($comment_details)) {
                         foreach ($uploaded_file as $v_files) {
                             if (!empty($v_files)) {
                                 ?>
-                                <a href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->fileName . '/' . true ?>">
+                                <a target="_blank" href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->fileName . '/' . true ?>">
                                     <?php if ($v_files->is_image == 1) { ?>
                                         <img alt="" src="<?= base_url() . $v_files->path ?>">
                                     <?php } else { ?>
                                         <div class="mail-attachment-info">
-                                            <a href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->fileName . '/' . true ?>"
+                                            <a target="_blank" href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->fileName . '/' . true ?>"
                                                class="mail-attachment-name"><i
                                                     class="fa fa-paperclip"></i> <?= $v_files->size ?> <?= lang('kb') ?>
                                             </a>

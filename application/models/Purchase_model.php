@@ -23,12 +23,12 @@ class Purchase_model extends MY_Model
             $purchase_info = $this->check_by(array('purchase_id' => $purchase_id), 'tbl_purchases');
             if ($purchase_info->status == 'Cancelled' && empty($unmark)) {
                 return ('cancelled');
-            } elseif ($payment_made < 1) {
-                return ('not_paid');
-            } elseif ($due <= 0) {
+            } elseif ($purchase_info->status == 'Paid') {
                 return ('fully_paid');
-            } else {
+            } elseif ($purchase_info->status == 'partially_paid') {
                 return ('partially_paid');
+            } else {
+                return ('not_paid');
             }
         }
     }

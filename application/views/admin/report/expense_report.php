@@ -43,11 +43,21 @@
                     $this_week_start = date('Y-m-d', strtotime('previous sunday'));
                     // 30 days before
                     $before_30_days = date('Y-m-d', strtotime('today - 30 days'));
-                    
-                    $total_expense = $this->db->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_month = $this->db->where(array('date >=' => $first_day_month, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_week = $this->db->where(array('date >=' => $this_week_start, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
-                    $this_30_days = $this->db->where(array('date >=' => $before_30_days, 'date <=' => $mdate))->select_sum('debit')->get('tbl_transactions')->row();
+                    if ($project_id){
+                        $con_array = array('type' => 'Expense', 'project_id' => $project_id);
+                    } else {
+                        $con_array = array('type' => 'Expense');
+                    }
+                    $total_expense = $this->db->where($con_array)->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_month = $this->db->where(['date >=' => $first_day_month, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_week = $this->db->where(['date >=' => $this_week_start, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
+                    $this_30_days = $this->db->where(['date >=' => $before_30_days, 'date <=' => $mdate])
+                        ->where($con_array)
+                        ->select_sum('debit')->get('tbl_transactions')->row();
                     echo display_money($total_expense->debit, $curency->symbol);
                     ?></p>
                 <p><?= lang('total_expense_this_month') ?>
@@ -66,6 +76,7 @@
                 <tr>
                     <th><?= lang('date') ?></th>
                     <th><?= lang('account') ?></th>
+                    <th><?= lang('project') ?></th>
                     <th><?= lang('deposit_category') ?></th>
                     <th><?= lang('paid_by') ?></th>
                     <th><?= lang('description') ?></th>
@@ -82,8 +93,9 @@
                 } else {
                     $con_array = array('type' => 'Expense');
                 }
+
                 $all_deposit_info = $this->db->where($con_array)->limit(20)->order_by('transactions_id', 'DESC')->get('tbl_transactions')->result();
-                
+
                 foreach ($all_deposit_info as $v_deposit) :
                     $account_info = $this->report_model->check_by(array('account_id' => $v_deposit->account_id), 'tbl_accounts');
                     $client_info = $this->report_model->check_by(array('client_id' => $v_deposit->paid_by), 'tbl_client');
@@ -94,10 +106,13 @@
                     } else {
                         $client_name = '-';
                     }
+                    $project = $this->db->where(['project_id' => $project_id])->get('tbl_project')->row();
+
                     ?>
                     <tr>
                         <td><?= strftime(config_item('date_format'), strtotime($v_deposit->date)); ?></td>
                         <td><?= !empty($account_info->account_name) ? $account_info->account_name : '-' ?></td>
+                        <td><?= $project->project_name ?></td>
                         <td><?php
                             if (!empty($category_info)) {
                                 echo $category_info->expense_category;
@@ -105,6 +120,7 @@
                                 echo '-';
                             }
                             ?></td>
+
                         <td><?= $client_name ?></td>
                         <td><?= $v_deposit->notes ?></td>
                         <td><?= display_money($v_deposit->amount, $curency->symbol) ?></td>

@@ -10,6 +10,8 @@
     }
 </style>
 <?php
+$task_ids = get_all_sub_tasks($task_details->task_id);
+$task_ids = $task_ids ?? [];
 $edited = can_action('54', 'edited');
 $task_id_ = $task_details->sub_task_id;
 //var_dump($task_details->task_id);
@@ -26,8 +28,10 @@ $comment_details = $this->db->where(array('task_id' => $task_details->task_id, '
 $total_timer = $this->db->where(array('task_id' => $task_details->task_id, 'start_time !=' => 0, 'end_time !=' => 0,))->get('tbl_tasks_timer')->result();
 $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id))->get('tbl_task')->result();
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
-$all_requisition_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_requisitions')->result();
-$all_expense_info = $this->db->where(array('task_id' => $task_details->task_id, 'type' => 'Expense'))->get('tbl_transactions')->result();
+$all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+$all_requisition_info = $this->db->where_in('task_id' , $all_sub_task_ids)->get('tbl_requisitions')->result();
+
+$all_expense_info = $this->db->where(array( 'type' => 'Expense'))->where_in('task_id',[...$task_ids,$task_details->task_id])->get('tbl_transactions')->result();
 $all_estimates_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_estimates')->result();
 
 $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $task_details->task_id, 'module_name' => 'tasks');
@@ -98,19 +102,9 @@ $sub_tasks = config_item('allow_sub_tasks');
                 </a>
                 <ul id="project_reports" class="nav s-menu collapse" aria-expanded="false" style="height: 0px;">
                     <li class="">
-                        <a title="Expense Report"
+                        <a title="Expense Report" target="_blank"
                            href="<?= base_url() ?>admin/report/expense_report/project/<?= $task_details->project_id ?>">
                             <span>Expense Report</span></a>
-                    </li>
-                    <li class="">
-                        <a title="Income Reports"
-                           href="<?= base_url() ?>admin/report/income_report/project/<?= $task_details->project_id ?>">
-                            <span>Income Reports</span></a>
-                    </li>
-                    <li class="">
-                        <a title="Income Vs Expense"
-                           href="<?= base_url() ?>admin/report/income_expense/project/<?= $task_details->project_id ?>">
-                            <span>Income Vs Expense</span></a>
                     </li>
                 </ul>
 
@@ -163,7 +157,7 @@ $sub_tasks = config_item('allow_sub_tasks');
         $progress = 'progress-bar-success';
         $billable_amount = $task_details->task_hour * $task_details->hourly_rate;
     }
-    $task_ids = get_all_sub_tasks($task_details->task_id);
+
     $total_expense = $this->db->select_sum('amount')->where(array('type' => 'Expense'))->where_in('task_id', [...$task_ids, $task_details->task_id])->get('tbl_transactions')->row();
     //    $billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'Yes'))->get('tbl_transactions')->row();
     //    $not_billable_expense = $this->db->select_sum('amount')->where(array('task_id' => $task_details->task_id, 'type' => 'Expense', 'billable' => 'No'))->get('tbl_transactions')->row();
@@ -1502,7 +1496,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
 
@@ -1511,40 +1506,99 @@ $sub_tasks = config_item('allow_sub_tasks');
                     <div class="nav-tabs-custom">
                         <!-- Tabs within a box -->
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#manage_stock" data-toggle="tab"><?= lang('Stock') ?></a>
+                            <li class="active"><a href="#manage_stock1" data-toggle="tab"><?= lang('Stock') ?></a>
                             </li>
                             <li class=""><a href="#stock_use" data-toggle="tab"><?= lang('Use Stock') ?></a>
                             </li>
                             <li class=""><a href="#stock_transfer"
                                             data-toggle="tab"><?= lang('Stock Transfer') ?></a>
                             </li>
+                            <li class=""><a href="#stock-expense-and-transfer-history"
+                                            data-toggle="tab"><?= lang('Stock Uses & Transfer History') ?></a>
+                            </li>
                             <li class="">
-                                <a href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/items/items_list/<?= $task_details->project_id ?>/project?task_id=<?= $task_details->task_id ?>"><?= lang('New Stock') ?></a>
                             </li>
                         </ul>
                         <div class="tab-content bg-white">
                             <!-- ************** general *************-->
-                            <div class="tab-pane active" id="manage_stock">
+                            <div class="tab-pane active" id="manage_stock1">
                                 <div class="table-responsive">
                                     <table class="table table-striped DataTables bulk_table" id="DataTables"
                                            cellspacing="0" width="100%">
                                         <thead>
                                         <tr>
-                                            <th>#</th>
+
+                                            <th data-orderable="false">
+                                                <div class="checkbox c-checkbox">
+                                                    <label class="needsclick">
+                                                        <input id="select_all" type="checkbox">
+                                                        <span class="fa fa-check"></span></label>
+                                                </div>
+                                            </th>
+
                                             <th><?= lang('item') ?></th>
-                                            <th class="col-sm-1"><?= lang('unit') ?></th>
+                                            <?php
+                                            $invoice_view = config_item('invoice_view');
+                                            if (!empty($invoice_view) && $invoice_view == '2') {
+                                                ?>
+                                                <th><?= lang('hsn_code') ?></th>
+                                            <?php } ?>
+                                            <?php if (admin()) { ?>
+                                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
+                                            <?php } ?>
                                             <th class="col-sm-1"><?= lang('unit_price') ?></th>
-                                            <th class="col-sm-1"><?= lang('total_price') ?></th>
+                                            <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('project') ?></th>
-
-                                            <th class="col-sm-1"><?= lang('action') ?></th>
-
+                                            <th class="col-sm-2"><?= lang('task') ?></th>
+                                            <th class="col-sm-1"><?= lang('Tax') ?></th>
+                                            <th class="col-sm-1"><?= lang('group') ?></th>
+<!--                                            --><?php //$show_custom_fields = custom_form_table(18, null);
+//                                            if (!empty($show_custom_fields)) {
+//                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+//                                                    if (!empty($c_label)) {
+//                                                        ?>
+<!--                                                        <th>--><?php //= $c_label ?><!-- </th>-->
+<!--                                                    --><?php //}
+//                                                }
+//                                            }
+//                                            ?>
+<!--                                            --><?php //if (!empty($edited) || !empty($deleted)) { ?>
+<!--                                                <th class="col-sm-1">--><?php //= lang('action') ?><!--</th>-->
+<!--                                            --><?php //} ?>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <script type="text/javascript">
                                             $(document).ready(function () {
-                                                list = base_url + "admin/purchase/purchaseItemList" + "<?php echo(($type === 'project') ? '/' . $task_details->project_id : ''); ?>" + "?task_id=<?php echo $task_details->task_id; ?>";
+                                                list = base_url + "admin/items/itemsList" + "<?php echo('/' . $task_details->task_id . '/task'); ?>";
+                                                bulk_url = base_url + "admin/items/bulk_delete";
+                                                $('.filtered > .dropdown-toggle').on('click', function () {
+                                                    if ($('.group').css('display') == 'block') {
+                                                        $('.group').css('display', 'none');
+                                                    } else {
+                                                        $('.group').css('display', 'block')
+                                                    }
+                                                });
+                                                $('.filter_by').on('click', function () {
+                                                    $('.filter_by').removeClass('active');
+                                                    $('.group').css('display', 'block');
+                                                    $(this).addClass('active');
+                                                    var filter_by = $(this).attr('id');
+                                                    if (filter_by) {
+                                                        filter_by = filter_by;
+                                                    } else {
+                                                        filter_by = '';
+                                                    }
+                                                    var search_type = $(this).attr('search-type');
+                                                    if (search_type) {
+                                                        search_type = '/' + search_type;
+                                                    } else {
+                                                        search_type = '';
+                                                    }
+                                                    table_url(base_url + "admin/items/itemsList/" + filter_by + search_type);
+                                                });
                                             });
                                         </script>
                                         </tbody>
@@ -1557,34 +1611,26 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     <form name="myform" role="form" data-parsley-validate="" novalidate=""
                                           enctype="multipart/form-data"
                                           id="form"
-                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post" class="form-horizontal">
-                                        <div class="col-sm-6 col-xs-12  ">
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction"
+                                          method="post" class="form-horizontal">
+                                        <div class="col-sm-10 col-xs-12  ">
                                             <div class="row text-right">
                                                 <div class="form-group">
 
                                                     <?php
-                                                    $this->load->model('datatables');
-                                                    $this->datatables->table = 'tbl_purchase_items';
-                                                    $this->datatables->join_table = array('tbl_purchases');
-                                                    $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
-                                                    if ($task_details->task_id) {
-                                                        $this->datatables->where = array('tbl_purchases.task_id' => $task_details->task_id);
-                                                    }
-                                                    $this->datatables->select = 'items_id,tbl_purchase_items.quantity,tbl_purchase_items.item_name';
-
-                                                    $this->datatables->order = array('tbl_purchases.purchase_id' => 'desc');
-                                                    $fetch_data = make_datatables($this->datatables->where);
+                                                    $fetch_data = $this->db->where_in('task_id', [$task_details->task_id])->get('tbl_saved_items')->result();
                                                     ?>
 
                                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
                                                     <div class="col-lg-7">
-                                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem(event)">
+                                                        <select name="purchese_item_id" class="selectpicker"
+                                                                data-width="100%" onchange="getSelectedItem(event)">
                                                             <option value="" selected> Select Stock Item</option>
                                                             <?php
                                                             foreach ($fetch_data as $_key => $v_purchase) {
                                                                 ?>
-                                                                <option value="<?= $v_purchase->items_id ?>">
-                                                                    <?= $v_purchase->item_name ?>
+                                                                <option value="<?= $v_purchase->saved_items_id ?>">
+                                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
                                                                 </option>
                                                                 <?php
                                                             }
@@ -1598,9 +1644,10 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                         <span class="text-danger">*</span></label>
                                                     <div class="col-lg-7">
                                                         <input type="text" class="form-control" value=""
-                                                               name="available_stockyy" id="available_stock" disabled>
-                                                        <input type="hidden" class="form-control" value="<?= $task_details->task_id ?>"
-                                                               name="task_id" id="task_id">
+                                                               name="available_stock" id="available_stock" readonly>
+                                                        <input type="hidden" class="form-control"
+                                                               name="unit_type" id="unit_type" readonly>
+
 
                                                     </div>
 
@@ -1629,34 +1676,26 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     <form name="myform" role="form" data-parsley-validate="" novalidate=""
                                           enctype="multipart/form-data"
                                           id="form"
-                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post" class="form-horizontal">
-                                        <div class="col-sm-6 col-xs-12  ">
+                                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer"
+                                          method="post" class="form-horizontal">
+                                        <div class="col-sm-10 col-xs-12  ">
                                             <div class="row text-right">
                                                 <div class="form-group">
 
                                                     <?php
-                                                    $this->load->model('datatables');
-                                                    $this->datatables->table = 'tbl_purchase_items';
-                                                    $this->datatables->join_table = array('tbl_purchases');
-                                                    $this->datatables->join_where = array('tbl_purchases.purchase_id=tbl_purchase_items.purchase_id');
-                                                    if ($task_details->task_id) {
-                                                        $this->datatables->where = array('tbl_purchases.task_id' => $task_details->task_id);
-                                                    }
-                                                    $this->datatables->select = 'items_id,tbl_purchase_items.quantity,tbl_purchase_items.item_name';
-
-                                                    $this->datatables->order = array('tbl_purchases.purchase_id' => 'desc');
-                                                    $fetch_data = make_datatables($this->datatables->where);
+                                                    $fetch_data = $this->db->where_in('task_id', [$task_details->task_id])->get('tbl_saved_items')->result();
                                                     ?>
 
                                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
                                                     <div class="col-lg-7">
-                                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem1(event)">
+                                                        <select name="purchese_item_id" class="selectpicker"
+                                                                data-width="100%" onchange="getSelectedItem1(event)">
                                                             <option value="" selected> Select Stock Item</option>
                                                             <?php
                                                             foreach ($fetch_data as $_key => $v_purchase) {
                                                                 ?>
-                                                                <option value="<?= $v_purchase->items_id ?>">
-                                                                    <?= $v_purchase->item_name ?>
+                                                                <option value="<?= $v_purchase->saved_items_id ?>">
+                                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
                                                                 </option>
                                                                 <?php
                                                             }
@@ -1671,7 +1710,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     <div class="col-lg-7">
                                                         <input type="text" class="form-control" value=""
                                                                name="available_stockyy" id="available_stock1" disabled>
-                                                        <input type="hidden" class="form-control" value="<?= $task_details->task_id ?>"
+                                                        <input type="hidden" class="form-control"
+                                                               value="<?= $task_details->task_id ?>"
                                                                name="task_id" id="task_id">
 
                                                     </div>
@@ -1680,23 +1720,24 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 <div class="form-group text-left">
                                                     <label class="col-lg-3 control-label"><?= lang('project') ?></label>
                                                     <div class="col-lg-7">
-                                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event )"
+                                                        <select class="form-control select_box" style="width: 100%"
+                                                                name="project_id" onchange="showTask(event )"
                                                                 id="client_project">
                                                             <option value=""><?= lang('none') ?></option>
                                                             <?php
 
-                                                                $all_project = $this->db->get('tbl_project')->result();
-                                                                if (!empty($all_project)) {
-                                                                    foreach ($all_project as $v_cproject) {
-                                                                        ?>
-                                                                        <option value="<?= $v_cproject->project_id ?>" <?php
-                                                                        if (!empty($project_id)) {
-                                                                            echo $v_cproject->project_id == $project_id ? 'selected' : '';
-                                                                        }
-                                                                        ?>><?= $v_cproject->project_name ?></option>
-                                                                        <?php
+                                                            $all_project = $this->db->get('tbl_project')->result();
+                                                            if (!empty($all_project)) {
+                                                                foreach ($all_project as $v_cproject) {
+                                                                    ?>
+                                                                    <option value="<?= $v_cproject->project_id ?>" <?php
+                                                                    if (!empty($project_id)) {
+                                                                        echo $v_cproject->project_id == $project_id ? 'selected' : '';
                                                                     }
+                                                                    ?>><?= $v_cproject->project_name ?></option>
+                                                                    <?php
                                                                 }
+                                                            }
 
                                                             ?>
                                                         </select>
@@ -1707,7 +1748,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     <label class="col-lg-3 control-label"><?= lang('task') ?> /
                                                         Sub <?= lang('task') ?></label>
                                                     <div class="col-lg-7">
-                                                        <select class="form-control select_box" style="width: 100%" id="task-lists"
+                                                        <select class="form-control select_box" style="width: 100%"
+                                                                id="task-lists"
                                                                 name="trn_task_id">
                                                             <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                                         </select>
@@ -1733,6 +1775,103 @@ $sub_tasks = config_item('allow_sub_tasks');
                                 </div>
                             </div>
 
+                            <div class="tab-pane " id="stock-expense-and-transfer-history">
+                                <div class="table-responsive">
+
+                                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                                           cellspacing="0" width="100%">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th class="col-sm-2"><?= lang('Item Name') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used From Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
+                                            <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
+                                            <th class="col-sm-2"><?= lang('quantity') ?></th>
+                                            <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
+                                            <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        $this->db->from('tbl_stock_uses');
+                                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+                                        $this->db->join('tbl_saved_items as item_2', 'tbl_stock_uses.transfer_to_item_id = item_2.saved_items_id', 'left');
+                                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+                                        $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
+                                        $this->db->or_where('item_2.task_id', $task_details->task_id);
+                                        $query_result = $this->db->get();
+                                        $result = $query_result->result();
+
+                                        foreach ($result as $key => $row) {
+                                            ?>
+                                            <tr>
+                                                <td><?= $key + 1 ?></td>
+                                                <td><?= $row->item_name ?></td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name ?? '-';
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name ?? '-';
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                                                    $this->db->select('tbl_project.project_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->project_name ?? '-';
+                                                    ?>
+
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $this->db->from('tbl_saved_items');
+                                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                                                    $this->db->select('tbl_task.task_name');
+                                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+                                                    $query_result = $this->db->get();
+                                                    $query_result = $query_result->row();
+                                                    echo $query_result->task_name ?? '-';
+                                                    ?>
+
+                                                </td>
+                                                <td><?= $row->quantity ?></td>
+                                                <td><?= $row->unit_type ?></td>
+                                                <td class="text-capitalize">
+                                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"
+                                                       href="#"><?= $row->type ?></a>
+                                                </td>
+
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1753,7 +1892,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                             if (empty($type)) {
                                 echo 'active';
                             } ?>">
-                                <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10"><?php echo lang('all'); ?></a>
                             </li>
                             <li class="divider"></li>
                             <?php if (count($expense_category ?? []) > 0) { ?>
@@ -1766,7 +1906,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             }
                                         }
                                     } ?>">
-                                        <a href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
+                                        <a target="_blank"
+                                           href="<?= base_url() ?>admin/projects/project_details/<?= $task_details->project_id ?>/10/category/<?php echo $v_category->expense_category_id; ?>"><?php echo $v_category->expense_category; ?></a>
                                     </li>
                                 <?php }
                                 ?>
@@ -1792,13 +1933,13 @@ $sub_tasks = config_item('allow_sub_tasks');
                                         <thead>
                                         <tr>
                                             <th><?= lang('reference_no') ?></th>
+                                            <th><?= lang('Item Name') ?></th>
                                             <th><?= lang('supplier') ?></th>
                                             <th><?= lang('project') ?></th>
                                             <th><?= lang('task') ?></th>
                                             <th><?= lang('purchase_date') ?></th>
                                             <th><?= lang('due_amount') ?></th>
                                             <th><?= lang('status') ?></th>
-                                            <th><?= lang('tags') ?></th>
                                             <?php $show_custom_fields = custom_form_table(20, null);
                                             if (!empty($show_custom_fields)) {
                                                 foreach ($show_custom_fields as $c_label => $v_fields) {
@@ -2044,92 +2185,105 @@ $sub_tasks = config_item('allow_sub_tasks');
                     <!-- Tabs within a box -->
                     <ul class="nav nav-tabs">
                         <li class="<?= $time_active == 1 ? 'active' : ''; ?>"><a href="#general"
-                                                                                 data-toggle="tab"><?= lang('timesheet') ?></a>
+                                                                                 data-toggle="tab"><?= lang('Contactor') ?></a>
                         </li>
-                        <li class="<?= $time_active == 2 ? 'active' : ''; ?>"><a href="#contact"
-                                                                                 data-toggle="tab"><?= lang('manual_entry') ?></a>
-                        </li>
+<!--                        <li class="--><?php //= $time_active == 2 ? 'active' : ''; ?><!--"><a href="#contact"-->
+<!--                                                                                 data-toggle="tab">--><?php //= lang('manual_entry') ?><!--</a>-->
+<!--                        </li>-->
                     </ul>
                     <div class="tab-content bg-white">
                         <!-- ************** general *************-->
                         <div class="tab-pane <?= $time_active == 1 ? 'active' : ''; ?>" id="general">
                             <div class="table-responsive">
-                                <table id="table-tasks-timelog" class="table table-striped     DataTables">
+                                <table class="table table-striped">
                                     <thead>
                                     <tr>
-                                        <th><?= lang('user') ?></th>
-                                        <th><?= lang('start_time') ?></th>
-                                        <th><?= lang('stop_time') ?></th>
-                                        <th><?= lang('task_name') ?></th>
-                                        <th class="col-time"><?= lang('time_spend') ?></th>
-                                        <th><?= lang('action') ?></th>
+                                        <th><?= lang('name') ?></th>
+                                        <th><?= lang('task') ?> Name</th>
+                                        <th><?= lang('progress') ?></th>
+                                        <th><?= lang('status') ?></th>
+                                        <th><?= lang('budget') ?></th>
+                                        <th><?= lang('Paid') ?></th>
+                                        <th><?= lang('Due') ?></th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <?php
-                                    if (!empty($total_timer)) {
-                                        foreach ($total_timer as $v_tasks) {
-                                            $task_info = $this->db->where(array('task_id' => $v_tasks->task_id))->get('tbl_task')->row();
-                                            if (!empty($task_info)) {
-                                                ?>
-                                                <tr id="table_tasks_timer-<?= $v_tasks->tasks_timer_id ?>">
-                                                    <td class="small">
 
-                                                        <a class="pull-left recect_task  ">
-                                                            <?php
-                                                            $profile_info = $this->db->where(array('user_id' => $v_tasks->user_id))->get('tbl_account_details')->row();
-                                                            $user_info = $this->db->where(array('user_id' => $v_tasks->user_id))->get('tbl_users')->row();
-                                                            if (!empty($user_info)) {
-                                                                ?>
-                                                                <img style="width: 30px;margin-left: 18px;
-                                                                             height: 29px;
-                                                                             border: 1px solid #aaa;"
-                                                                     src="<?= base_url() . $profile_info->avatar ?>"
-                                                                     class="img-circle">
-
-                                                                <?= ucfirst($user_info->username) ?>
-                                                            <?php } else {
-                                                                echo '-';
-                                                            } ?>
-                                                        </a>
+                                    $all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+                                    $tasks = $this->db->where_in('tbl_task.task_id', $all_sub_task_ids)
+                                        ->select('tbl_task.*,tbl_customer_group.customer_group')
+                                        ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
+                                        ->get('tbl_task')
+                                        ->result();
 
 
-                                                    </td>
+                                    if (!empty($tasks)) :
+                                        foreach ($tasks as $key => $task) :
+                                            $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
+                                                ->where('task_id', $task->task_id)
+                                                ->get('tbl_transactions')
+                                                ->row();
+                                            ?>
+                                            <tr id="table-bugs-<?= $task->task_id ?>">
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="#"><?php echo $task->customer_group; ?></a>
+                                                </td>
+                                                <td>
+                                                    <a class="text-info"
+                                                       href="<?= base_url() ?>admin/tasks/view_task_details/<?= $task->task_id ?>"><?php echo $task->task_name; ?></a>
+                                                </td>
 
-                                                    <td><span
-                                                                class="label label-success"><?= strftime(config_item('date_format'), $v_tasks->start_time) . ' ' . display_time($v_tasks->start_time, true) ?></span>
-                                                    </td>
-                                                    <td><span
-                                                                class="label label-danger"><?= strftime(config_item('date_format'), $v_tasks->end_time) . ' ' . display_time($v_tasks->end_time, true) ?></span>
-                                                    </td>
+                                                <td>
+                                                    <div class="inline ">
+                                                        <div class="easypiechart text-success" style="margin: 0px;"
+                                                             data-percent="<?= $task->task_progress ?>"
+                                                             data-line-width="5" data-track-Color="#f0f0f0"
+                                                             data-bar-color="#<?php
+                                                             if ($task->task_progress == 100) {
+                                                                 echo '8ec165';
+                                                             } else {
+                                                                 echo 'fb6b5b';
+                                                             }
+                                                             ?>" data-rotate="270" data-scale-Color="false"
+                                                             data-size="50" data-animate="2000">
+                                                                    <span class="small text-muted"><?= $task->task_progress ?>
+                                                                        %</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <?php
+                                                    $disabled = null;
+                                                    if (!empty($task->task_status)) {
+                                                        if ($task->task_status == 'completed') {
+                                                            $status = "<div class='label label-success'>" . lang($task->task_status) . "</div>";
+                                                            $disabled = 'disabled';
+                                                        } elseif ($task->task_status == 'in_progress') {
+                                                            $status = "<div class='label label-primary'>" . lang($task->task_status) . "</div>";
+                                                        } elseif ($task->task_status == 'cancel') {
+                                                            $status = "<div class='label label-danger'>" . lang($task->task_status) . "</div>";
+                                                        } else {
+                                                            $status = "<div class='label label-warning'>" . lang($task->task_status) . "</div>";
+                                                        } ?>
+                                                        <?= $status; ?>
+                                                    <?php }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-info"><?= display_money($task->budget) ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-success"><?= display_money($expense->amount) ?></span>
+                                                </td>
+                                                <td>
+                                                    <span class="label label-danger"><?= display_money($task->budget - $expense->amount) ?></span>
+                                                </td>
 
-                                                    <td>
-                                                        <a href="<?= base_url() ?>admin/tasks/view_task_details/<?= $v_tasks->task_id ?>"
-                                                           class="text-info small"><?= $task_info->task_name ?>
-                                                            <?php
-                                                            if (!empty($v_tasks->reason)) {
-                                                                $edit_user_info = $this->db->where(array('user_id' => $v_tasks->edited_by))->get('tbl_users')->row();
-                                                                echo '<i class="text-danger" data-html="true" data-toggle="tooltip" data-placement="top" title="Reason : ' . $v_tasks->reason . '<br>' . ' Edited By : ' . $edit_user_info->username . '">Edited</i>';
-                                                            }
-                                                            ?>
-                                                        </a></td>
-                                                    <td>
-                                                        <small
-                                                                class="small text-muted"><?= $this->tasks_model->get_time_spent_result($v_tasks->end_time - $v_tasks->start_time) ?></small>
-                                                    </td>
-                                                    <td>
-                                                        <?= btn_edit('admin/tasks/view_task_details/' . $v_tasks->tasks_timer_id . '/5/edit') ?>
-                                                        <?php if ($v_tasks->user_id == $this->session->userdata('user_id')) { ?>
-                                                            <?php echo ajax_anchor(base_url("admin/tasks/update_tasks_timer/" . $v_tasks->tasks_timer_id . '/delete_task_timmer'), "<i class='btn btn-xs btn-danger fa fa-trash-o'></i>", array("class" => "", "title" => lang('delete'), "data-fade-out-on-success" => "#table_tasks_timer-" . $v_tasks->tasks_timer_id)); ?>
-                                                        <?php } ?>
-                                                    </td>
-
-                                                </tr>
-                                                <?php
-                                            }
-                                        }
-                                    }
-                                    ?>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -2262,7 +2416,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             data-toggle="tab"><?= lang('requisition') ?></a>
                             </li>
                             <li class="">
-                                <a href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
+                                <a target="_blank"
+                                   href="<?= base_url() ?>admin/requisition/index/project/<?= $task_details->project_id ?>?task_id=<?= $task_details->task_id ?>">
                                     <?= lang('new_requisition') ?></a>
                             </li>
                         </ul>
@@ -2385,7 +2540,8 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     ?>
                                                     <tr id="table-expense-<?= $v_expense->transactions_id ?>">
                                                         <td>
-                                                            <a href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
+                                                            <a target="_blank"
+                                                               href="<?= base_url() ?>admin/transactions/view_expense/<?= $v_expense->transactions_id ?>">
                                                                 <?= (!empty($v_expense->name) ? $v_expense->name : '-') ?>
                                                             </a>
                                                         </td>
@@ -2804,7 +2960,7 @@ $sub_tasks = config_item('allow_sub_tasks');
     }
 
     function showTask(e, project_id) {
-        if (project_id == 77777){
+        if (project_id == 77777) {
             let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
             $.ajax({
                 async: false,
@@ -2820,7 +2976,7 @@ $sub_tasks = config_item('allow_sub_tasks');
 
             });
         }
-        if (project_id == undefined){
+        if (project_id == undefined) {
             var base_url = '<?= base_url() ?>';
             var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
             var req = getXMLHTTP();
@@ -2848,20 +3004,20 @@ $sub_tasks = config_item('allow_sub_tasks');
         // console.log(items)
         // items = JSON.parse(items)
         var item = items.filter(function (item) {
-            return item.items_id == e.target.value;
+            return item.saved_items_id == e.target.value;
         });
+        console.log(item)
         $('#available_stock').val(item[0].quantity);
-        $('.available_stock').val(item[0].quantity);
+        $('#unit_type').val(item[0].unit_type);
     }
+
     function getSelectedItem1(e) {
         var items = <?php echo json_encode($fetch_data); ?>;
         // console.log(items)
         // items = JSON.parse(items)
         var item = items.filter(function (item) {
-            return item.items_id == e.target.value;
+            return item.saved_items_id == e.target.value;
         });
         $('#available_stock1').val(item[0].quantity);
-        $('.available_stock1').val(item[0].quantity);
     }
-
 </script>

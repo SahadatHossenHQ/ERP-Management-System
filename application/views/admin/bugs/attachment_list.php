@@ -9,7 +9,7 @@ if (!empty($project_files_info)) {
             <div class="box-shadow">
                 <div class="col-sm-12 p0">
                     <p style="border-bottom: 1px solid #e4e5e0;">
-                        <a href="<?= base_url() ?>admin/bugs/attachment_details/g/<?= $files_info[$key]->task_attachment_id ?>"
+                        <a target="_blank" href="<?= base_url() ?>admin/bugs/attachment_details/g/<?= $files_info[$key]->task_attachment_id ?>"
                            data-toggle="modal" data-target="#myModal_extra_lg">
                             <small
                                 class="text-gray-dark"><?= '<b style="color:#000">' . $uploaded_by->fullname . '</b>' . ' ' . lang('uploaded') . '  ' . count($v_files_info) . ' ' . lang('attachment') ?>
@@ -66,7 +66,7 @@ if (!empty($project_files_info)) {
                                             <p class="time m0 p0"> <?= date('Y-m-d' . "<br/> h:m A", strtotime($files_info[$key]->upload_time)); ?></p>
                                                                     <span
                                                                         class="size"> <?= $v_files->size ?> <?= lang('kb') ?>
-                                                                        <a href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->uploaded_files_id ?>"
+                                                                        <a target="_blank" href="<?= base_url() ?>admin/bugs/download_files/<?= $v_files->uploaded_files_id ?>"
                                                                            class="pull-right"><i
                                                                                 class="fa fa-cloud-download"></i></a></span>
                                         </div>
