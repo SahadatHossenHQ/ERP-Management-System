@@ -860,6 +860,7 @@ class Global_Controller extends MY_Controller
             } else {
                 $task_title = $task->task_name;
             }
+
             $HTML .= "<option value='" . $task->task_id . "'>" . $task_title . "</option>";
             $all_sub_task_ids = get_all_sub_tasks($task->task_id);
             unset($all_sub_task_ids[$task->task_id]);
