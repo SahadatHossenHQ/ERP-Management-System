@@ -93,10 +93,11 @@ class Items extends Admin_Controller
                 if (!empty($invoice_view) && $invoice_view == '2') {
                     $sub_array[] = $v_items->hsn_code;
                 }
-                if (!empty(admin())) {
-                    $sub_array[] = display_money($v_items->cost_price, default_currency());
-                }
+//                if (!empty(admin())) {
+//                    $sub_array[] = display_money($v_items->cost_price, default_currency());
+//                }
                 $sub_array[] = display_money($v_items->unit_cost, default_currency());
+                $sub_array[] = display_money($v_items->total_cost, default_currency());
                 $sub_array[] = $v_items->unit_type;
                 $sub_array[] = $v_items->project_name;
                 $sub_array[] = $task->task_name ?? '';

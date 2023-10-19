@@ -114,10 +114,11 @@ if (!empty($created) || !empty($edited)) {
                                 ?>
                                 <th><?= lang('hsn_code') ?></th>
                             <?php } ?>
-                            <?php if (admin()) { ?>
-                                <th class="col-sm-1"><?= lang('cost_price') ?></th>
-                            <?php } ?>
-                            <th class="col-sm-1"><?= lang('unit_price') ?></th>
+<!--                            --><?php //if (admin()) { ?>
+<!--                                <th class="col-sm-1">--><?php //= lang('cost_price') ?><!--</th>-->
+<!--                            --><?php //} ?>
+                            <th class="col-sm-1"><?= lang('cost_price') ?></th>
+                            <th class="col-sm-1"><?= lang('Total Cost') ?></th>
                             <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                             <th class="col-sm-2"><?= lang('project') ?></th>
                             <th class="col-sm-2"><?= lang('task') ?></th>
