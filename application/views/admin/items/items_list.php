@@ -687,6 +687,42 @@ if (!empty($created) || !empty($edited)) {
                           action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post" class="form-horizontal">
                         <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
+                                <div class="form-group text-left">
+                                    <label class="col-lg-3 control-label"><?= lang('project') ?></label>
+                                    <div class="col-lg-7">
+                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , undefined , 'task-lists-for-stock-use')"
+                                                id="client_project">
+                                            <option value=""><?= lang('none') ?></option>
+                                            <?php
+
+                                            $all_project = $this->db->get('tbl_project')->result();
+                                            if (!empty($all_project)) {
+                                                foreach ($all_project as $v_cproject) {
+                                                    ?>
+                                                    <option value="<?= $v_cproject->project_id ?>" <?php
+                                                    if (!empty($project_id)) {
+                                                        echo $v_cproject->project_id == $project_id ? 'selected' : '';
+                                                    }
+                                                    ?>><?= $v_cproject->project_name ?></option>
+                                                    <?php
+                                                }
+                                            }
+
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="form-group text-left">
+                                    <label class="col-lg-3 control-label"><?= lang('task') ?> /
+                                        Sub <?= lang('task') ?></label>
+                                    <div class="col-lg-7">
+                                        <select class="form-control select_box" style="width: 100%" id="task-lists-for-stock-use" onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-use')"
+                                                name="trn_task_id">
+                                            <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group">
 
                                     <?php
@@ -694,8 +730,8 @@ if (!empty($created) || !empty($edited)) {
                                     ?>
 
                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
-                                    <div class="col-lg-7">
-                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem(event)">
+                                    <div class="col-lg-7" style="text-align: left">
+                                        <select name="purchese_item_id" class="form-control select_box"  data-width="100%" onchange="getSelectedItem(event)" id="stock-lists-for-stock-use">
                                             <option value="" selected> Select Stock Item</option>
                                             <?php
                                             foreach ($fetch_data as $_key => $v_purchase) {
@@ -750,6 +786,42 @@ if (!empty($created) || !empty($edited)) {
                           action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post" class="form-horizontal">
                         <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
+                                <div class="form-group text-left">
+                                    <label class="col-lg-3 control-label"><?= lang('project') ?></label>
+                                    <div class="col-lg-7">
+                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , undefined , 'task-lists-for-stock-transfer')"
+                                                id="client_project">
+                                            <option value=""><?= lang('none') ?></option>
+                                            <?php
+
+                                            $all_project = $this->db->get('tbl_project')->result();
+                                            if (!empty($all_project)) {
+                                                foreach ($all_project as $v_cproject) {
+                                                    ?>
+                                                    <option value="<?= $v_cproject->project_id ?>" <?php
+                                                    if (!empty($project_id)) {
+                                                        echo $v_cproject->project_id == $project_id ? 'selected' : '';
+                                                    }
+                                                    ?>><?= $v_cproject->project_name ?></option>
+                                                    <?php
+                                                }
+                                            }
+
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="form-group text-left">
+                                    <label class="col-lg-3 control-label"><?= lang('task') ?> /
+                                        Sub <?= lang('task') ?></label>
+                                    <div class="col-lg-7">
+                                        <select class="form-control select_box" style="width: 100%" id="task-lists-for-stock-transfer" onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-transfer')"
+                                                name="trn_task_id">
+                                            <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="form-group">
 
                                     <?php
@@ -757,8 +829,8 @@ if (!empty($created) || !empty($edited)) {
                                     ?>
 
                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
-                                    <div class="col-lg-7">
-                                        <select name="purchese_item_id" class="selectpicker" data-width="100%" onchange="getSelectedItem1(event)">
+                                    <div class="col-lg-7" style="text-align: left">
+                                        <select name="purchese_item_id" class="form-control select_box" data-width="100%"id="stock-lists-for-stock-transfer" onchange="getSelectedItem1(event)" >
                                             <option value="" selected> Select Stock Item</option>
                                             <?php
                                             foreach ($fetch_data as $_key => $v_purchase) {
@@ -960,7 +1032,7 @@ if (!empty($created) || !empty($edited)) {
             return xmlhttp;
         }
 
-        function showTask(e, project_id) {
+        function showTask(e, project_id ,element_id = "task-lists" ) {
             if (project_id == 77777){
                 let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
                 $.ajax({
@@ -971,8 +1043,8 @@ if (!empty($created) || !empty($edited)) {
                     success: function (data) {
                         var result = data.responseText;
                         console.log(result);
-                        $('#task-lists').empty();
-                        $("#task-lists").html(result);
+                        $('#'+element_id).empty();
+                        $("#"+element_id).html(result);
                     }
 
                 });
@@ -987,8 +1059,8 @@ if (!empty($created) || !empty($edited)) {
                             // only if "OK"
                             if (req.status == 200) {
                                 var result = req.responseText;
-                                $('#task-lists').empty();
-                                $("#task-lists").append(result);
+                                $('#'+element_id).empty();
+                                $("#"+element_id).append(result);
                             } else {
                                 alert("There was a problem while using XMLHTTP:\n" + req.statusText);
                             }
@@ -998,6 +1070,31 @@ if (!empty($created) || !empty($edited)) {
                     req.send(null);
                 }
             }
+        }
+        function getStockByProjectOrTask(e, type = 'task',element_id = null ) {
+                var base_url = '<?= base_url() ?>';
+                let url_help = type == 'task' ?  null + '/' +e.target.value : e.target.value + '/' + null;
+                var strURL = base_url + 'admin/global_controller/get_stock/' + url_help;
+                var req = getXMLHTTP();
+                if (req) {
+                    req.onreadystatechange = function () {
+                        if (req.readyState == 4) {
+                            // only if "OK"
+                            if (req.status == 200) {
+                                var result = req.responseText;
+                                console.log(result)
+                                console.log(element_id)
+                                $('#'+element_id).empty();
+                                $("#"+element_id).append(result);
+                            } else {
+                                alert("There was a problem while using XMLHTTP:\n" + req.statusText);
+                            }
+                        }
+                    }
+                    req.open("POST", strURL, true);
+                    req.send(null);
+                }
+
         }
 
         function getSelectedItem(e) {

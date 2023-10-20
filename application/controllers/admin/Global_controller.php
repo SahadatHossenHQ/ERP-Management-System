@@ -877,4 +877,23 @@ class Global_Controller extends MY_Controller
         echo $HTML;
         die();
     }
+    function get_stock ($project_id = null,$task_id = null)
+    {
+        $stocks = $this->db;
+
+        if ($project_id && $project_id !== 0 && $project_id !== "null") {
+            $stocks = $this->db->where('project_id', $project_id);
+        } else if ($task_id && $task_id != "null" && $task_id !== 0) {
+            $all_sub_task_ids = get_all_sub_tasks($task_id);
+            $stocks = $this->db->where_in('task_id', $all_sub_task_ids);
+        }
+        $stocks = $stocks->get('tbl_saved_items')->result();
+        $HTML = null;
+        $HTML .= "<option value='" . 0 . "'>" . lang('none') . "</option>";
+        foreach ($stocks as $key => $stock) {
+            $HTML .= "<option value='" . $stock->saved_items_id . "'>" . $stock->item_name.' ('. $stock->quantity.' '. $stock->unit_type.')' . "</option>";
+        }
+        echo $HTML;
+        die();
+    }
 }
