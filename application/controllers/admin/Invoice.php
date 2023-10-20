@@ -217,7 +217,53 @@ class Invoice extends Admin_Controller
                 set_message('error', 'No data Found');
                 redirect('admin/invoice/manage_invoice');
             }
-        } elseif ($action == 'payment' || $action == 'payment_history') {
+        }
+        elseif  ($action == 'invoice_chalan_details') {
+            $data['title'] = "Invoice Chalan Details"; //Page title
+            $data['sub_active'] = "Chalan Details"; //Page title
+            $data['invoice_info'] = $this->invoice_model->check_by(array('invoices_id' => $id), 'tbl_invoices');
+            if (!empty($data['invoice_info'])) {
+                $data['client_info'] = $this->invoice_model->check_by(array('client_id' => $data['invoice_info']->client_id), 'tbl_client');
+                $payment_status = $this->invoice_model->get_payment_status($id);
+                if ($payment_status != lang('cancelled') && $payment_status != lang('fully_paid')) {
+                    $this->load->model('credit_note_model');
+                    $data['total_available_credit'] = $this->credit_note_model->get_available_credit_by_client($data['invoice_info']->client_id);
+                }
+                $lang = $this->invoice_model->all_files();
+                foreach ($lang as $file => $altpath) {
+                    $shortfile = str_replace("_lang.php", "", $file);
+                    //CI will record your lang file is loaded, unset it and then you will able to load another
+                    //unset the lang file to allow the loading of another file
+                    if (isset($this->lang->is_loaded)) {
+                        $loaded = sizeof($this->lang->is_loaded);
+                        if ($loaded < 3) {
+                            for ($i = 3; $i <= $loaded; $i++) {
+                                unset($this->lang->is_loaded[$i]);
+                            }
+                        } else {
+                            for ($i = 0; $i <= $loaded; $i++) {
+                                unset($this->lang->is_loaded[$i]);
+                            }
+                        }
+                    }
+                    if (!empty($data['client_info']->language)) {
+                        $language = $data['client_info']->language;
+                    } else {
+                        $language = 'english';
+                    }
+                    $data['language_info'] = $this->lang->load($shortfile, $language, TRUE, TRUE, $altpath);
+                }
+                $subview = 'invoice_chalan_details';
+                // get payment info by id
+                $this->invoice_model->_table_name = 'tbl_payments';
+                $this->invoice_model->_order_by = 'payments_id';
+                $data['all_payments_history'] = $this->invoice_model->get_by(array('invoices_id' => $id), FALSE);
+            } else {
+                set_message('error', 'No data Found');
+                redirect('admin/invoice/manage_invoice');
+            }
+        }
+        elseif ($action == 'payment' || $action == 'payment_history') {
             $data['title'] = lang($action); //Page title
             // get payment info by id
             $this->invoice_model->_table_name = 'tbl_payments';
@@ -229,7 +275,8 @@ class Invoice extends Admin_Controller
                 redirect('admin/invoice/manage_invoice/invoice_details/'.$id);
             }
             $subview = $action;
-        } elseif ($action == 'payments_details') {
+        }
+        elseif ($action == 'payments_details') {
             $data['title'] = "Payments Details"; //Page title
             $subview = 'payments_details';
             // get payment info by id
@@ -720,6 +767,7 @@ class Invoice extends Admin_Controller
                         $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/payment/' . $v_invoices->invoices_id . '">' . lang('pay_invoice') . '</a></li>';
                         $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/email_invoice/' . $v_invoices->invoices_id . '">' . lang('email_invoice') . '</a></li>';
                         $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/send_reminder/' . $v_invoices->invoices_id . '">' . lang('send_reminder') . '</a></li>';
+                        $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/invoice_chalan_details/' . $v_invoices->invoices_id . '">' . lang('View Chalan') . '</a></li>';
                         $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/send_overdue/' . $v_invoices->invoices_id . '">' . lang('send_invoice_overdue') . '</a></li>';
                         $change_status .= '<li><a href="' . $ch_url . 'manage_invoice/invoice_history/' . $v_invoices->invoices_id . '">' . lang('invoice_history') . '</a></li>';
                         $change_status .= '<li><a href="' . $ch_url . 'pdf_invoice/' . $v_invoices->invoices_id . '">' . lang('pdf') . '</a></li>';
