@@ -96,8 +96,8 @@ class Items extends Admin_Controller
 //                if (!empty(admin())) {
 //                    $sub_array[] = display_money($v_items->cost_price, default_currency());
 //                }
-                $sub_array[] = display_money($v_items->unit_cost, default_currency());
-                $sub_array[] = display_money($v_items->total_cost, default_currency());
+                $sub_array[] = display_money($v_items->cost_price, default_currency());
+                $sub_array[] = display_money($v_items->sell_price, default_currency());
                 $sub_array[] = $v_items->unit_type;
                 $sub_array[] = $v_items->project_name;
                 $sub_array[] = $task->task_name ?? '';
@@ -152,8 +152,7 @@ class Items extends Admin_Controller
     {
         $this->items_model->_table_name = 'tbl_saved_items';
         $this->items_model->_primary_key = 'saved_items_id';
-
-        $data = $this->items_model->array_from_post(array('project_id','item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost', 'unit_type', 'customer_group_id', 'quantity'));
+        $data = $this->items_model->array_from_post(array('project_id','item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost','sell_price', 'unit_type', 'customer_group_id', 'quantity'));
         $tax_rates = $this->input->post('tax_rates_id', true);
         $total_tax = 0;
         if (!empty($tax_rates)) {

@@ -118,7 +118,7 @@ if (!empty($created) || !empty($edited)) {
 <!--                                <th class="col-sm-1">--><?php //= lang('cost_price') ?><!--</th>-->
 <!--                            --><?php //} ?>
                             <th class="col-sm-1"><?= lang('cost_price') ?></th>
-                            <th class="col-sm-1"><?= lang('Total Cost') ?></th>
+                            <th class="col-sm-1"><?= lang('Sell Price') ?></th>
                             <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
                             <th class="col-sm-2"><?= lang('project') ?></th>
                             <th class="col-sm-2"><?= lang('task') ?></th>
@@ -286,9 +286,9 @@ if (!empty($created) || !empty($edited)) {
                             <div class="col-lg-9">
                                 <input type="text" data-parsley-type="number" class="form-control" value="<?php
                                 if (!empty($items_info)) {
-                                    echo $items_info->unit_cost;
+                                    echo $items_info->sell_price;
                                 }
-                                ?>" name="unit_cost" required="">
+                                ?>" name="sell_price" required="">
                             </div>
                         </div>
                         <div class="form-group">

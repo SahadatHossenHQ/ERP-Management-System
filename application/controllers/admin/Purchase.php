@@ -768,6 +768,7 @@ class Purchase extends Admin_Controller
         }
         $array['item_name'] = $purchase->item_name;
         $array['unit_cost'] = $purchase->unit_cost;
+        $array['cost_price'] = $purchase->total_cost;
         $array['project_id'] = $purchase->project_id;
         $array['task_id'] = $purchase->task_id;
         $array['total_cost'] = $purchase->total_cost;
