@@ -10,8 +10,8 @@
     }
 </style>
 <?php
-$task_ids = get_all_sub_tasks($task_details->task_id);
-$task_ids = $task_ids ?? [];
+$all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+$task_ids = $all_sub_task_ids ?? [];
 $edited = can_action('54', 'edited');
 $task_id_ = $task_details->sub_task_id;
 //var_dump($task_details->task_id);
@@ -28,11 +28,11 @@ $comment_details = $this->db->where(array('task_id' => $task_details->task_id, '
 $total_timer = $this->db->where(array('task_id' => $task_details->task_id, 'start_time !=' => 0, 'end_time !=' => 0,))->get('tbl_tasks_timer')->result();
 $all_sub_tasks = $this->db->where(array('sub_task_id' => $task_details->task_id))->get('tbl_task')->result();
 $activities_info = $this->db->where(array('module' => 'tasks', 'module_field_id' => $task_details->task_id))->order_by('activity_date', 'DESC')->get('tbl_activities')->result();
-$all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
+
 $all_requisition_info = $this->db->where_in('task_id' , $all_sub_task_ids)->get('tbl_requisitions')->result();
 
 $all_expense_info = $this->db->where(array( 'type' => 'Expense'))->where_in('task_id',[...$task_ids,$task_details->task_id])->get('tbl_transactions')->result();
-$all_estimates_info = $this->db->where(array('task_id' => $task_details->task_id))->get('tbl_estimates')->result();
+$all_estimates_info = $this->db->where_in('task_id',[...$task_ids,$task_details->task_id])->get('tbl_estimates')->result();
 
 $where = array('user_id' => $this->session->userdata('user_id'), 'module_id' => $task_details->task_id, 'module_name' => 'tasks');
 $check_existing = $this->tasks_model->check_by($where, 'tbl_pinaction');
@@ -1342,7 +1342,6 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$taSeckkId])->get('tbl_task')->row();
                                             $taskdetails = $this->db->where('task_id', $taSeckkId)->get('tbl_task')->row();
 
-
                                             if ($taskdetails->budget > 0) {
                                                 $percentage = ($total_subtask_budget->budget ?? 0 / ($taskdetails->budget)) * 100;
                                                 if ($total_subtask_budget->budget == $taskdetails->budget) {
@@ -1352,10 +1351,17 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 if ($total_subtask_budget->budget > $taskdetails->budget) {
                                                     $ddd = $total_subtask_budget->budget - $taskdetails->budget;
                                                     echo "<strong>Need to update task Budget</strong>";
-                                                } else if ($percentage >= 90 && $percentage < 100) {
+                                                } else if (($percentage >= 90) && $percentage < 100) {
                                                     echo "<strong>You have $percentage % Of Budget Used for sub-task</strong>";
                                                 }
+
                                             }
+
+                                            $task_percentage = ($task_details->budget ?? 0 / $task_details->budget) * 100;
+                                            if ($task_percentage >= 90 && $task_percentage < 100) {
+                                                echo "<strong>You have $task_percentage % Of Budget Used for task</strong>";
+                                            }
+
                                             ?>
                                             <?php if (($task_details->budget - $total_expense->amount) < 1) { ?>
                                                 <strong>You have expensed more than your budget</strong>
@@ -2232,8 +2238,6 @@ $sub_tasks = config_item('allow_sub_tasks');
                                     </thead>
                                     <tbody>
                                     <?php
-
-                                    $all_sub_task_ids = get_all_sub_tasks($task_details->task_id);
                                     $tasks = $this->db->where_in('tbl_task.task_id', $all_sub_task_ids)
                                         ->select('tbl_task.*,tbl_customer_group.customer_group')
                                         ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id')
