@@ -207,6 +207,7 @@ class Purchase extends Admin_Controller
         $task_id = $_POST['task_id'];
         $used_stock = $_POST['used_stock'];
         $unit_type = $_POST['unit_type'];
+        $used_date = $_POST['used_date'];
         $userId = $this->session->userdata('user_id');;
 
         $items_info = $this->db->where('saved_items_id', $saved_items_id)->get('tbl_saved_items')->row();
@@ -221,6 +222,7 @@ class Purchase extends Admin_Controller
         $array['quantity'] = $used_stock;
         $array['action_by'] = $userId;
         $array['unit_type'] = $unit_type;
+        $array['used_date'] = $used_date;
         $this->db->insert('tbl_stock_uses', $array);
 
         $data = array('quantity' => $items_info->quantity - $used_stock, 'total_cost' => $items_info->unit_cost * ($items_info->quantity - $transfer_amount));
@@ -236,6 +238,7 @@ class Purchase extends Admin_Controller
         $task_id = $_POST['task_id'];
         $project_id = $_POST['project_id'];
         $trn_task_id = $_POST['trn_task_id'];
+        $used_date = $_POST['used_date'];
         $transfer_amount = $_POST['transfer_amount'];
         $userId = $this->session->userdata('user_id');
 
@@ -268,6 +271,7 @@ class Purchase extends Admin_Controller
         $array['action_by'] = $userId;
         $array['unit_type'] = $items_info->unit_type;
         $array['to_task_id'] = $trn_task_id;
+        $array['used_date'] = $used_date;
         $this->db->insert('tbl_stock_uses', $array);
 
         redirect($_SERVER['HTTP_REFERER']);
