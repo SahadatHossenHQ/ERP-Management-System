@@ -1728,19 +1728,21 @@ $edited = can_action('57', 'edited');
                                             <th class="col-sm-2"><?= lang('task') ?></th>
                                             <th class="col-sm-1"><?= lang('tax') ?></th>
                                             <th class="col-sm-1"><?= lang('group') ?></th>
-<!--                                            --><?php //$show_custom_fields = custom_form_table(18, null);
-//                                            if (!empty($show_custom_fields)) {
-//                                                foreach ($show_custom_fields as $c_label => $v_fields) {
-//                                                    if (!empty($c_label)) {
-//                                                        ?>
-<!--                                                        <th>--><?php //= $c_label ?><!-- </th>-->
-<!--                                                    --><?php //}
-//                                                }
-//                                            }
-//                                            ?>
-<!--                                            --><?php //if (!empty($edited) || !empty($deleted)) { ?>
-<!--                                                <th class="col-sm-1">--><?php //= lang('action') ?><!--</th>-->
-<!--                                            --><?php //} ?>
+                                            <!--                                            --><?php //$show_custom_fields = custom_form_table(18, null);
+                                            //                                            if (!empty($show_custom_fields)) {
+                                            //                                                foreach ($show_custom_fields as $c_label => $v_fields) {
+                                            //                                                    if (!empty($c_label)) {
+                                            //                                                        ?>
+                                            <!--                                                        <th>-->
+                                            <?php //= $c_label ?><!-- </th>-->
+                                            <!--                                                    --><?php //}
+                                            //                                                }
+                                            //                                            }
+                                            //                                            ?>
+                                            <!--                                            --><?php //if (!empty($edited) || !empty($deleted)) { ?>
+                                            <!--                                                <th class="col-sm-1">-->
+                                            <?php //= lang('action') ?><!--</th>-->
+                                            <!--                                            --><?php //} ?>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -1834,6 +1836,17 @@ $edited = can_action('57', 'edited');
                                                         <input type="text" class="form-control" value=""
                                                                placeholder="Enter Used Stock"
                                                                name="used_stock" id="used_stock">
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="used_date"
+                                                           class="col-lg-3 control-label"><?= lang('Used Date') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="date" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="used_date" id="used_date" required>
                                                     </div>
 
                                                 </div>
@@ -1940,6 +1953,17 @@ $edited = can_action('57', 'edited');
                                                     </div>
 
                                                 </div>
+                                                <div class="form-group">
+                                                    <label for="used_date"
+                                                           class="col-lg-3 control-label"><?= lang('Used Date') ?>
+                                                        <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <input type="date" class="form-control" value=""
+                                                               placeholder="Enter Used Stock"
+                                                               name="used_date" id="used_date" required>
+                                                    </div>
+
+                                                </div>
 
 
                                                 <button type="submit" class="btn btn-info">Save</button>
@@ -1963,6 +1987,7 @@ $edited = can_action('57', 'edited');
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
                                             <th class="col-sm-2"><?= lang('quantity') ?></th>
+                                            <th class="2"><?= lang('Used Date') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
                                         </tr>
@@ -1973,6 +1998,7 @@ $edited = can_action('57', 'edited');
                                         $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
                                         $this->db->join('tbl_saved_items as item_2', 'tbl_stock_uses.transfer_to_item_id = item_2.saved_items_id', 'left');
                                         $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+                                        $this->db->order_by('id', 'desc');
                                         $this->db->where('tbl_saved_items.project_id', $project_details->project_id);
                                         $this->db->or_where('item_2.project_id', $project_details->project_id);
                                         $query_result = $this->db->get();
@@ -2029,6 +2055,7 @@ $edited = can_action('57', 'edited');
 
                                                 </td>
                                                 <td><?= $row->quantity ?></td>
+                                                <td width="100"><?= $row->used_date ? date_format(date_create($row->used_date), 'd-M-Y') : '--' ?></td>
                                                 <td><?= $row->unit_type ?></td>
                                                 <td class="text-capitalize">
                                                     <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"

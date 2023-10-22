@@ -861,7 +861,7 @@ if (!empty($created) || !empty($edited)) {
                                     <div class="col-lg-7">
                                         <input type="text" class="form-control" value=""
                                                name="available_stockyy" id="available_stock1" disabled>
-                                        <input type="hidden" class="form-control" value="<?= $task_details->task_id ?>"
+                                        <input type="hidden" class="form-control" value=""
                                                name="task_id" id="task_id">
 
                                     </div>
