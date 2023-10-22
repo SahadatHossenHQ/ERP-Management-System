@@ -234,11 +234,11 @@ if (is_file(config_item('invoice_logo'))) {
             </div>
             <div class="col-lg-6 col-xs-12 ">
                 <div class="pull-right pr-lg">
-                    <h4 class="mb0"><?= lang('invoice') . ' : ' . $invoice_info->reference_no ?></h4>
-                    <?= $language_info['invoice_date'] ?>
-                    : <?= strftime(config_item('date_format'), strtotime($invoice_info->invoice_date)); ?>
-                    <br><?= $language_info['due_date'] ?>
-                    : <?= strftime(config_item('date_format'), strtotime($invoice_info->due_date)); ?>
+                    <h4 class="mb0"><?= 'Chalan Copy : ' . substr($invoice_info->reference_no,4) ?></h4>
+                    Chalan Date
+                    : <?= date('Y-m-d'); ?>
+<!--                    <br>--><?php //= $language_info['due_date'] ?>
+<!--                    : --><?php //= strftime(config_item('date_format'), strtotime($invoice_info->due_date)); ?>
                     <?php if (!empty($invoice_info->user_id)) { ?>
                         <br><?= lang('sales') . ' ' . lang('agent') ?>:<?php echo fullname($invoice_info->user_id); ?>
                     <?php }
