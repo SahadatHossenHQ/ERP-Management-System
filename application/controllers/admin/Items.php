@@ -236,6 +236,7 @@ class Items extends Admin_Controller
                 $data['upload_file'] = null;
             }
 
+            $data['unit_cost'] = $data['cost_price'];
             $sub_total = $data['unit_cost'] * $data['quantity'];
             $data['item_tax_total'] = ($total_tax / 100) * $sub_total;
             $data['total_cost'] = $sub_total + $data['item_tax_total'];

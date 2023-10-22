@@ -376,8 +376,23 @@ class Purchase extends Admin_Controller
                 if (empty($items['saved_items_id'])) {
                     $items['saved_items_id'] = 0;
                 }
+                $price = $items['quantity'] * $items['unit_cost'];
+                $items['item_tax_total'] = ($price / 100 * $tax);
+                $items['total_cost'] = $price;
+                // get all client
+                $this->purchase_model->_table_name = 'tbl_purchase_items';
+                $this->purchase_model->_primary_key = 'items_id';
+                if (!empty($items['items_id'])) {
+                    $items_id = $items['items_id'];
+                    $this->purchase_model->save($items, $items_id);
+                } else {
+                    $items_id = $this->purchase_model->save($items);
+                }
+
+                $items_info = $this->db->where('saved_items_id', $items['saved_items_id'])->get('tbl_saved_items')->row();
+
                 if ($data['update_stock'] == 'Yes') {
-                    if (!empty($items['saved_items_id']) && $items['saved_items_id'] != 'undefined') {
+                    if ((!empty($items['saved_items_id']) && $items['saved_items_id'] != 'undefined')  && ($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id'])) {
                         if (!empty($items['items_id'])) {
                             $old_quantity = get_any_field('tbl_purchase_items', array('items_id' => $items['items_id']), 'quantity');
                             if ($old_quantity != $items['quantity']) {
@@ -397,19 +412,7 @@ class Purchase extends Admin_Controller
                     }
                 }
 
-                $price = $items['quantity'] * $items['unit_cost'];
-                $items['item_tax_total'] = ($price / 100 * $tax);
-                $items['total_cost'] = $price;
-                // get all client
-                $this->purchase_model->_table_name = 'tbl_purchase_items';
-                $this->purchase_model->_primary_key = 'items_id';
-                if (!empty($items['items_id'])) {
-                    $items_id = $items['items_id'];
-                    $this->purchase_model->save($items, $items_id);
-                } else {
-                    $items_id = $this->purchase_model->save($items);
-                }
-                if (!$id){
+                if (($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id'])){
                     $this->saveStock($items_id);
                 }
                 $index++;

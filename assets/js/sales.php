@@ -164,7 +164,7 @@
     });
 
     // Add item to preview
-    function add_item_to_preview(itemid) {
+    function add_item_to_preview(itemid,type = null) {
         // alert(itemid);
         $.get('<?= base_url() ?>admin/global_controller/get_item_by_id/' + itemid, function(response) {
             // console.log(response);
@@ -188,7 +188,12 @@
             }
             $('.main select.tax').selectpicker('val', tax);
             $('.main input[name="unit"]').val(response.unit_type);
-            $('.main input[name="unit_cost"]').val(response.unit_cost);
+            if (type == 'bill_receive') {
+                $('.main input[name="unit_cost"]').val(response.sell_price);
+            } else {
+                $('.main input[name="unit_cost"]').val(response.unit_cost);
+            }
+
         }, 'json');
     }
 
@@ -197,6 +202,15 @@
         var itemid = $(this).selectpicker('val');
         if (itemid != '' && itemid !== 'newitem') {
             add_item_to_preview(itemid);
+        } else if (itemid == 'newitem') {
+            // New item
+            $('#item_modal').modal('show');
+        }
+    });    // Add item to preview from the dropdown for invoices estimates
+    $('body').on('change', 'select[name="item_select_bill_receive"]', function() {
+        var itemid = $(this).selectpicker('val');
+        if (itemid != '' && itemid !== 'newitem') {
+            add_item_to_preview(itemid,'bill_receive');
         } else if (itemid == 'newitem') {
             // New item
             $('#item_modal').modal('show');

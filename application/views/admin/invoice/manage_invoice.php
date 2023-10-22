@@ -778,7 +778,7 @@ if (!empty($invoice_info)) {
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <select name="item_select" class="selectpicker m0" data-width="100%"
+                                        <select name="item_select_bill_receive" class="selectpicker m0" data-width="100%"
                                                 id="item_select"
                                                 data-none-selected-text="<?php echo lang('add_items'); ?>"
                                                 data-live-search="true">
@@ -800,7 +800,7 @@ if (!empty($invoice_info)) {
                                                             foreach ($v_saved_items as $v_item) { ?>
                                                                 <option value="<?php echo $v_item->saved_items_id; ?>"
                                                                         data-subtext="<?php echo strip_html_tags(mb_substr($v_item->item_desc, 0, 200)) . '...'; ?>">
-                                                                    (<?= display_money($v_item->unit_cost, $currency->symbol); ?>
+                                                                    (<?= display_money($v_item->sell_price, $currency->symbol); ?>
                                                                     ) <?php echo $v_item->item_name; ?></option>
                                                             <?php }
                                                         }
