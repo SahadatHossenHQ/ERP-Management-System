@@ -1339,11 +1339,11 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             <?php
                                             $taSeckkId = $task_details->sub_task_id ?? $task_details->task_id;
                                             $sub_task_ids = get_all_sub_tasks($taSeckkId);
-                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $task_ids)->where_not_in('task_id', [$taSeckkId])->get('tbl_task')->row();
+                                            $total_subtask_budget = $this->db->select_sum('budget')->where_in('task_id', $sub_task_ids)->where_not_in('task_id', [$taSeckkId])->get('tbl_task')->row();
                                             $taskdetails = $this->db->where('task_id', $taSeckkId)->get('tbl_task')->row();
 
                                             if ($taskdetails->budget > 0) {
-                                                $percentage = ($total_subtask_budget->budget ?? 0 / ($taskdetails->budget)) * 100;
+                                                $percentage = ($total_subtask_budget->budget ?? 0 / ($taskdetails->budget ?? 1)) * 100;
                                                 if ($total_subtask_budget->budget == $taskdetails->budget) {
                                                     $ddd = $total_subtask_budget->budget - $taskdetails->budget;
                                                     echo "<strong>You have 100 % Of Budget Used for sub-task</strong>";
@@ -1356,8 +1356,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 }
 
                                             }
-
-                                            $task_percentage = ($task_details->budget ?? 0 / $task_details->budget) * 100;
+                                            $task_percentage = (($total_expense->amount ?? 0) / ($task_details->budget ?? 1)) * 100;
                                             if ($task_percentage >= 90 && $task_percentage < 100) {
                                                 echo "<strong>You have $task_percentage % Of Budget Used for task</strong>";
                                             }

@@ -473,6 +473,9 @@
                                                                         if (!empty($client_id)) {
                                                                             echo $client_id == $v_client->client_id ? 'selected' : '';
                                                                         }
+                                                                        if ($estimates_info->client_id == $v_client->client_id) {
+                                                                            echo ' selected ';
+                                                                        }
                                                                         ?>
                                                                     ><?= ucfirst($v_client->name) ?></option>
                                                                     <?php
@@ -502,13 +505,13 @@
                                                         id="client_project">
                                                     <option value=""><?= lang('none') ?></option>
                                                     <?php
-                                                    if (!empty($client_id)) {
+                                                    if (!empty($client_id) || $estimates_info->client_id) {
                                                         if (!empty($project_info->project_id)) {
                                                             $project_id = $project_info->project_id;
                                                         } elseif ($estimates_info->project_id) {
                                                             $project_id = $estimates_info->project_id;
                                                         }
-                                                        $all_project = $this->db->where('client_id', $client_id)->get('tbl_project')->result();
+                                                        $all_project = $this->db->where('client_id', ($client_id ?? $estimates_info->client_id))->get('tbl_project')->result();
                                                         if (!empty($all_project)) {
                                                             foreach ($all_project as $v_cproject) {
                                                                 ?>
@@ -551,9 +554,14 @@
                                                                 $task_title = $task->task_name;
                                                             }
                                                             ?>
-                                                            <option value="<?php echo $task->task_id; ?> " <?php if ($task_id == $task->task_id) {
-                                                                echo "selected";
-                                                            } ?>><?= $task_title ?></option>
+                                                            <option value="<?php echo $task->task_id; ?> "
+                                                                <?php if ($task_id == $task->task_id) {
+                                                                    echo "selected";
+                                                                } else if ($estimates_info->task_id == $task->task_id){
+                                                                    echo "selected";
+                                                                }
+
+                                                                ?>><?= $task_title ?></option>
                                                             <?php
                                                         }
                                                     }

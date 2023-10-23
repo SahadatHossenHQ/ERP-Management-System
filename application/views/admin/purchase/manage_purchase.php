@@ -30,7 +30,7 @@ if (!empty($created) || !empty($edited)){
                 </header>
                 <?php } ?>
                 <div class="table-responsive">
-                    <table class="table table-striped DataTables " id="DataTables" width="100%" >
+                    <table class="table table-striped DataTables " id="DataTables" width="100%">
                         <thead>
                         <tr>
                             <th><?= lang('reference_no') ?></th>
@@ -60,7 +60,9 @@ if (!empty($created) || !empty($edited)){
                         </thead>
                         <tbody>
                         <script type="text/javascript">
-                            list = base_url + "admin/purchase/purchaseList/<?php if ($type == 'project') { echo '/'.$project_id; } ?>";
+                            list = base_url + "admin/purchase/purchaseList/<?php if ($type == 'project') {
+                                echo '/' . $project_id;
+                            } ?>";
                         </script>
                         </tbody>
                     </table>
@@ -196,13 +198,13 @@ if (!empty($created) || !empty($edited)){
 
 
                                     <?php
-                                        if (!empty($purchase_info)) {
-                                            $purchase_id = $purchase_info->purchase_id;
-                                        } else {
-                                            $purchase_id = null;
-                                        }
-                                        ?>
-                                        <?= custom_form_Fields(20, $purchase_id); ?>
+                                    if (!empty($purchase_info)) {
+                                        $purchase_id = $purchase_info->purchase_id;
+                                    } else {
+                                        $purchase_id = null;
+                                    }
+                                    ?>
+                                    <?= custom_form_Fields(20, $purchase_id); ?>
                                 </div>
                             </div>
                             <div class="col-sm-6 col-xs-12 br pv">
@@ -211,17 +213,18 @@ if (!empty($created) || !empty($edited)){
                                     <div class="form-group">
                                         <label class="col-lg-4 control-label"><?= lang('project') ?></label>
                                         <div class="col-lg-7">
-                                            <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , <?= $project_id; ?>)"
+                                            <select class="form-control select_box" style="width: 100%"
+                                                    name="project_id" onchange="showTask(event , <?= $project_id; ?>)"
                                                     id="client_project">
                                                 <?php
                                                 $projects = $this->db->order_by('project_name', 'ASC')
                                                     ->select('project_name,project_id')
                                                     ->get('tbl_project')->result();
-                                                 $select = '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
+                                                $select = '<option value="">' . lang('select') . ' ' . lang('Projects') . '</option>';
                                                 if (!empty($projects)) {
                                                     foreach ($projects as $project) {
                                                         $select .= '<option value="' . $project->project_id . '"';
-                                                        if (!empty($items_info) && $items_info->project_id == $project->project_id) {
+                                                        if (!empty($purchase_info) && $purchase_info->project_id == $project->project_id) {
                                                             $select .= ' selected';
                                                         }
                                                         if (!empty($project_id) && $project_id == $project->project_id) {
@@ -246,8 +249,8 @@ if (!empty($created) || !empty($edited)){
                                                 <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                                 <?php
                                                 $task_id = $_GET['task_id'];
-                                                if ($project_id) {
-                                                    $tasks_id = get_all_tasks($project_id);
+                                                if ($project_id || $purchase_info->project_id) {
+                                                    $tasks_id = get_all_tasks($project_id ?? $purchase_info->project_id);
                                                     $tasks = $this->db->where_in('task_id', $tasks_id)->get('tbl_task')->result();
                                                     foreach ($tasks as $key => $task) {
                                                         if ($task->sub_task_id) {
@@ -263,12 +266,22 @@ if (!empty($created) || !empty($edited)){
                                                         }
 
                                                         ?>
-                                                        <option value="<?php echo $task->task_id; ?>"  <?php if ($task_id == $task->task_id) {
-                                                            echo "selected";
-                                                        } ?>  ><?= $task_title ?></option>
+                                                        <option value="<?php echo $task->task_id; ?>"
+                                                            <?php
+
+                                                            if ($task_id == $task->task_id) {
+                                                                echo "selected";
+                                                            }
+                                                            if ($purchase_info->task_id == $task->task_id) {
+                                                                echo "selected";
+                                                            }
+
+                                                            ?>
+                                                        ><?= $task_title ?></option>
                                                         <?php
                                                     }
                                                 }
+//
                                                 ?>
 
                                             </select>
@@ -736,7 +749,7 @@ if (!empty($created) || !empty($edited)){
 <script type="text/javascript">
 
     function showTask(e, project_id) {
-        if (project_id == 77777){
+        if (project_id == 77777) {
             let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
             $.ajax({
                 async: false,
@@ -752,7 +765,7 @@ if (!empty($created) || !empty($edited)){
 
             });
         }
-        if (project_id == undefined){
+        if (project_id == undefined) {
             var base_url = '<?= base_url() ?>';
             var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
             var req = getXMLHTTP();
