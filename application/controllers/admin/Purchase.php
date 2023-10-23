@@ -363,7 +363,7 @@ class Purchase extends Admin_Controller
             foreach ($items_data as $items) {
 
 //                $items_info = $this->db->where('saved_items_id', $items['saved_items_id'])->get('tbl_saved_items')->row();
-//                var_dump($items_info != NULL && (($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || (empty($items_info->project_id) && empty($items_info->task_id))));
+//                var_dump($items_info != NULL ,(($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || ($items_info->project_id == 0 && empty($data['project_id']))));
 //                var_dump(!$items_info && ($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id']));
 //                die();
                 $items['purchase_id'] = $purchase_id;
@@ -398,7 +398,7 @@ class Purchase extends Admin_Controller
                 $items_info = $this->db->where('saved_items_id', $items['saved_items_id'])->get('tbl_saved_items')->row();
 
 //                if ($data['update_stock'] == 'Yes') {
-                if ($items_info != NULL && (($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || (empty($items_info->project_id) && empty($items_info->task_id)))) {
+                if ($items_info != NULL && (($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || ($items_info->project_id == 0 && empty($data['project_id'])))) {
                     if (!empty($items['items_id'])) {
                         $old_quantity = get_any_field('tbl_purchase_items', array('items_id' => $items['items_id']), 'quantity');
                         if ($old_quantity != $items['quantity']) {
@@ -416,8 +416,7 @@ class Purchase extends Admin_Controller
                         $this->purchase_model->return_items($items['saved_items_id'], $items['quantity']);
                     }
                 } //                }
-
-                else if (!$items_info && ($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id'])) {
+                else if (!$items_info || ($items_info && ($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id']))) {
                     $this->saveStock($items_id);
                 }
                 $index++;
