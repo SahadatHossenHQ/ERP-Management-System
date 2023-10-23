@@ -189,9 +189,9 @@
             $('.main select.tax').selectpicker('val', tax);
             $('.main input[name="unit"]').val(response.unit_type);
             if (type == 'bill_receive') {
-                $('.main input[name="unit_cost"]').val(response.sell_price);
+                $('.main input[name="unit_cost"]').val(Number(response.sell_price).toFixed(2));
             } else {
-                $('.main input[name="unit_cost"]').val(response.unit_cost);
+                $('.main input[name="unit_cost"]').val(Number(response.unit_cost).toFixed(2));
             }
 
         }, 'json');

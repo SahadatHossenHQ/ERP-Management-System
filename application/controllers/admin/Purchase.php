@@ -52,7 +52,7 @@ class Purchase extends Admin_Controller
                 $ids = get_all_sub_tasks($task_id);
 
                 $this->datatables->where = array('task_id' => $task_id);
-                foreach ($ids as $id_){
+                foreach ($ids as $id_) {
                     $this->datatables->or_where = array('task_id' => $id_);
                 }
             }
@@ -65,8 +65,8 @@ class Purchase extends Admin_Controller
             $this->datatables->order = array('purchase_id' => 'desc');
 
             $all_sub_task_ids = get_all_sub_tasks($task_id);
-            $whereIn = $task_id ? ['task_id',$all_sub_task_ids] : null;
-            $fetch_data = make_datatables($this->datatables->where,$whereIn);
+            $whereIn = $task_id ? ['task_id', $all_sub_task_ids] : null;
+            $fetch_data = make_datatables($this->datatables->where, $whereIn);
 
             $data = array();
 
@@ -357,9 +357,15 @@ class Purchase extends Admin_Controller
             }
         }
         $items_data = $this->input->post('items', true);
+
         if (!empty($items_data)) {
             $index = 0;
             foreach ($items_data as $items) {
+
+//                $items_info = $this->db->where('saved_items_id', $items['saved_items_id'])->get('tbl_saved_items')->row();
+//                var_dump($items_info != NULL && (($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || (empty($items_info->project_id) && empty($items_info->task_id))));
+//                var_dump(!$items_info && ($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id']));
+//                die();
                 $items['purchase_id'] = $purchase_id;
                 unset($items['invoice_items_id']);
                 unset($items['total_qty']);
@@ -391,28 +397,27 @@ class Purchase extends Admin_Controller
 
                 $items_info = $this->db->where('saved_items_id', $items['saved_items_id'])->get('tbl_saved_items')->row();
 
-                if ($data['update_stock'] == 'Yes') {
-                    if ((!empty($items['saved_items_id']) && $items['saved_items_id'] != 'undefined')  && ($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id'])) {
-                        if (!empty($items['items_id'])) {
-                            $old_quantity = get_any_field('tbl_purchase_items', array('items_id' => $items['items_id']), 'quantity');
-                            if ($old_quantity != $items['quantity']) {
-                                // $a < $b	Less than TRUE if $a is strictly less than $b.
-                                // $a > $b	Greater than TRUE if $a is strictly greater than $b.
-                                if ($old_quantity > $items['quantity']) {
-                                    $quantity = $old_quantity - $items['quantity'];
-                                    $this->purchase_model->reduce_items($items['saved_items_id'], $quantity);
-                                } else {
-                                    $quantity = $items['quantity'] - $old_quantity;
-                                    $this->purchase_model->return_items($items['saved_items_id'], $quantity);
-                                }
+//                if ($data['update_stock'] == 'Yes') {
+                if ($items_info != NULL && (($items_info->project_id == $data['project_id'] && $items_info->task_id == $data['task_id']) || (empty($items_info->project_id) && empty($items_info->task_id)))) {
+                    if (!empty($items['items_id'])) {
+                        $old_quantity = get_any_field('tbl_purchase_items', array('items_id' => $items['items_id']), 'quantity');
+                        if ($old_quantity != $items['quantity']) {
+                            // $a < $b	Less than TRUE if $a is strictly less than $b.
+                            // $a > $b	Greater than TRUE if $a is strictly greater than $b.
+                            if ($old_quantity > $items['quantity']) {
+                                $quantity = $old_quantity - $items['quantity'];
+                                $this->purchase_model->reduce_items($items['saved_items_id'], $quantity);
+                            } else {
+                                $quantity = $items['quantity'] - $old_quantity;
+                                $this->purchase_model->return_items($items['saved_items_id'], $quantity);
                             }
-                        } else {
-                            $this->purchase_model->return_items($items['saved_items_id'], $items['quantity']);
                         }
+                    } else {
+                        $this->purchase_model->return_items($items['saved_items_id'], $items['quantity']);
                     }
-                }
+                } //                }
 
-                if (($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id'])){
+                else if (!$items_info && ($items_info->project_id != $data['project_id'] || $items_info->task_id != $data['task_id'])) {
                     $this->saveStock($items_id);
                 }
                 $index++;
