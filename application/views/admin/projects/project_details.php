@@ -1844,7 +1844,7 @@ $edited = can_action('57', 'edited');
                                                            class="col-lg-3 control-label"><?= lang('Used Date') ?>
                                                         <span class="text-danger">*</span></label>
                                                     <div class="col-lg-7">
-                                                        <input type="date" class="form-control" value=""
+                                                        <input type="date" class="form-control"  value="<?= date('Y-m-d') ?>"
                                                                placeholder="Enter Used Stock"
                                                                name="used_date" id="used_date" required>
                                                     </div>
@@ -1955,10 +1955,10 @@ $edited = can_action('57', 'edited');
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="used_date"
-                                                           class="col-lg-3 control-label"><?= lang('Used Date') ?>
+                                                           class="col-lg-3 control-label"><?= lang('Transfer/Used Date') ?>
                                                         <span class="text-danger">*</span></label>
                                                     <div class="col-lg-7">
-                                                        <input type="date" class="form-control" value=""
+                                                        <input type="date" class="form-control" value="<?= date('Y-m-d') ?>"
                                                                placeholder="Enter Used Stock"
                                                                name="used_date" id="used_date" required>
                                                     </div>

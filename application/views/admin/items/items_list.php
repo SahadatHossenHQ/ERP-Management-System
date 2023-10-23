@@ -773,7 +773,7 @@ if (!empty($created) || !empty($edited)) {
                                     <label for="used_date" class="col-lg-3 control-label"><?= lang('Used Date') ?>
                                         <span class="text-danger">*</span></label>
                                     <div class="col-lg-7">
-                                        <input type="date" class="form-control" value=""
+                                        <input type="date" class="form-control" v value="<?= date('Y-m-d') ?>"
                                                placeholder="Enter Date"
                                                name="used_date" id="used_date" required>
                                     </div>
@@ -914,10 +914,10 @@ if (!empty($created) || !empty($edited)) {
 
                                 </div>
                                 <div class="form-group">
-                                    <label for="used_date" class="col-lg-3 control-label"><?= lang('Used Date') ?>
+                                    <label for="used_date" class="col-lg-3 control-label"><?= lang('Transfer/Used Date') ?>
                                         <span class="text-danger">*</span></label>
                                     <div class="col-lg-7">
-                                        <input type="date" class="form-control" value=""
+                                        <input type="date" class="form-control" v value="<?= date('Y-m-d') ?>"
                                                placeholder="Enter Used Stock"
                                                name="used_date" id="used_date" required>
                                     </div>
@@ -946,7 +946,7 @@ if (!empty($created) || !empty($edited)) {
                             <th class="1"><?= lang('Transfer/Used To Project') ?></th>
                             <th class="1"><?= lang('Transfer/Used To Task') ?></th>
                             <th class="2"><?= lang('quantity') ?></th>
-                            <th class="2"><?= lang('Used Date') ?></th>
+                            <th class="2"><?= lang('Transfer/Used Date') ?></th>
                             <th class="2"><?= lang('unit') . ' ' . lang('type') ?></th>
                             <th class="2"><?= lang('Type of Transaction') ?></th>
                         </tr>

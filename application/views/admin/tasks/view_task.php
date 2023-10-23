@@ -1672,7 +1672,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                     <label for="used_date" class="col-lg-3 control-label"><?= lang('Used Date') ?>
                                                         <span class="text-danger">*</span></label>
                                                     <div class="col-lg-7">
-                                                        <input type="date" class="form-control" value=""
+                                                        <input type="date" class="form-control"  value="<?= date('Y-m-d') ?>"
                                                                placeholder="Enter Used Stock"
                                                                name="used_date" id="used_date" required>
                                                     </div>
@@ -1782,10 +1782,10 @@ $sub_tasks = config_item('allow_sub_tasks');
 
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="used_date" class="col-lg-3 control-label"><?= lang('Used Date') ?>
+                                                    <label for="used_date" class="col-lg-3 control-label"><?= lang('Transfer Date') ?>
                                                         <span class="text-danger">*</span></label>
                                                     <div class="col-lg-7">
-                                                        <input type="date" class="form-control" value=""
+                                                        <input type="date" class="form-control"  value="<?= date('Y-m-d') ?>"
                                                                placeholder="Enter Used Stock"
                                                                name="used_date" id="used_date" required>
                                                     </div>
@@ -1815,7 +1815,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
                                             <th class="col-sm-2"><?= lang('quantity') ?></th>
-                                            <th class="2"><?= lang('Used Date') ?></th>
+                                            <th class="2"><?= lang('Transfer/Used Date') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
                                         </tr>
