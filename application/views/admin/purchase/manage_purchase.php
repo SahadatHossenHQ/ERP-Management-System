@@ -440,16 +440,22 @@ if (!empty($created) || !empty($edited)){
                                             } else {
                                                 $group = '';
                                             }
+
                                             ?>
                                             <optgroup data-group-id="<?php echo $group_id; ?>"
                                                       label="<?php echo $group; ?>">
                                                 <?php
                                                 if (!empty($v_saved_items)) {
-                                                    foreach ($v_saved_items as $v_item) { ?>
+                                                    foreach ($v_saved_items as $v_item) {
+
+                                                        $project = $this->db->where('project_id',$v_item->project_id ?? null)->get('tbl_project')->row();
+                                                        $task = $this->db->where('task_id', $v_item->task_id)->get('tbl_task')->row();
+//
+                                                        ?>
                                                         <option value="<?php echo $v_item->saved_items_id; ?>"
-                                                                data-subtext="<?php echo strip_html_tags(mb_substr($v_item->item_desc, 0, 200)) . '...'; ?>">
+                                                                data-subtext="<?php echo strip_html_tags(mb_substr($v_item->item_desc, 0, 200));?>">
                                                             (<?= display_money($v_item->unit_cost, default_currency()); ?>
-                                                            ) <?php echo $v_item->item_name; ?></option>
+                                                            ) <?php echo $v_item->item_name.'['.$v_item->quantity.$v_item->unit_type.']'.($project ? '['.($project->project_name ?? '').']' : '').($task ? '['.($task->task_name ).']' : ''); ?></option>
                                                     <?php }
                                                 }
                                                 ?>
