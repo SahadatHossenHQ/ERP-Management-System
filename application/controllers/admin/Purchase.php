@@ -51,7 +51,7 @@ class Purchase extends Admin_Controller
             if ($task_id) {
                 $ids = get_all_sub_tasks($task_id);
 
-                $this->datatables->where = array('task_id' => $task_id);
+                $this->datatables->where = null;
                 foreach ($ids as $id_) {
                     $this->datatables->or_where = array('task_id' => $id_);
                 }

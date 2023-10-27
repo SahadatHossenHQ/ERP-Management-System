@@ -63,7 +63,7 @@ class Items extends Admin_Controller
             } else if (!empty($type) && $type == 'project') {
                 $where = array('tbl_saved_items.project_id' => $group_id);
             } else if (!empty($type) && $type == 'task') {
-                $where = array('tbl_saved_items.task_id' => $group_id);
+                $where = null;
             } else {
                 $where = null;
             }
