@@ -332,16 +332,13 @@ if ($uri == 'invoice_email') {
         </td>
         <td style="width: 50%;">
             <div class="right" style="">
-                <h3 style="margin-bottom: 0;margin-top: 0"><?= $language_info['invoice'] ?>: <span
+                <h3 style="margin-bottom: 0;margin-top: 0">Chalan: <span
                             style="text-align: right"><?= $invoice_info->reference_no ?></span></h3>
-                <div class="date"><?= $language_info['invoice_date'] ?>
+                <div class="date">Chalan Date
                     : <span
                             style="text-align: right"><?= strftime(config_item('date_format'), strtotime($invoice_info->invoice_date)); ?></span>
                 </div>
-                <div class="date"><?= $language_info['due_date'] ?>
-                    : <span
-                            style="text-align: right"><?= strftime(config_item('date_format'), strtotime($invoice_info->due_date)); ?></span>
-                </div>
+
                 <?php if (!empty($invoice_info->user_id)) { ?>
                     <div class="date">
                         <?= lang('sales') . ' ' . lang('agent') ?>: <span style="text-align: right"><?php
