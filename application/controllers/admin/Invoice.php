@@ -1068,8 +1068,8 @@ class Invoice extends Admin_Controller
         $data['title'] = "Invoice PDF"; //Page title
         $this->load->helper('dompdf');
         $viewfile = $this->load->view('admin/invoice/chalan_pdf', $data, TRUE);
-        var_dump($viewfile);
-        die();
+//        var_dump($viewfile);
+//        die();
         pdf_create($viewfile, slug_it('Invoice# ' . $data['invoice_info']->reference_no));
     }
 
