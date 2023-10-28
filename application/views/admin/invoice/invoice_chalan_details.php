@@ -200,7 +200,7 @@ $payment_status = $this->invoice_model->get_payment_status($invoice_info->invoic
         <a onclick="print_invoice('print_invoice')" href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print" class="mr-sm btn btn-xs btn-danger pull-right">
             <i class="fa fa-print"></i>
         </a>
-        <a href="<?= base_url() ?>admin/invoice/pdf_invoice/<?= $invoice_info->invoices_id ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="PDF" class="btn btn-xs btn-success pull-right mr-sm">
+        <a href="<?= base_url() ?>admin/invoice/pdf_chalan/<?= $invoice_info->invoices_id ?>" data-toggle="tooltip" data-placement="top" title="" data-original-title="PDF" class="btn btn-xs btn-success pull-right mr-sm">
             <i class="fa fa-file-pdf-o"></i>
         </a>
         <a data-toggle="tooltip" data-placement="top" title="<?= $title ?>" href="<?= base_url() ?>admin/projects/<?= $url ?>" class="mr-sm btn pull-right  btn-xs  btn-<?= $btn ?>"><i class="fa fa-thumb-tack"></i></a>

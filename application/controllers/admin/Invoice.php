@@ -1061,6 +1061,17 @@ class Invoice extends Admin_Controller
         $viewfile = $this->load->view('admin/invoice/invoice_pdf', $data, TRUE);
         pdf_create($viewfile, slug_it('Invoice# ' . $data['invoice_info']->reference_no));
     }
+    public
+    function pdf_chalan($id)
+    {
+        $data['invoice_info'] = $this->invoice_model->check_by(array('invoices_id' => $id), 'tbl_invoices');
+        $data['title'] = "Invoice PDF"; //Page title
+        $this->load->helper('dompdf');
+        $viewfile = $this->load->view('admin/invoice/chalan_pdf', $data, TRUE);
+        var_dump($viewfile);
+        die();
+        pdf_create($viewfile, slug_it('Invoice# ' . $data['invoice_info']->reference_no));
+    }
 
     public
     function project_invoice($id)
