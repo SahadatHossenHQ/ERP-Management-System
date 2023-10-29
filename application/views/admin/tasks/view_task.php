@@ -1817,6 +1817,7 @@ $sub_tasks = config_item('allow_sub_tasks');
                                             <th class="2"><?= lang('Transfer/Used Date') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
                                             <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
+                                             <th class="col-sm-2"  width="150px"><?= lang('Action') ?></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -1888,6 +1889,10 @@ $sub_tasks = config_item('allow_sub_tasks');
                                                 <td class="text-capitalize">
                                                     <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"
                                                        href="#"><?= $row->type ?></a>
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-danger btn-xs"  href="<?= base_url() ?>/admin/items/delete_stock_use_and_transfer_history/<?= $row->id.'/tasks/'.$task_details->task_id ?>"><i class='btn btn-xs btn-danger fa fa-trash-o'></i></a>
+
                                                 </td>
 
                                             </tr>

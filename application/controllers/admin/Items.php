@@ -43,12 +43,12 @@ class Items extends Admin_Controller
             $project_id = $this->input->get('project_id');
             $this->load->model('datatables');
             $this->datatables->table = 'tbl_saved_items';
-            $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer','tbl_project');
-            $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id','tbl_project.project_id=tbl_saved_items.project_id');
+            $this->datatables->join_table = array('tbl_customer_group', 'tbl_manufacturer', 'tbl_project');
+            $this->datatables->join_where = array('tbl_customer_group.customer_group_id=tbl_saved_items.customer_group_id', 'tbl_manufacturer.manufacturer_id=tbl_saved_items.manufacturer_id', 'tbl_project.project_id=tbl_saved_items.project_id');
 
             $custom_field = custom_form_table_search(18);
             $action_array = array('saved_items_id');
-            $main_column = array('project_id','item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
+            $main_column = array('project_id', 'item_name', 'code', 'hsn_code', 'quantity', 'unit_cost', 'unit_type', 'customer_group', 'manufacturer');
             $result = array_merge($main_column, $custom_field, $action_array);
             $this->datatables->column_order = $result;
             $this->datatables->column_search = $result;
@@ -69,8 +69,8 @@ class Items extends Admin_Controller
             }
 
             $all_sub_task_ids = get_all_sub_tasks($group_id);
-            $whereIn = $type === 'task' ? ['task_id',$all_sub_task_ids] : null;
-            $fetch_data = make_datatables($where,$whereIn);
+            $whereIn = $type === 'task' ? ['task_id', $all_sub_task_ids] : null;
+            $fetch_data = make_datatables($where, $whereIn);
 
             $data = array();
 
@@ -80,7 +80,7 @@ class Items extends Admin_Controller
                 $action = null;
                 $item_name = !empty($v_items->item_name) ? $v_items->item_name : $v_items->item_name;
 
-               $task = $this->db->where('task_id', $v_items->task_id??0)
+                $task = $this->db->where('task_id', $v_items->task_id ?? 0)
                     ->get('tbl_task')
                     ->row();
                 $sub_array = array();
@@ -142,7 +142,7 @@ class Items extends Admin_Controller
                 $data[] = $sub_array;
             }
 
-            render_table($data,$where);
+            render_table($data, $where);
         } else {
             redirect('admin/dashboard');
         }
@@ -152,7 +152,7 @@ class Items extends Admin_Controller
     {
         $this->items_model->_table_name = 'tbl_saved_items';
         $this->items_model->_primary_key = 'saved_items_id';
-        $data = $this->items_model->array_from_post(array('project_id','item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost','sell_price', 'unit_type', 'customer_group_id', 'quantity'));
+        $data = $this->items_model->array_from_post(array('project_id', 'item_name', 'manufacturer_id', 'code', 'barcode_symbology', 'item_desc', 'hsn_code', 'cost_price', 'unit_cost', 'sell_price', 'unit_type', 'customer_group_id', 'quantity'));
         $tax_rates = $this->input->post('tax_rates_id', true);
         $total_tax = 0;
         if (!empty($tax_rates)) {
@@ -320,6 +320,21 @@ class Items extends Admin_Controller
         }
         echo json_encode(array("status" => $type, 'message' => $message));
         exit();
+    }
+
+    public function delete_stock_use_and_transfer_history($id, $type = null, $type_id = null)
+    {
+        $this->items_model->_table_name = 'tbl_stock_uses';
+        $this->items_model->_primary_key = 'id';
+        $this->items_model->delete($id);
+
+        if ($type == 'project') {
+            redirect('admin/projects/project_details/' . $type_id);
+        }
+        elseif ($type == 'tasks') {
+            redirect('admin/tasks/view_task_details/' . $type_id);
+        }
+
     }
 
     public function items_group()

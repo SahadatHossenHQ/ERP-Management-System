@@ -1974,7 +1974,7 @@ $edited = can_action('57', 'edited');
                                 </div>
                             </div>
 
-                            <div class="tab-pane active" id="stock-expense-and-transfer-history2">
+                            <div class="tab-pane" id="stock-expense-and-transfer-history2">
                                 <div class="table-responsive">
                                     <table class="table table-striped DataTables bulk_table" id="DataTables"
                                            cellspacing="0" width="100%">
@@ -1986,10 +1986,11 @@ $edited = can_action('57', 'edited');
                                             <th class="col-sm-2"><?= lang('Transfer/Used From Task') ?></th>
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Project') ?></th>
                                             <th class="col-sm-2"><?= lang('Transfer/Used To Task') ?></th>
-                                            <th class="col-sm-2"><?= lang('quantity') ?></th>
+                                            <th class="col-sm-1"><?= lang('quantity') ?></th>
                                             <th class="2"><?= lang('Used Date') ?></th>
                                             <th class="col-sm-2"><?= lang('unit') . ' ' . lang('type') ?></th>
-                                            <th class="col-sm-2"><?= lang('Type of Transaction') ?></th>
+                                            <th class="col-sm-2"  width="150px"><?= lang('Type of Transaction') ?></th>
+                                            <th class="col-sm-2"  width="150px"><?= lang('Action') ?></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -2054,12 +2055,16 @@ $edited = can_action('57', 'edited');
                                                     ?>
 
                                                 </td>
-                                                <td><?= $row->quantity ?></td>
+                                                <td width="50"><?= $row->quantity ?></td>
                                                 <td width="100"><?= $row->used_date ? date_format(date_create($row->used_date), 'd-M-Y') : '--' ?></td>
                                                 <td><?= $row->unit_type ?></td>
-                                                <td class="text-capitalize">
+                                                <td class="text-capitalize" width="150px">
                                                     <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success" ?>"
                                                        href="#"><?= $row->type ?></a>
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-danger btn-xs"  href="<?= base_url() ?>/admin/items/delete_stock_use_and_transfer_history/<?= $row->id.'/project/'.$project_details->project_id ?>"><i class='btn btn-xs btn-danger fa fa-trash-o'></i></a>
+
                                                 </td>
 
                                             </tr>
