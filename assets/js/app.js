@@ -1753,6 +1753,10 @@ $('body').on('change blur', '.apply-invoice-credit .amount-credit-field', functi
         $creditApply.find('button.amount_exceed').prop('disabled', false);
     }
 });
+$('#select_all1').change(function () {
+    var c = this.checked;
+    $('.checkbox1').prop('checked', c);
+});
 $('#select_all').change(function () {
     var c = this.checked;
     $(':checkbox').prop('checked', c);
@@ -1781,6 +1785,35 @@ $(document).on("click", '.custom-bulk-button', function () {
                 }
                 reload_table();
             });
+        }
+    }
+});
+$(document).on("click", '.custom-bulk-button1', function () {
+    var r = confirm(ldelete_confirm);
+    if (r == false) {
+        return false;
+    } else {
+        var ids = [];
+        var data = {};
+        var rows = $('.bulk_table1').find('tbody tr');
+
+        $.each(rows, function () {
+            var checkbox = $($(this).find('td').eq(0)).find('input');
+            if (checkbox.prop('checked') == true) {
+                ids.push(checkbox.val());
+            }
+        });
+
+        data.ids = ids;
+        $(event).addClass('disabled');
+        if (bulk_url1) {
+            $.post(bulk_url1, data).done(function (result) {
+                var results = JSON.parse(result);
+                for (var i = 0; i < results.length; i++) {
+                    toastr[results[i].status](results[i].message);
+                }
+            });
+            window.location.reload();
         }
     }
 });

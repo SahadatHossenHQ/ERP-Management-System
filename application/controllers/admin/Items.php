@@ -334,7 +334,101 @@ class Items extends Admin_Controller
         elseif ($type == 'tasks') {
             redirect('admin/tasks/view_task_details/' . $type_id);
         }
+        else{
+            redirect('admin/items/items_list');
+        }
 
+    }
+
+    public function bulk_delete_stock_history()
+    {
+        $selected_id = $this->input->post('ids', true);
+        foreach ($selected_id as $id) {
+            $this->items_model->_table_name = 'tbl_stock_uses';
+            $this->items_model->_primary_key = 'id';
+            $this->items_model->delete($id);
+        }
+        redirect('admin/items/items_list');
+
+    }
+
+    public function getAllStockHistory()
+    {
+        if ($this->input->is_ajax_request()) {
+            $this->load->model('datatables');
+            $this->datatables->table = 'tbl_stock_uses';
+            $this->datatables->join_table = array('tbl_saved_items');
+            $this->datatables->join_where = array('tbl_saved_items.saved_items_id=tbl_stock_uses.item_id');
+
+            $this->datatables->order = array('tbl_saved_items.saved_items_id' => 'desc');
+
+            $fetch_data = make_datatables(null, null);
+
+            $data = array();
+
+            foreach ($fetch_data as $_key => $v_items) {
+                $action = null;
+                $item_name = !empty($v_items->item_name) ? $v_items->item_name : $v_items->item_name;
+
+                $task = $this->db->where('task_id', $v_items->task_id ?? 0)
+                    ->get('tbl_task')
+                    ->row();
+                $sub_array = array();
+
+                $sub_array[] = '<div class="checkbox  c-checkbox" ><label class="needsclick"> <input class="checkbox1" value="' . $v_items->id . '" type="checkbox"><span class="fa fa-check"></span></label></div>';
+
+                $sub_array[] = '<a data-toggle="modal" data-target="#myModal_extra_lg" href="' . base_url('admin/items/items_details/' . $v_items->saved_items_id) . '"><strong class="block">' . $item_name . '</strong></a>' . ' ' . lang('code') . ': <span class="tags">' . (!empty($v_items->code) ? $v_items->code : '-') . '</span><br/>' . '</span>' . lang('availability') . ': ' . ($v_items->quantity);
+
+
+                $this->db->from('tbl_saved_items');
+                $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                $this->db->select('tbl_project.project_name');
+                $this->db->where('saved_items_id', $v_items->item_id);
+                $query_result = $this->db->get();
+                $query_result = $query_result->row();
+                $sub_array[] = $query_result->project_name ?? '-';
+
+                $this->db->from('tbl_saved_items');
+                $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                $this->db->select('tbl_task.task_name');
+                $this->db->where('saved_items_id', $v_items->item_id);
+                $query_result = $this->db->get();
+                $query_result = $query_result->row();
+                $sub_array[] = $query_result->task_name ?? '-';
+
+                $this->db->from('tbl_saved_items');
+                $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+                $this->db->select('tbl_project.project_name');
+                $this->db->where('saved_items_id', $v_items->transfer_to_item_id);
+                $query_result = $this->db->get();
+                $query_result = $query_result->row();
+                $sub_array[] = $query_result->project_name ?? '-';
+
+                $this->db->from('tbl_saved_items');
+                $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+                $this->db->select('tbl_task.task_name');
+                $this->db->where('saved_items_id', $v_items->transfer_to_item_id);
+                $query_result = $this->db->get();
+                $query_result = $query_result->row();
+                $sub_array[] = $query_result->task_name ?? '-';
+
+                $sub_array[] = $task->quantity ?? '';
+                $sub_array[] = $v_items->used_date ? date_format(date_create($v_items->used_date), 'd-M-Y') : '--';
+
+                $sub_array[] = $v_items->unit_type;
+
+                $btn = $v_items->type == "expense" ? " btn-info " : "btn-success";
+                $sub_array[] = '<span class="tags btn '. $btn .' ">' . $v_items->type . '</span>';
+
+                $action = '<a href="' . base_url("admin/items/delete_stock_use_and_transfer_history/$v_items->id") . '"> <i class="btn btn-xs btn-danger fa fa-trash-o"></i></a>';
+                $sub_array[] = $action;
+                $data[] = $sub_array;
+            }
+
+            render_table($data, null);
+        } else {
+            redirect('admin/dashboard');
+        }
     }
 
     public function items_group()

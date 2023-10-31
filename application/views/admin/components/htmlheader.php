@@ -121,6 +121,7 @@
             list1 = null,
             ttable1 = null,
             bulk_url = null,
+            bulk_url1 = null,
             time_format = <?= (config_item('time_format') == 'H:i' ? 'false' : true) ?>,
             ttable = null,
             base_url = "<?php echo base_url(); ?>",

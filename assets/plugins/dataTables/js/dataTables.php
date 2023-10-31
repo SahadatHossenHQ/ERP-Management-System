@@ -1,4 +1,7 @@
 <script type="text/javascript">
+
+    var table1;
+
     function fire_datatable(req_url, ttable = null) {
         // For some browsers, `attr` is undefined; for others,
         // `attr` is false.  Check for both.
@@ -132,7 +135,7 @@
                 },
                 {
                     text: '<?= lang('bulk_delete')?>',
-                    className: 'btn btn-xs btn-default custom-bulk-button',
+                    className: 'btn btn-xs btn-danger custom-bulk-button',
                 },
             ],
             select: true,
@@ -214,7 +217,7 @@
             return a - b;
         });
 
-        table = $(dtable).dataTable({
+        table1 = $(dtable).dataTable({
             // $(dtable).dataTable({
             'retrieve': true,
             'responsive': true,  // Table pagination
@@ -298,7 +301,7 @@
                 },
                 {
                     text: '<?= lang('bulk_delete')?>',
-                    className: 'btn btn-xs btn-default custom-bulk-button',
+                    className: 'btn btn-xs btn-danger custom-bulk-button1',
                 },
             ],
             select: true,
@@ -503,6 +506,9 @@
 
     function reload_table() {
         table.api().ajax.reload();
+    }
+    function reload_table1() {
+        table1.api().ajax.reload();
     }
 
     function table_url(url) {

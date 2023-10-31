@@ -114,9 +114,10 @@ if (!empty($created) || !empty($edited)) {
                                 ?>
                                 <th><?= lang('hsn_code') ?></th>
                             <?php } ?>
-<!--                            --><?php //if (admin()) { ?>
-<!--                                <th class="col-sm-1">--><?php //= lang('cost_price') ?><!--</th>-->
-<!--                            --><?php //} ?>
+                            <!--                            --><?php //if (admin()) { ?>
+                            <!--                                <th class="col-sm-1">-->
+                            <?php //= lang('cost_price') ?><!--</th>-->
+                            <!--                            --><?php //} ?>
                             <th class="col-sm-1"><?= lang('cost_price') ?></th>
                             <th class="col-sm-1"><?= lang('Sell Price') ?></th>
                             <th class="col-sm-1"><?= lang('unit') . ' ' . lang('type') ?></th>
@@ -684,13 +685,15 @@ if (!empty($created) || !empty($edited)) {
                     <form name="myform" role="form" data-parsley-validate="" novalidate=""
                           enctype="multipart/form-data"
                           id="form"
-                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post" class="form-horizontal">
+                          action="<?php echo base_url(); ?>admin/purchase/stockIteamAction" method="post"
+                          class="form-horizontal">
                         <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
                                 <div class="form-group text-left">
                                     <label class="col-lg-3 control-label"><?= lang('project') ?></label>
                                     <div class="col-lg-7">
-                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , undefined , 'task-lists-for-stock-use')"
+                                        <select class="form-control select_box" style="width: 100%" name="project_id"
+                                                onchange="showTask(event , undefined , 'task-lists-for-stock-use')"
                                                 id="client_project">
                                             <option value=""><?= lang('none') ?></option>
                                             <?php
@@ -717,7 +720,9 @@ if (!empty($created) || !empty($edited)) {
                                     <label class="col-lg-3 control-label"><?= lang('task') ?> /
                                         Sub <?= lang('task') ?></label>
                                     <div class="col-lg-7">
-                                        <select class="form-control select_box" style="width: 100%" id="task-lists-for-stock-use" onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-use')"
+                                        <select class="form-control select_box" style="width: 100%"
+                                                id="task-lists-for-stock-use"
+                                                onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-use')"
                                                 name="trn_task_id">
                                             <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                         </select>
@@ -726,18 +731,20 @@ if (!empty($created) || !empty($edited)) {
                                 <div class="form-group">
 
                                     <?php
-                                     $fetch_data = $this->db->get('tbl_saved_items')->result();
+                                    $fetch_data = $this->db->get('tbl_saved_items')->result();
                                     ?>
 
                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
                                     <div class="col-lg-7" style="text-align: left">
-                                        <select name="purchese_item_id" class="form-control select_box"  data-width="100%" onchange="getSelectedItem(event)" id="stock-lists-for-stock-use">
+                                        <select name="purchese_item_id" class="form-control select_box"
+                                                data-width="100%" onchange="getSelectedItem(event)"
+                                                id="stock-lists-for-stock-use">
                                             <option value="" selected> Select Stock Item</option>
                                             <?php
                                             foreach ($fetch_data as $_key => $v_purchase) {
                                                 ?>
                                                 <option value="<?= $v_purchase->saved_items_id ?>">
-                                                    <?= $v_purchase->item_name.' ('. $v_purchase->quantity.' '. $v_purchase->unit_type.')' ?>
+                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
                                                 </option>
                                                 <?php
                                             }
@@ -793,13 +800,15 @@ if (!empty($created) || !empty($edited)) {
                     <form name="myform" role="form" data-parsley-validate="" novalidate=""
                           enctype="multipart/form-data"
                           id="form"
-                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post" class="form-horizontal">
+                          action="<?php echo base_url(); ?>admin/purchase/stockIteamTransfer" method="post"
+                          class="form-horizontal">
                         <div class="col-sm-10 col-xs-12  ">
                             <div class="row text-right">
                                 <div class="form-group text-left">
                                     <label class="col-lg-3 control-label"><?= lang('project') ?></label>
                                     <div class="col-lg-7">
-                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event , undefined , 'task-lists-for-stock-transfer')"
+                                        <select class="form-control select_box" style="width: 100%" name="project_id"
+                                                onchange="showTask(event , undefined , 'task-lists-for-stock-transfer')"
                                                 id="client_project">
                                             <option value=""><?= lang('none') ?></option>
                                             <?php
@@ -826,7 +835,9 @@ if (!empty($created) || !empty($edited)) {
                                     <label class="col-lg-3 control-label"><?= lang('task') ?> /
                                         Sub <?= lang('task') ?></label>
                                     <div class="col-lg-7">
-                                        <select class="form-control select_box" style="width: 100%" id="task-lists-for-stock-transfer" onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-transfer')"
+                                        <select class="form-control select_box" style="width: 100%"
+                                                id="task-lists-for-stock-transfer"
+                                                onchange="getStockByProjectOrTask(event , 'task' , 'stock-lists-for-stock-transfer')"
                                                 name="trn_task_id">
                                             <option value=""><?= lang('select') . ' ' . lang('task') ?></option>
                                         </select>
@@ -840,13 +851,15 @@ if (!empty($created) || !empty($edited)) {
 
                                     <label class="col-lg-3 control-label"><?= lang('Select Stock Item') ?> </label>
                                     <div class="col-lg-7" style="text-align: left">
-                                        <select name="purchese_item_id" class="form-control select_box" data-width="100%"id="stock-lists-for-stock-transfer" onchange="getSelectedItem1(event)" >
+                                        <select name="purchese_item_id" class="form-control select_box"
+                                                data-width="100%" id="stock-lists-for-stock-transfer"
+                                                onchange="getSelectedItem1(event)">
                                             <option value="" selected> Select Stock Item</option>
                                             <?php
                                             foreach ($fetch_data as $_key => $v_purchase) {
                                                 ?>
                                                 <option value="<?= $v_purchase->saved_items_id ?>">
-                                                    <?= $v_purchase->item_name.' ('. $v_purchase->quantity.' '. $v_purchase->unit_type.')' ?>
+                                                    <?= $v_purchase->item_name . ' (' . $v_purchase->quantity . ' ' . $v_purchase->unit_type . ')' ?>
                                                 </option>
                                                 <?php
                                             }
@@ -870,7 +883,8 @@ if (!empty($created) || !empty($edited)) {
                                 <div class="form-group text-left">
                                     <label class="col-lg-3 control-label"><?= lang('project') ?></label>
                                     <div class="col-lg-7">
-                                        <select class="form-control select_box" style="width: 100%" name="project_id" onchange="showTask(event )"
+                                        <select class="form-control select_box" style="width: 100%" name="project_id"
+                                                onchange="showTask(event )"
                                                 id="client_project">
                                             <option value=""><?= lang('none') ?></option>
                                             <?php
@@ -914,7 +928,8 @@ if (!empty($created) || !empty($edited)) {
 
                                 </div>
                                 <div class="form-group">
-                                    <label for="used_date" class="col-lg-3 control-label"><?= lang('Transfer/Used Date') ?>
+                                    <label for="used_date"
+                                           class="col-lg-3 control-label"><?= lang('Transfer/Used Date') ?>
                                         <span class="text-danger">*</span></label>
                                     <div class="col-lg-7">
                                         <input type="date" class="form-control" v value="<?= date('Y-m-d') ?>"
@@ -935,11 +950,17 @@ if (!empty($created) || !empty($edited)) {
 
             <div class="tab-pane" id="stock-expense-and-transfer-history1">
                 <div class="table-responsive">
-                    <table class="table table-striped DataTables bulk_table" id="DataTables"
+                    <table class="table table-striped DataTables bulk_table1" id="DataTables1"
                            cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th data-orderable="false">
+                                <div class="checkbox c-checkbox">
+                                    <label class="needsclick">
+                                        <input id="select_all1" type="checkbox">
+                                        <span class="fa fa-check"></span></label>
+                                </div>
+                            </th>
                             <th class="2"><?= lang('Item Name') ?></th>
                             <th class="2"><?= lang('Transfer/Used From Project') ?></th>
                             <th class="1"><?= lang('Transfer/Used From Task') ?></th>
@@ -949,80 +970,122 @@ if (!empty($created) || !empty($edited)) {
                             <th class="2"><?= lang('Transfer/Used Date') ?></th>
                             <th class="2"><?= lang('unit') . ' ' . lang('type') ?></th>
                             <th class="2"><?= lang('Type of Transaction') ?></th>
+                            <th class=""><?= lang('Action') ?></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <?php
-                        $this->db->from('tbl_stock_uses');
-                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
-                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
-                        $this->db->order_by('id', 'desc');
-                        //                        $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
-                        $query_result = $this->db->get();
-                        $result = $query_result->result();
-                        foreach ($result as $key => $row) {
-                            ?>
-                            <tr>
-                                <td><?= $key+1 ?></td>
-                                <td><?= $row->item_name ?></td>
-                                <td>
-                                    <?php
-                                    $this->db->from('tbl_saved_items');
-                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
-                                    $this->db->select('tbl_project.project_name');
-                                    $this->db->where('saved_items_id', $row->item_id);
-                                    $query_result = $this->db->get();
-                                    $query_result = $query_result->row();
-                                    echo $query_result->project_name ?? '-';
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $this->db->from('tbl_saved_items');
-                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
-                                    $this->db->select('tbl_task.task_name');
-                                    $this->db->where('saved_items_id', $row->item_id);
-                                    $query_result = $this->db->get();
-                                    $query_result = $query_result->row();
-                                    echo $query_result->task_name?? '-';
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $this->db->from('tbl_saved_items');
-                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
-                                    $this->db->select('tbl_project.project_name');
-                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
-                                    $query_result = $this->db->get();
-                                    $query_result = $query_result->row();
-                                    echo $query_result->project_name?? '-';
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $this->db->from('tbl_saved_items');
-                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
-                                    $this->db->select('tbl_task.task_name');
-                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
-                                    $query_result = $this->db->get();
-                                    $query_result = $query_result->row();
-                                    echo $query_result->task_name ?? '-';
-                                    ?>
-
-                                </td>
-                                <td><?= $row->quantity ?></td>
-                                <td width="100"><?= $row->used_date ? date_format(date_create($row->used_date),'d-M-Y') : '--' ?></td>
-                                <td><?= $row->unit_type ?></td>
-                                <td class="text-capitalize">
-                                    <a class="btn <?= $row->type == 'expense' ? "btn-info" : "btn-success"?>" href="#"><?= $row->type ?></a>
-                                </td>
-
-                            </tr>
-                            <?php
-                        }
-                        ?>
-
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                ttable1 = 'DataTables1';
+                                list1 = base_url + "admin/items/getAllStockHistory";
+                                bulk_url1 = base_url + "admin/items/bulk_delete_stock_history";
+                                $('.filtered > .dropdown-toggle').on('click', function () {
+                                    if ($('.group').css('display') == 'block') {
+                                        $('.group').css('display', 'none');
+                                    } else {
+                                        $('.group').css('display', 'block')
+                                    }
+                                });
+                                $('.filter_by').on('click', function () {
+                                    $('.filter_by').removeClass('active');
+                                    $('.group').css('display', 'block');
+                                    $(this).addClass('active');
+                                    var filter_by = $(this).attr('id');
+                                    if (filter_by) {
+                                        filter_by = filter_by;
+                                    } else {
+                                        filter_by = '';
+                                    }
+                                    var search_type = $(this).attr('search-type');
+                                    if (search_type) {
+                                        search_type = '/' + search_type;
+                                    } else {
+                                        search_type = '';
+                                    }
+                                    table_url(base_url + "admin/items/getAllStockHistory/" + filter_by + search_type);
+                                });
+                            });
+                        </script>
                         </tbody>
+
+<!--                        <tbody>-->
+<!--                        --><?php
+//                        $this->db->from('tbl_stock_uses');
+//                        $this->db->join('tbl_saved_items', 'tbl_stock_uses.item_id = tbl_saved_items.saved_items_id', 'left');
+//                        $this->db->select('tbl_stock_uses.*, tbl_saved_items.item_name');
+//                        $this->db->order_by('id', 'desc');
+//                        //                        $this->db->where('tbl_saved_items.task_id', $task_details->task_id);
+//                        $query_result = $this->db->get();
+//                        $result = $query_result->result();
+//                        foreach ($result as $key => $row) {
+//                            ?>
+<!--                            <tr>-->
+<!--                                <td>--><?php //= $key + 1 ?><!--</td>-->
+<!--                                <td>--><?php //= $row->item_name ?><!--</td>-->
+<!--                                <td>-->
+<!--                                    --><?php
+//                                    $this->db->from('tbl_saved_items');
+//                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+//                                    $this->db->select('tbl_project.project_name');
+//                                    $this->db->where('saved_items_id', $row->item_id);
+//                                    $query_result = $this->db->get();
+//                                    $query_result = $query_result->row();
+//                                    echo $query_result->project_name ?? '-';
+//                                    ?>
+<!--                                </td>-->
+<!--                                <td>-->
+<!--                                    --><?php
+//                                    $this->db->from('tbl_saved_items');
+//                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+//                                    $this->db->select('tbl_task.task_name');
+//                                    $this->db->where('saved_items_id', $row->item_id);
+//                                    $query_result = $this->db->get();
+//                                    $query_result = $query_result->row();
+//                                    echo $query_result->task_name ?? '-';
+//                                    ?>
+<!--                                </td>-->
+<!--                                <td>-->
+<!--                                    --><?php
+//                                    $this->db->from('tbl_saved_items');
+//                                    $this->db->join('tbl_project', 'tbl_saved_items.project_id = tbl_project.project_id', 'left');
+//                                    $this->db->select('tbl_project.project_name');
+//                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+//                                    $query_result = $this->db->get();
+//                                    $query_result = $query_result->row();
+//                                    echo $query_result->project_name ?? '-';
+//                                    ?>
+<!--                                </td>-->
+<!--                                <td>-->
+<!--                                    --><?php
+//                                    $this->db->from('tbl_saved_items');
+//                                    $this->db->join('tbl_task', 'tbl_saved_items.task_id = tbl_task.task_id', 'left');
+//                                    $this->db->select('tbl_task.task_name');
+//                                    $this->db->where('saved_items_id', $row->transfer_to_item_id);
+//                                    $query_result = $this->db->get();
+//                                    $query_result = $query_result->row();
+//                                    echo $query_result->task_name ?? '-';
+//                                    ?>
+<!---->
+<!--                                </td>-->
+<!--                                <td>--><?php //= $row->quantity ?><!--</td>-->
+<!--                                <td width="100">--><?php //= $row->used_date ? date_format(date_create($row->used_date), 'd-M-Y') : '--' ?><!--</td>-->
+<!--                                <td>--><?php //= $row->unit_type ?><!--</td>-->
+<!--                                <td class="text-capitalize">-->
+<!--                                    <a class="btn --><?php //= $row->type == 'expense' ? "btn-info" : "btn-success" ?><!--"-->
+<!--                                       href="#">--><?php //= $row->type ?><!--</a>-->
+<!--                                </td>-->
+<!--                                <td>-->
+<!--                                    <a class="btn btn-danger btn-xs"-->
+<!--                                       href="--><?php //= base_url() ?><!--/admin/items/delete_stock_use_and_transfer_history/--><?php //= $row->id . '/item-lists' ?><!--"><i-->
+<!--                                                class='btn btn-xs btn-danger fa fa-trash-o'></i></a>-->
+<!---->
+<!--                                </td>-->
+<!--                            </tr>-->
+<!--                            --><?php
+//                        }
+//                        ?>
+<!---->
+<!--                        </tbody>-->
                     </table>
                 </div>
             </div>
@@ -1055,8 +1118,8 @@ if (!empty($created) || !empty($edited)) {
             return xmlhttp;
         }
 
-        function showTask(e, project_id ,element_id = "task-lists" ) {
-            if (project_id == 77777){
+        function showTask(e, project_id, element_id = "task-lists") {
+            if (project_id == 77777) {
                 let url = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
                 $.ajax({
                     async: false,
@@ -1066,13 +1129,13 @@ if (!empty($created) || !empty($edited)) {
                     success: function (data) {
                         var result = data.responseText;
                         console.log(result);
-                        $('#'+element_id).empty();
-                        $("#"+element_id).html(result);
+                        $('#' + element_id).empty();
+                        $("#" + element_id).html(result);
                     }
 
                 });
             }
-            if (project_id == undefined){
+            if (project_id == undefined) {
                 var base_url = '<?= base_url() ?>';
                 var strURL = base_url + 'admin/global_controller/get_tasks/' + e.target.value;
                 var req = getXMLHTTP();
@@ -1082,8 +1145,8 @@ if (!empty($created) || !empty($edited)) {
                             // only if "OK"
                             if (req.status == 200) {
                                 var result = req.responseText;
-                                $('#'+element_id).empty();
-                                $("#"+element_id).append(result);
+                                $('#' + element_id).empty();
+                                $("#" + element_id).append(result);
                             } else {
                                 alert("There was a problem while using XMLHTTP:\n" + req.statusText);
                             }
@@ -1094,29 +1157,30 @@ if (!empty($created) || !empty($edited)) {
                 }
             }
         }
-        function getStockByProjectOrTask(e, type = 'task',element_id = null ) {
-                var base_url = '<?= base_url() ?>';
-                let url_help = type == 'task' ?  null + '/' +e.target.value : e.target.value + '/' + null;
-                var strURL = base_url + 'admin/global_controller/get_stock/' + url_help;
-                var req = getXMLHTTP();
-                if (req) {
-                    req.onreadystatechange = function () {
-                        if (req.readyState == 4) {
-                            // only if "OK"
-                            if (req.status == 200) {
-                                var result = req.responseText;
-                                console.log(result)
-                                console.log(element_id)
-                                $('#'+element_id).empty();
-                                $("#"+element_id).append(result);
-                            } else {
-                                alert("There was a problem while using XMLHTTP:\n" + req.statusText);
-                            }
+
+        function getStockByProjectOrTask(e, type = 'task', element_id = null) {
+            var base_url = '<?= base_url() ?>';
+            let url_help = type == 'task' ? null + '/' + e.target.value : e.target.value + '/' + null;
+            var strURL = base_url + 'admin/global_controller/get_stock/' + url_help;
+            var req = getXMLHTTP();
+            if (req) {
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4) {
+                        // only if "OK"
+                        if (req.status == 200) {
+                            var result = req.responseText;
+                            console.log(result)
+                            console.log(element_id)
+                            $('#' + element_id).empty();
+                            $("#" + element_id).append(result);
+                        } else {
+                            alert("There was a problem while using XMLHTTP:\n" + req.statusText);
                         }
                     }
-                    req.open("POST", strURL, true);
-                    req.send(null);
                 }
+                req.open("POST", strURL, true);
+                req.send(null);
+            }
 
         }
 
@@ -1131,6 +1195,7 @@ if (!empty($created) || !empty($edited)) {
             $('#available_stock').val(item[0].quantity);
             $('#unit_type').val(item[0].unit_type);
         }
+
         function getSelectedItem1(e) {
             var items = <?php echo json_encode($fetch_data); ?>;
             // console.log(items)
