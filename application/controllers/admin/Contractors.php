@@ -109,6 +109,8 @@ class Contractors extends Admin_Controller
                 $data[] = $sub_array;
 
             }
+            var_dump($data);
+            die();
             render_table($data);
         } else {
             redirect('admin/dashboard');
