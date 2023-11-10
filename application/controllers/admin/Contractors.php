@@ -76,25 +76,22 @@ class Contractors extends Admin_Controller
                 ->get('tbl_task')
                 ->result();
 
-            $edited = can_action('30', 'edited');
-            $deleted = can_action('30', 'deleted');
             $data = [];
             foreach ($contactors as $_key => $task) {
                 $sub_array = array();
                 $action = null;
-                $expense = $tasks = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
+                $expense = $this->db->select('tbl_transactions.name,tbl_transactions.amount,tbl_transactions.task_id')
                     ->where('task_id', $task->task_id)
                     ->get('tbl_transactions')
                     ->row();
                 $task_project_id = $task->project_id ?? $this->getProjectIdByTaskId($task->sub_task_id);
-                $project = $tasks = $this->db->where('project_id', $task_project_id)
+                $project = $this->db->where('project_id', $task_project_id)
                     ->get('tbl_project')
                     ->row();
-
+                $project_name = $project->project_name ?? '-';
                 $sub_array[] = $_key + 1;
 
-                $project = '<a class="text-info" href="' . base_url() . 'admin/projects/project_details/' . $task_project_id . '">' . $project->project_name . '</a>';
-                $sub_array[] = $project;
+                $sub_array[]  = '<a class="text-info" href="' . base_url() . 'admin/projects/project_details/' . $task_project_id . '">' . $project_name . '</a>';
 
                 $transaction_prefix =  $task->customer_group;
                 $sub_array[] = $transaction_prefix;
@@ -112,7 +109,7 @@ class Contractors extends Admin_Controller
                 $data[] = $sub_array;
 
             }
-            render_table($data, $where);
+            render_table($data);
         } else {
             redirect('admin/dashboard');
         }
