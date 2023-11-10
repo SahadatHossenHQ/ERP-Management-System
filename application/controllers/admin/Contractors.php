@@ -72,7 +72,7 @@ class Contractors extends Admin_Controller
             $contactors = $this->db->select('tbl_task.*,customer_group')
                 ->join('tbl_customer_group', 'tbl_customer_group.customer_group_id = tbl_task.contactor_id', 'left')
                 ->group_by('tbl_task.task_id')
-                ->where("contactor_id IS NOT NULL", null, false)
+                ->where("contactor_id >", 0)
                 ->get('tbl_task')
                 ->result();
 
