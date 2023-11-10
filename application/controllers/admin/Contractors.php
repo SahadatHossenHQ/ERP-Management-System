@@ -120,8 +120,8 @@ class Contractors extends Admin_Controller
         $task = $this->db->where('task_id', $task_id)
             ->get('tbl_task')
             ->row();
-        $task_project_id = $task->project_id ?? $this->getProjectIdByTaskId($task->sub_task_id);
-        return $task_project_id;
+        return $task->project_id;
+//        return $task->project_id ?? $this->getProjectIdByTaskId($task->sub_task_id);
 
     }
 
