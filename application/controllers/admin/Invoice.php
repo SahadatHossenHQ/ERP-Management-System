@@ -725,6 +725,7 @@ class Invoice extends Admin_Controller
                     }
                     $sub_array[] = strftime(config_item('date_format'), strtotime($v_invoices->due_date)) . ' ' . $overdue;
                     $sub_array[] = '<span class="tags">' . client_name($v_invoices->client_id) . '</span>';
+                    $sub_array[] = display_money($this->invoice_model->calculate_to('paid_amount', $v_invoices->invoices_id), client_currency($v_invoices->client_id));
                     $sub_array[] = display_money($this->invoice_model->calculate_to('invoice_due', $v_invoices->invoices_id), client_currency($v_invoices->client_id));
                     $recurring = null;
                     if ($v_invoices->recurring == 'Yes') {

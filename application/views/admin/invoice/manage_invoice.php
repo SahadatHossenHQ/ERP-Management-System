@@ -245,6 +245,7 @@ if (!empty($invoice_info)) {
                                         <th class="col-date"><?= lang('received_date') ?></th>
                                         <th class="col-date"><?= lang('due_date') ?></th>
                                         <th><?= lang('client_name') ?></th>
+                                        <th class="col-currency"><?= lang('Paid Amount') ?></th>
                                         <th class="col-currency"><?= lang('due_amount') ?></th>
                                         <th><?= lang('status') ?></th>
                                         <th><?= lang('tags') ?></th>
