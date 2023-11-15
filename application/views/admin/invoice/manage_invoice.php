@@ -381,6 +381,7 @@ if (!empty($invoice_info)) {
                                                         class="text-danger">*</span></label>
                                             <div class="col-lg-7">
                                                 <input type="text" class="form-control" value="<?php
+                                                $date = new DateTime();
                                                 if (!empty($invoice_info)) {
                                                     echo $invoice_info->reference_no;
                                                 } else {
@@ -391,9 +392,11 @@ if (!empty($invoice_info)) {
                                                         $this->load->helper('string');
                                                         echo random_string('nozero', 6);
                                                     } else {
+
                                                         echo $this->invoice_model->generate_invoice_number();
                                                     }
                                                 }
+                                                echo "-".$date->getTimestamp();
                                                 ?>" name="reference_no">
                                             </div>
                                             <div class="col-lg-1">
