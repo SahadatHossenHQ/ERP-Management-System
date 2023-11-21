@@ -319,6 +319,7 @@ if ($uri == 'invoice_email') {
     }
     if (!file_exists($img)) {
         $img = ROOTPATH . '/' . 'uploads/default_logo.png';
+        $img = base_url() . config_item('invoice_logo');
     }
 }
 
