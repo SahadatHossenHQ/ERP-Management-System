@@ -232,6 +232,9 @@
     function printDiv(printableArea) {
         var printContents = document.getElementById(printableArea).innerHTML;
         var originalContents = document.body.innerHTML;
+        var style = document.createElement("style");
+        style.innerHTML = "@page { size: portrait; }";
+        document.head.appendChild(style);
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;

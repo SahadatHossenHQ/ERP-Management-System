@@ -202,6 +202,9 @@
     function overtime_report(overtime_report) {
         var printContents = document.getElementById(overtime_report).innerHTML;
         var originalContents = document.body.innerHTML;
+        var style = document.createElement("style");
+        style.innerHTML = "@page { size: portrait; }";
+        document.head.appendChild(style);
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;

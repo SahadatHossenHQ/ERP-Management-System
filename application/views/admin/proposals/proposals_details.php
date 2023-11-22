@@ -456,6 +456,9 @@ if (is_file(config_item('invoice_logo'))) {
     function print_proposals(print_proposals) {
         var printContents = document.getElementById(print_proposals).innerHTML;
         var originalContents = document.body.innerHTML;
+        var style = document.createElement("style");
+        style.innerHTML = "@page { size: portrait; }";
+        document.head.appendChild(style);
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;

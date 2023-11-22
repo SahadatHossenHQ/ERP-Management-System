@@ -516,6 +516,9 @@ if (!empty($all_payment_info)) { ?>
     function print_return_stock(print_return_stock) {
         var printContents = document.getElementById(print_return_stock).innerHTML;
         var originalContents = document.body.innerHTML;
+        var style = document.createElement("style");
+        style.innerHTML = "@page { size: portrait; }";
+        document.head.appendChild(style);
         document.body.innerHTML = printContents;
         window.print();
         document.body.innerHTML = originalContents;
