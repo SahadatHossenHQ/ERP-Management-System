@@ -572,7 +572,7 @@ class Datatables extends MY_Model
         } else if ($type == 'by_category') {
             $where = array('type' => 'Expense', 'category_id' => $filterBy);
         }
-        $all_expense = array_reverse($this->get_datatable_permission($where));
+        $all_expense = ($this->get_datatable_permission($where));
         return $all_expense;
     }
 
