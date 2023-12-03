@@ -1383,7 +1383,7 @@ class Transactions extends Admin_Controller
     {
         if ($this->input->is_ajax_request()) {
             $CI = &get_instance();
-            $CI->load->model('datatables ');
+            $CI->load->model('datatables');
             $CI->db->join_table = array('tbl_accounts');
             $CI->db->join_where = array('tbl_accounts.account_id=tbl_transfer.from_account_id');
             $CI->db->column_order = array('tbl_accounts.account_name', 'date', 'amount', 'payment_methods_id');
