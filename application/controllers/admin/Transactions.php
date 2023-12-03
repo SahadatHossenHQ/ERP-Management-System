@@ -10,6 +10,7 @@ class Transactions extends Admin_Controller
         parent::__construct();
         $this->load->model('transactions_model');
         $this->load->model('invoice_model');
+        $this->load->model('datatables');
 
         $this->load->helper('ckeditor');
         $this->data['ckeditor'] = array(
@@ -1381,22 +1382,30 @@ class Transactions extends Admin_Controller
     public function transferList($filterBy = null, $type = null)
     {
         if ($this->input->is_ajax_request()) {
-            $this->load->model('datatables');
-            $this->datatables->table = 'tbl_transfer';
-            $this->datatables->join_table = array('tbl_accounts');
-            $this->datatables->join_where = array('tbl_accounts.account_id=tbl_transfer.from_account_id');
-            $this->datatables->column_order = array('tbl_accounts.account_name', 'date', 'amount', 'payment_methods_id');
-            $this->datatables->column_search = array('tbl_accounts.account_name', 'tbl_accounts.account_name', 'amount', 'date', 'payment_methods_id');
-            $this->datatables->order = array('create_date' => 'desc');
-
+            $CI = &get_instance();
+            $CI->load->model('datatables ');
+            $CI->db->join_table = array('tbl_accounts');
+            $CI->db->join_where = array('tbl_accounts.account_id=tbl_transfer.from_account_id');
+            $CI->db->column_order = array('tbl_accounts.account_name', 'date', 'amount', 'payment_methods_id');
+            $CI->db->column_search = array('tbl_accounts.account_name', 'tbl_accounts.account_name', 'amount', 'date', 'payment_methods_id');
+            $CI->db->order = array('create_date' => 'desc');
             $where = null;
+            $where_in = null;
             if ($type == 'to_account') {
                 $where = array('to_account_id' => $filterBy);
             } else if ($type == 'from_account') {
                 $where = array('from_account_id' => $filterBy);
             }
-            $fetch_data = make_datatables($where);
-
+            if (!empty($where)) {
+                $CI->db->where($where);
+            }
+            if (!empty($where_in)) {
+                $CI->db->where_in($where_in[0], $where_in[1]);
+            }
+            if ($_POST["length"] != -1) {
+                $CI->db->limit($_POST['length'], $_POST['start']);
+            }
+            $fetch_data = $CI->db->get('tbl_transfer')->result();
             $data = array();
 
             $edited = can_action('30', 'edited');

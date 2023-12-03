@@ -334,6 +334,11 @@ if (is_file(config_item('invoice_logo'))) {
                 cursor: pointer;
             }
 
+            .bg-items{
+                background: #303252;
+                color: #FFFFFF
+            }
+
             .table>tbody>tr>td {
                 vertical-align: initial;
             }
